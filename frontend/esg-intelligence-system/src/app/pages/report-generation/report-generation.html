@@ -4,15 +4,42 @@
       <p class="eyebrow">Report Generation</p>
       <h1>Generate IFRS <em>S1/S2 report</em></h1>
       <p class="subtitle">
-        Review generated report sections before submitting the final draft to an expert reviewer.
+        Start an asynchronous report generation job. The backend creates a job, Celery runs the workflow,
+        and this page tracks the progress.
       </p>
     </div>
 
-    <button class="primary-btn">
+    <button class="primary-btn" (click)="generateDraft()" [disabled]="isStarting || isPolling">
       <i class="pi pi-sparkles"></i>
-      Generate Draft
+      {{ isStarting || isPolling ? 'Generating...' : 'Generate Draft' }}
     </button>
   </section>
+
+  <section class="config-card">
+    <div>
+      <label>Bank Code</label>
+      <input [(ngModel)]="bankCode" />
+    </div>
+
+    <div>
+      <label>Reporting Year</label>
+      <input type="number" [(ngModel)]="reportingYear" />
+    </div>
+
+    <div>
+      <label>Payload Manifest ID</label>
+      <input type="number" [(ngModel)]="payloadManifestId" />
+    </div>
+
+    <div>
+      <label>Max Revisions</label>
+      <input type="number" [(ngModel)]="maxRevisions" />
+    </div>
+  </section>
+
+  <div class="error-box" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
 
   <div class="section-label">Generation Summary</div>
 
@@ -23,19 +50,37 @@
     </div>
 
     <div class="summary-card">
-      <p>Generated Sections</p>
-      <h2>4 / 4</h2>
+      <p>Current Stage</p>
+      <h2>{{ currentJob?.current_stage || 'Idle' }}</h2>
     </div>
 
     <div class="summary-card">
-      <p>Readiness Score</p>
-      <h2>94%</h2>
+      <p>Progress</p>
+      <h2>{{ currentJob?.progress_percent || 0 }}%</h2>
     </div>
 
     <div class="summary-card">
-      <p>Approval Status</p>
-      <h2>Pending</h2>
+      <p>Status</p>
+      <h2>{{ statusLabel }}</h2>
     </div>
+  </section>
+
+  <section class="progress-card" *ngIf="currentJob">
+    <div class="progress-header">
+      <span>Job ID</span>
+      <strong>{{ currentJob.job_id }}</strong>
+    </div>
+
+    <div class="progress-track">
+      <div
+        class="progress-fill"
+        [style.width.%]="currentJob.progress_percent"
+      ></div>
+    </div>
+
+    <p>
+      {{ currentJob.current_stage }} — {{ currentJob.progress_percent }}%
+    </p>
   </section>
 
   <div class="section-label">Generated Sections</div>
@@ -54,12 +99,25 @@
       </div>
 
       <div class="actions">
-        <button class="secondary-btn">Preview</button>
-        <button class="download-btn">
+        <button class="secondary-btn" disabled>Preview</button>
+        <button class="download-btn" disabled>
           <i class="pi pi-download"></i>
           Section
         </button>
       </div>
+    </div>
+  </section>
+
+  <div class="section-label" *ngIf="warnings.length > 0">Warnings</div>
+
+  <section class="warnings-card" *ngIf="warnings.length > 0">
+    <div class="warning-item" *ngFor="let warning of warnings">
+      <div>
+        <strong>{{ warning.stage }}</strong>
+        <p>{{ warning.message }}</p>
+      </div>
+
+      <span>{{ warning.warning_type }}</span>
     </div>
   </section>
 
@@ -68,23 +126,54 @@
   <section class="validation-card">
     <div>
       <p class="eyebrow">Final Draft Status</p>
-      <h3>Report draft is ready for expert review</h3>
+
+      <h3 *ngIf="!currentJob">No report generation job started yet</h3>
+      <h3 *ngIf="currentJob?.status === 'queued' || currentJob?.status === 'running'">
+        Report generation is running
+      </h3>
+      <h3 *ngIf="currentJob?.status === 'completed'">
+        Report draft generated successfully
+      </h3>
+      <h3 *ngIf="currentJob?.status === 'completed_with_warnings'">
+        Report draft generated with warnings
+      </h3>
+      <h3 *ngIf="currentJob?.status === 'failed'">
+        Report generation failed
+      </h3>
 
       <div class="check-list">
-        <div class="check" *ngFor="let item of reportChecks">
+        <div class="check">
           <i class="pi pi-check-circle"></i>
-          <span>{{ item }}</span>
+          <span>Job created through Django API</span>
+        </div>
+
+        <div class="check">
+          <i class="pi pi-check-circle"></i>
+          <span>Background generation handled by Celery</span>
+        </div>
+
+        <div class="check">
+          <i class="pi pi-check-circle"></i>
+          <span>Final validation failures treated as warnings in prototype mode</span>
         </div>
       </div>
     </div>
 
     <div class="approval-box">
-      <span class="pending">Pending Approval</span>
-      <button class="primary-btn" routerLink="/approval">
+      <span class="pending" *ngIf="!canSubmitForApproval">Not Ready</span>
+      <span class="pending warning" *ngIf="currentJob?.status === 'completed_with_warnings'">
+        Warnings Found
+      </span>
+      <span class="pending success" *ngIf="currentJob?.status === 'completed'">
+        Ready
+      </span>
+
+      <button class="primary-btn" routerLink="/approval" [disabled]="!canSubmitForApproval">
         Submit for Approval
       </button>
+
       <button class="disabled-btn" disabled>
-        Final Download Locked
+        Final Download Coming Later
       </button>
     </div>
   </section>

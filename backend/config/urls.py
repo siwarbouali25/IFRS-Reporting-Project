@@ -23,4 +23,10 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("accounts.urls")),
     path("api/", include("risk_analysis.urls")),
+     path("api/", include("organizations.urls")),
+    path("api/", include("payloads.urls")),
+    path("api/", include("ifrs_assets.urls")),
+    path("api/", include("report_generation.urls")),
+    path("api/", include("report_artifacts.urls")),
+
 ]
