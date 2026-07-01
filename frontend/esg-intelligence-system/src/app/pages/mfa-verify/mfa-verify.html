@@ -1,0 +1,59 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <p class="eyebrow">Multi-Factor Authentication</p>
+    <h1>Verify <em>your identity</em></h1>
+    <p class="subtitle">
+      Enter the 6-digit code from your authenticator app to complete sign in.
+    </p>
+
+    <form (ngSubmit)="verifyCode()">
+      <label>Authenticator code</label>
+      <input
+        type="text"
+        name="code"
+        [(ngModel)]="code"
+        placeholder="123456"
+        maxlength="6"
+        required
+      />
+
+      <p class="error-message" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </p>
+
+      <button type="submit" [disabled]="isLoading">
+        {{ isLoading ? 'Verifying...' : 'Verify Code' }}
+      </button>
+    </form>
+
+    <button class="secondary-btn" type="button" (click)="backToLogin()">
+      Back to Login
+    </button>
+  </div>
+
+  <div class="auth-visual">
+    <p class="eyebrow">Secure Access</p>
+    <h2>Protect ESG reporting with <em>MFA verification</em></h2>
+    <p>
+      This step ensures only authorized auditors, reviewers, and administrators
+      can access sensitive ESG reporting workflows.
+    </p>
+
+    <div class="feature-list">
+      <div class="feature-item">
+        <i class="pi pi-shield"></i>
+        <span>Authenticator app verification</span>
+      </div>
+
+      <div class="feature-item">
+        <i class="pi pi-lock"></i>
+        <span>JWT tokens issued only after MFA success</span>
+      </div>
+
+      <div class="feature-item">
+        <i class="pi pi-user"></i>
+        <span>Role-based access after login</span>
+      </div>
+    </div>
+  </div>
+</div>

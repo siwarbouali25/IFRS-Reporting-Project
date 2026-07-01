@@ -1,0 +1,89 @@
+<div class="upload-page">
+  <section class="hero">
+    <div>
+      <p class="eyebrow">Data Ingestion</p>
+      <h1>Upload ESG <em>source files</em></h1>
+      <p class="subtitle">
+        Upload and validate CSV or Excel files before data preparation and IFRS S1/S2 report generation.
+      </p>
+    </div>
+
+    <button class="primary-btn">
+      <i class="pi pi-upload"></i>
+      Upload Files
+    </button>
+  </section>
+
+  <div class="section-label">Upload Summary</div>
+
+  <section class="kpi-grid">
+    <div class="kpi-card">
+      <p>Total files</p>
+      <h2>{{ totalFiles }}</h2>
+    </div>
+
+    <div class="kpi-card">
+      <p>Uploaded files</p>
+      <h2>{{ uploadedFiles }}</h2>
+    </div>
+
+    <div class="kpi-card">
+      <p>Missing files</p>
+      <h2>{{ missingFiles }}</h2>
+    </div>
+
+    <div class="kpi-card">
+      <p>Completion rate</p>
+      <h2>{{ completionRate }}%</h2>
+    </div>
+  </section>
+
+  <section class="progress-card">
+    <div class="progress-header">
+      <div>
+        <p class="eyebrow">Readiness</p>
+        <h3>Data preparation readiness</h3>
+      </div>
+      <span>{{ completionRate }}%</span>
+    </div>
+
+    <div class="progress-track">
+      <div class="progress-fill" [style.width.%]="completionRate"></div>
+    </div>
+  </section>
+
+  <div class="section-label">Required datasets</div>
+
+  <section class="category-grid">
+    <div class="category-card" *ngFor="let category of categories">
+      <div class="category-header">
+        <div class="category-icon">
+          <i [class]="category.icon"></i>
+        </div>
+
+        <div>
+          <h3>{{ category.name }}</h3>
+          <p>{{ category.uploaded }} / {{ category.total }} uploaded</p>
+        </div>
+      </div>
+
+      <div class="file-list">
+        <div class="file-row" *ngFor="let file of category.files">
+          <i [class]="file.uploaded ? 'pi pi-check-circle uploaded' : 'pi pi-times-circle missing'"></i>
+          <span>{{ file.name }}</span>
+        </div>
+      </div>
+
+      <div class="category-footer">
+  <span [class]="category.uploaded === category.total ? 'status complete' : 'status incomplete'">
+    {{ getStatus(category) }}
+  </span>
+
+  <button class="upload-category-btn">
+    <i class="pi pi-upload"></i>
+    Upload
+  </button>
+</div>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,91 @@
+<div class="report-page">
+  <section class="hero">
+    <div>
+      <p class="eyebrow">Report Generation</p>
+      <h1>Generate IFRS <em>S1/S2 report</em></h1>
+      <p class="subtitle">
+        Review generated report sections before submitting the final draft to an expert reviewer.
+      </p>
+    </div>
+
+    <button class="primary-btn">
+      <i class="pi pi-sparkles"></i>
+      Generate Draft
+    </button>
+  </section>
+
+  <div class="section-label">Generation Summary</div>
+
+  <section class="summary-grid">
+    <div class="summary-card">
+      <p>Report Type</p>
+      <h2>IFRS S1/S2</h2>
+    </div>
+
+    <div class="summary-card">
+      <p>Generated Sections</p>
+      <h2>4 / 4</h2>
+    </div>
+
+    <div class="summary-card">
+      <p>Readiness Score</p>
+      <h2>94%</h2>
+    </div>
+
+    <div class="summary-card">
+      <p>Approval Status</p>
+      <h2>Pending</h2>
+    </div>
+  </section>
+
+  <div class="section-label">Generated Sections</div>
+
+  <section class="sections-grid">
+    <div class="section-card" *ngFor="let section of sections">
+      <div>
+        <p class="standard">{{ section.standard }}</p>
+        <h3>{{ section.name }}</h3>
+        <span class="status">{{ section.status }}</span>
+      </div>
+
+      <div class="score">
+        <span>{{ section.score }}</span>
+        <p>Quality score</p>
+      </div>
+
+      <div class="actions">
+        <button class="secondary-btn">Preview</button>
+        <button class="download-btn">
+          <i class="pi pi-download"></i>
+          Section
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-label">Report Validation</div>
+
+  <section class="validation-card">
+    <div>
+      <p class="eyebrow">Final Draft Status</p>
+      <h3>Report draft is ready for expert review</h3>
+
+      <div class="check-list">
+        <div class="check" *ngFor="let item of reportChecks">
+          <i class="pi pi-check-circle"></i>
+          <span>{{ item }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="approval-box">
+      <span class="pending">Pending Approval</span>
+      <button class="primary-btn" routerLink="/approval">
+        Submit for Approval
+      </button>
+      <button class="disabled-btn" disabled>
+        Final Download Locked
+      </button>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,63 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <p class="eyebrow">ESG Intelligence System</p>
+    <h1>Sign in to <em>your workspace</em></h1>
+    <p class="subtitle">
+      Access ESG data workflows, IFRS S1/S2 report generation, and approval features.
+    </p>
+
+    <form (ngSubmit)="onLogin()">
+      <label>Email</label>
+      <input
+        type="email"
+        name="email"
+        [(ngModel)]="email"
+        placeholder="auditor@company.com"
+        required
+      />
+
+      <label>Password</label>
+      <input
+        type="password"
+        name="password"
+        [(ngModel)]="password"
+        placeholder="Enter your password"
+        required
+      />
+
+      <p class="error-message" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </p>
+
+      <button type="submit" [disabled]="isLoading">
+        {{ isLoading ? 'Signing in...' : 'Sign In' }}
+      </button>
+    </form>
+  </div>
+
+  <div class="auth-visual">
+    <p class="eyebrow">IFRS S1/S2 Platform</p>
+    <h2>Turn ESG data into <em>audit-ready reports</em></h2>
+    <p>
+      Upload source data, prepare ESG indicators, generate IFRS-aligned reports,
+      and submit them for expert approval.
+    </p>
+
+    <div class="feature-list">
+      <div class="feature-item">
+        <i class="pi pi-check-circle"></i>
+        <span>Role-based access for admins, auditors, and reviewers</span>
+      </div>
+
+      <div class="feature-item">
+        <i class="pi pi-shield"></i>
+        <span>JWT authentication with MFA support</span>
+      </div>
+
+      <div class="feature-item">
+        <i class="pi pi-file-edit"></i>
+        <span>Controlled report generation and approval workflow</span>
+      </div>
+    </div>
+  </div>
+</div>

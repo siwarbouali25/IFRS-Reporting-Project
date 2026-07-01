@@ -1,0 +1,62 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <p class="eyebrow">MFA Setup</p>
+    <h1>Secure your <em>account</em></h1>
+    <p class="subtitle">
+      Scan this QR code with Google Authenticator, Microsoft Authenticator, or another authenticator app.
+    </p>
+
+    <div class="qr-box" *ngIf="qrCode && !isLoading">
+      <img [src]="qrCode" alt="MFA QR Code" />
+    </div>
+
+    <p class="loading-text" *ngIf="isLoading">
+      Generating QR code...
+    </p>
+
+    <form (ngSubmit)="verifySetup()">
+      <label>Authenticator code</label>
+      <input
+        type="text"
+        name="code"
+        [(ngModel)]="code"
+        placeholder="123456"
+        maxlength="6"
+        required
+      />
+
+      <p class="error-message" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </p>
+
+      <button type="submit" [disabled]="isVerifying || isLoading">
+        {{ isVerifying ? 'Verifying...' : 'Enable MFA' }}
+      </button>
+    </form>
+  </div>
+
+  <div class="auth-visual">
+    <p class="eyebrow">Account Protection</p>
+    <h2>Use MFA before accessing <em>ESG workflows</em></h2>
+    <p>
+      Your account will require a 6-digit authenticator code each time you sign in.
+    </p>
+
+    <div class="feature-list">
+      <div class="feature-item">
+        <i class="pi pi-qrcode"></i>
+        <span>Scan the QR code with an authenticator app</span>
+      </div>
+
+      <div class="feature-item">
+        <i class="pi pi-mobile"></i>
+        <span>Enter the 6-digit code generated on your phone</span>
+      </div>
+
+      <div class="feature-item">
+        <i class="pi pi-shield"></i>
+        <span>MFA will be required for future logins</span>
+      </div>
+    </div>
+  </div>
+</div>

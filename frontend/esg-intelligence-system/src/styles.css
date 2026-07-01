@@ -1,0 +1,19 @@
+@import "primeicons/primeicons.css";
+
+/* You can add global styles to this file, and also import other style files */
+:root {
+  --bg-main: #000000;
+  --bg-card: #080808;
+  --primary: #d6f000;
+  --primary-border: #cfff00;
+  --text-main: #ffffff;
+  --text-muted: #b8b8b8;
+  --accent-purple: #9b5cff;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-main);
+  color: var(--text-main);
+  font-family: Arial, sans-serif;
+}

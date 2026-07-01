@@ -1,0 +1,202 @@
+<div class="dashboard">
+
+  <header class="page-header">
+    <div>
+      <h1>IFRS S1 / S2 — 2024 reporting</h1>
+      <p>
+        You're in the Generate phase. Review prepared data below, then start a draft when you're
+        ready. Four items still need sign-off before submission.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <span class="cycle-badge">Cycle closes Dec 31</span>
+      <button class="primary-btn">
+        <i class="pi pi-file-edit"></i>
+        Start draft
+      </button>
+    </div>
+  </header>
+
+  <section class="metrics-grid">
+    <article class="metric-card" *ngFor="let kpi of kpis">
+      <p>{{ kpi.title }}</p>
+
+      <h2>
+        {{ kpi.value }}
+        <small *ngIf="kpi.suffix">{{ kpi.suffix }}</small>
+      </h2>
+
+      <span [class]="kpi.deltaClass">
+        {{ kpi.change }}
+      </span>
+    </article>
+  </section>
+
+  <section class="content-grid">
+
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <h3>Carbon emissions trend</h3>
+          <p>Monthly tCO₂e, 2024 reporting period</p>
+        </div>
+
+        <span class="quiet-badge">−33% YTD</span>
+      </div>
+
+      <div class="chart-wrap">
+        <p-chart
+          type="line"
+          [data]="carbonData"
+          [options]="carbonOptions">
+        </p-chart>
+      </div>
+    </article>
+
+    <article class="panel risk-panel">
+      <div class="panel-header">
+        <div>
+          <h3>Risk breakdown</h3>
+          <p>Open items by severity</p>
+        </div>
+      </div>
+
+      <div class="risk-chart-wrap">
+        <p-chart
+          type="doughnut"
+          [data]="riskData"
+          [options]="riskOptions">
+        </p-chart>
+      </div>
+
+      <div class="risk-legend">
+        <div>
+          <span class="legend-dot high"></span>
+          <p>High</p>
+          <strong>3</strong>
+        </div>
+
+        <div>
+          <span class="legend-dot medium"></span>
+          <p>Medium</p>
+          <strong>6</strong>
+        </div>
+
+        <div>
+          <span class="legend-dot low"></span>
+          <p>Low</p>
+          <strong>9</strong>
+        </div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <h3>Where things stand</h3>
+          <p>Phase {{ currentPhase }} of 5 · in progress</p>
+        </div>
+      </div>
+
+      <div class="workflow">
+        <div class="workflow-step done">
+          <span class="dot"></span>
+          <div>
+            <h4>Upload</h4>
+            <p>All source files received and logged</p>
+          </div>
+        </div>
+
+        <div class="workflow-step done">
+          <span class="dot"></span>
+          <div>
+            <h4>Prepare</h4>
+            <p>Data structured, units normalised</p>
+          </div>
+        </div>
+
+        <div class="workflow-step active">
+          <span class="dot"></span>
+          <div>
+            <h4>Generate</h4>
+            <p>Draft sections being built — you are here</p>
+          </div>
+        </div>
+
+        <div class="workflow-step">
+          <span class="dot"></span>
+          <div>
+            <h4>Review</h4>
+            <p>Expert sign-off required</p>
+          </div>
+        </div>
+
+        <div class="workflow-step">
+          <span class="dot"></span>
+          <div>
+            <h4>Submit</h4>
+            <p>Final package to regulator</p>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <h3>KPI coverage by pillar</h3>
+          <p>How complete each disclosure section is</p>
+        </div>
+      </div>
+
+      <div class="chart-wrap">
+        <p-chart
+          type="bar"
+          [data]="kpiData"
+          [options]="kpiOptions">
+        </p-chart>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <h3>Items needing attention</h3>
+          <p>Unresolved before draft can be finalised</p>
+        </div>
+      </div>
+
+      <div class="risk-list">
+        <div class="risk-item" *ngFor="let risk of risks">
+          <div>
+            <h4>{{ risk.name }}</h4>
+            <p>{{ risk.status }}</p>
+          </div>
+
+          <span [class]="'risk-tag ' + risk.level.toLowerCase()">
+            {{ risk.level }}
+          </span>
+        </div>
+      </div>
+    </article>
+
+    <article class="panel full">
+      <div class="panel-header">
+        <div>
+          <h3>Recent activity</h3>
+          <p>What's happened in the workspace</p>
+        </div>
+      </div>
+
+      <div class="activity-list">
+        <div class="activity-item" *ngFor="let item of activities">
+          <span class="dot"></span>
+          <p>{{ item.text }}</p>
+          <time>{{ item.time }}</time>
+        </div>
+      </div>
+    </article>
+
+  </section>
+</div>

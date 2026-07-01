@@ -1,0 +1,87 @@
+<div class="prep-page">
+  <section class="hero">
+    <div>
+      <p class="eyebrow">Prepared Data Center</p>
+      <h1>ESG data is <em>ready for reporting</em></h1>
+      <p class="subtitle">
+        View prepared datasets, calculated ESG indicators, and download the final structured data used for IFRS S1/S2 report generation.
+      </p>
+    </div>
+
+    <button class="primary-btn" routerLink="/report-generation">
+      Continue to Report Generation
+    </button>
+  </section>
+
+  <div class="section-label">Preparation Overview</div>
+
+  <section class="kpi-grid">
+    <div class="kpi-card" *ngFor="let item of overview">
+      <div class="icon">
+        <i [class]="item.icon"></i>
+      </div>
+      <p>{{ item.label }}</p>
+      <h2>{{ item.value }}</h2>
+    </div>
+  </section>
+
+  <div class="section-label">Prepared ESG Domains</div>
+
+  <section class="domain-grid">
+    <div class="domain-card" *ngFor="let domain of domains">
+      <div class="domain-header">
+        <div class="domain-icon">
+          <i [class]="domain.icon"></i>
+        </div>
+
+        <div>
+          <h3>{{ domain.name }}</h3>
+          <p>Ready for report generation</p>
+        </div>
+      </div>
+
+      <div class="domain-stats">
+        <div>
+          <span>Metrics</span>
+          <strong>{{ domain.metrics }}</strong>
+        </div>
+        <div>
+          <span>Quality</span>
+          <strong>{{ domain.quality }}</strong>
+        </div>
+        <div>
+          <span>Updated</span>
+          <strong>{{ domain.updated }}</strong>
+        </div>
+      </div>
+
+      <div class="domain-actions">
+        <button class="secondary-btn">Preview</button>
+        <button class="download-btn">
+          <i class="pi pi-download"></i>
+          Download
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-label">Reporting Readiness</div>
+
+  <section class="ready-card">
+    <div>
+      <p class="eyebrow">IFRS S1/S2 Status</p>
+      <h3>Prepared data is ready for report generation</h3>
+
+      <div class="indicator-list">
+        <div class="indicator" *ngFor="let indicator of indicators">
+          <i class="pi pi-check-circle"></i>
+          <span>{{ indicator }}</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="primary-btn" routerLink="/report-generation">
+      Generate IFRS Report
+    </button>
+  </section>
+</div>
