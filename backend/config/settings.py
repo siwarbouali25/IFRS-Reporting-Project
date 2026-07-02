@@ -177,3 +177,11 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = "UTC"
 
+
+
+ARTIFACT_STORAGE_BACKEND = "local"
+
+ARTIFACT_LOCAL_ROOT = BASE_DIR / "generated_artifacts"
+
+ARTIFACT_BUCKET_NAME = "esg-risk-intelligence"
+

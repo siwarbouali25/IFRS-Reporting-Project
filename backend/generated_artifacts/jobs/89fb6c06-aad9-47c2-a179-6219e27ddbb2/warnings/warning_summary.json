@@ -1,0 +1,14 @@
+{
+  "job_id": "89fb6c06-aad9-47c2-a179-6219e27ddbb2",
+  "status": "completed_with_warnings",
+  "warning_count": 1,
+  "warnings": [
+    {
+      "stage": "connectivity_judge",
+      "warning_type": "final_connectivity_warning",
+      "approved": false,
+      "score": 6,
+      "message": "Final validation issue treated as warning in prototype mode."
+    }
+  ]
+}

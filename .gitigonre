@@ -31,3 +31,5 @@ dist/
 # OS
 .DS_Store
 Thumbs.db
+
+generated_artifacts/

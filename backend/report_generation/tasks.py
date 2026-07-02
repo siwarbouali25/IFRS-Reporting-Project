@@ -4,7 +4,17 @@ from celery import shared_task
 from django.db import transaction
 from django.utils import timezone
 
-from .models import GenerationWarning, ReportGenerationJob, ReportVersion
+from .models import (
+    GenerationWarning,
+    ReportGenerationJob,
+    ReportVersion,
+)
+
+from report_artifacts.models import ReportArtifact
+from report_artifacts.storage import (
+    save_json_artifact,
+    save_text_artifact,
+)
 
 
 @shared_task(bind=True)
@@ -74,19 +84,75 @@ def run_fake_report_generation_job(self, job_id):
         )
 
         latest_version_number = (
-            ReportVersion.objects
-            .filter(bank=job.bank, reporting_year=job.reporting_year)
-            .count()
+            ReportVersion.objects.filter(
+                bank=job.bank,
+                reporting_year=job.reporting_year,
+            ).count()
             + 1
         )
 
-        ReportVersion.objects.create(
+        report_version = ReportVersion.objects.create(
             job=job,
             bank=job.bank,
             reporting_year=job.reporting_year,
             version_number=latest_version_number,
             status=ReportVersion.Status.DRAFT,
             created_by=job.created_by,
+        )
+
+        fake_markdown = f"""# IFRS S1/S2 Sustainability-Related Financial Report
+
+## Entity
+
+{job.bank.name}
+
+## Reporting Year
+
+{job.reporting_year}
+
+## Prototype Notice
+
+This is a fake generated report artifact created by the Celery prototype task.
+
+The real notebook/LangGraph workflow will replace this content later.
+
+## Status
+
+Completed with warnings.
+"""
+
+        save_text_artifact(
+            job=job,
+            report_version=report_version,
+            artifact_type=ReportArtifact.ArtifactType.FINAL_MARKDOWN,
+            object_key=f"jobs/{job.id}/final/approved_report_markdown.md",
+            text=fake_markdown,
+            content_type="text/markdown",
+        )
+
+        warning_summary = {
+            "job_id": str(job.id),
+            "status": "completed_with_warnings",
+            "warning_count": 1,
+            "warnings": [
+                {
+                    "stage": "connectivity_judge",
+                    "warning_type": "final_connectivity_warning",
+                    "approved": False,
+                    "score": 6,
+                    "message": (
+                        "Final validation issue treated as warning in prototype mode."
+                    ),
+                }
+            ],
+        }
+
+        save_json_artifact(
+            job=job,
+            report_version=report_version,
+            artifact_type=ReportArtifact.ArtifactType.WARNING_SUMMARY,
+            object_key=f"jobs/{job.id}/warnings/warning_summary.json",
+            data=warning_summary,
         )
 
         job.status = ReportGenerationJob.Status.COMPLETED_WITH_WARNINGS
@@ -100,6 +166,7 @@ def run_fake_report_generation_job(self, job_id):
             "pdf_available": False,
             "final_failures_as_warnings": True,
         }
+
         job.save(
             update_fields=[
                 "status",
