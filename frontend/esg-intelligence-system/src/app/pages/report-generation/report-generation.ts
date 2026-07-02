@@ -9,6 +9,7 @@ import {
   GenerationJob,
   GenerationWarning,
   Report,
+  ReportArtifact,
   StartGenerationRequest,
 } from '../../core/services/report';
 
@@ -28,6 +29,7 @@ export class ReportGeneration implements OnDestroy {
 
   currentJob: GenerationJob | null = null;
   warnings: GenerationWarning[] = [];
+  artifacts: ReportArtifact[] = [];
 
   isStarting = false;
   isPolling = false;
@@ -51,6 +53,7 @@ export class ReportGeneration implements OnDestroy {
   generateDraft(): void {
     this.errorMessage = '';
     this.warnings = [];
+    this.artifacts = [];
     this.currentJob = null;
     this.isStarting = true;
 
@@ -99,17 +102,21 @@ export class ReportGeneration implements OnDestroy {
           this.updateSectionMockStatus(job);
 
           if (
-            job.status === 'completed' ||
-            job.status === 'completed_with_warnings' ||
-            job.status === 'failed' ||
-            job.status === 'cancelled'
-          ) {
-            this.isPolling = false;
+              job.status === 'completed' ||
+              job.status === 'completed_with_warnings' ||
+              job.status === 'failed' ||
+              job.status === 'cancelled'
+            ) {
+                this.isPolling = false;
 
-            if (job.warning_count > 0) {
+             if (job.warning_count > 0) {
               this.loadWarnings(job.job_id);
             }
-          }
+
+              if (job.status === 'completed' || job.status === 'completed_with_warnings') {
+               this.loadArtifacts(job.job_id);
+             }
+            }
         },
         error: () => {
           this.isPolling = false;
@@ -183,4 +190,45 @@ export class ReportGeneration implements OnDestroy {
       this.currentJob?.status === 'completed_with_warnings'
     );
   }
+
+
+  private loadArtifacts(jobId: string): void {
+  this.reportService.getArtifacts(jobId).subscribe({
+    next: (artifacts) => {
+      this.artifacts = artifacts;
+    },
+    error: () => {
+      this.errorMessage = 'Report generated, but artifacts could not be loaded.';
+    },
+  });
+}
+
+downloadArtifact(artifact: ReportArtifact): void {
+  this.reportService.downloadArtifact(artifact.id).subscribe({
+    next: (blob) => {
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = this.getArtifactFilename(artifact);
+      link.click();
+
+      window.URL.revokeObjectURL(url);
+    },
+    error: () => {
+      this.errorMessage = 'Could not download artifact.';
+    },
+  });
+}
+
+getArtifactFilename(artifact: ReportArtifact): string {
+  const parts = artifact.object_key.split('/');
+  return parts[parts.length - 1] || `${artifact.artifact_type}.txt`;
+}
+
+getArtifactLabel(artifact: ReportArtifact): string {
+  return artifact.artifact_type
+    .replaceAll('_', ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
 }

@@ -52,6 +52,19 @@ export interface GenerationWarning {
   created_at: string;
 }
 
+export interface ReportArtifact {
+  id: string;
+  job: string;
+  job_id: string;
+  report_version?: string;
+  artifact_type: string;
+  bucket: string;
+  object_key: string;
+  content_type: string;
+  size_bytes: number;
+  checksum: string;
+  created_at: string;
+}
 @Injectable({
   providedIn: 'root',
 })
@@ -78,4 +91,21 @@ export class Report {
       `${this.apiUrl}/report-generation/jobs/${jobId}/warnings/`
     );
   }
+
+
+
+  getArtifacts(jobId: string): Observable<ReportArtifact[]> {
+  return this.http.get<ReportArtifact[]>(
+    `${this.apiUrl}/report-generation/jobs/${jobId}/artifacts/`
+  );
+}
+
+downloadArtifact(artifactId: string): Observable<Blob> {
+  return this.http.get(
+    `${this.apiUrl}/artifacts/${artifactId}/download/`,
+    {
+      responseType: 'blob',
+    }
+  );
+}
 }

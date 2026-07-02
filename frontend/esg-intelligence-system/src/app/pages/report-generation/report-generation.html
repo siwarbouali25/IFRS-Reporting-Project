@@ -4,12 +4,16 @@
       <p class="eyebrow">Report Generation</p>
       <h1>Generate IFRS <em>S1/S2 report</em></h1>
       <p class="subtitle">
-        Start an asynchronous report generation job. The backend creates a job, Celery runs the workflow,
-        and this page tracks the progress.
+        Start an asynchronous report generation job. The backend creates a
+        job, Celery runs the workflow, and this page tracks the progress.
       </p>
     </div>
 
-    <button class="primary-btn" (click)="generateDraft()" [disabled]="isStarting || isPolling">
+    <button
+      class="primary-btn"
+      (click)="generateDraft()"
+      [disabled]="isStarting || isPolling"
+    >
       <i class="pi pi-sparkles"></i>
       {{ isStarting || isPolling ? 'Generating...' : 'Generate Draft' }}
     </button>
@@ -99,7 +103,10 @@
       </div>
 
       <div class="actions">
-        <button class="secondary-btn" disabled>Preview</button>
+        <button class="secondary-btn" disabled>
+          Preview
+        </button>
+
         <button class="download-btn" disabled>
           <i class="pi pi-download"></i>
           Section
@@ -108,7 +115,9 @@
     </div>
   </section>
 
-  <div class="section-label" *ngIf="warnings.length > 0">Warnings</div>
+  <div class="section-label" *ngIf="warnings.length > 0">
+    Warnings
+  </div>
 
   <section class="warnings-card" *ngIf="warnings.length > 0">
     <div class="warning-item" *ngFor="let warning of warnings">
@@ -127,19 +136,69 @@
     <div>
       <p class="eyebrow">Final Draft Status</p>
 
-      <h3 *ngIf="!currentJob">No report generation job started yet</h3>
-      <h3 *ngIf="currentJob?.status === 'queued' || currentJob?.status === 'running'">
+      <h3 *ngIf="!currentJob">
+        No report generation job started yet
+      </h3>
+
+      <h3
+        *ngIf="
+          currentJob?.status === 'queued' ||
+          currentJob?.status === 'running'
+        "
+      >
         Report generation is running
       </h3>
+
       <h3 *ngIf="currentJob?.status === 'completed'">
         Report draft generated successfully
       </h3>
+
       <h3 *ngIf="currentJob?.status === 'completed_with_warnings'">
         Report draft generated with warnings
       </h3>
+
       <h3 *ngIf="currentJob?.status === 'failed'">
         Report generation failed
       </h3>
+
+      <div
+        class="section-label"
+        *ngIf="artifacts.length > 0"
+      >
+        Generated Artifacts
+      </div>
+
+      <section
+        class="artifacts-card"
+        *ngIf="artifacts.length > 0"
+      >
+        <div
+          class="artifact-item"
+          *ngFor="let artifact of artifacts"
+        >
+          <div>
+            <strong>{{ getArtifactLabel(artifact) }}</strong>
+
+            <p>{{ artifact.object_key }}</p>
+
+            <small>
+              {{ artifact.content_type || 'file' }}
+
+              <span *ngIf="artifact.size_bytes">
+                · {{ artifact.size_bytes }} bytes
+              </span>
+            </small>
+          </div>
+
+          <button
+            class="download-btn"
+            (click)="downloadArtifact(artifact)"
+          >
+            <i class="pi pi-download"></i>
+            Download
+          </button>
+        </div>
+      </section>
 
       <div class="check-list">
         <div class="check">
@@ -154,25 +213,48 @@
 
         <div class="check">
           <i class="pi pi-check-circle"></i>
-          <span>Final validation failures treated as warnings in prototype mode</span>
+          <span>
+            Final validation failures treated as warnings in prototype mode
+          </span>
         </div>
       </div>
     </div>
 
     <div class="approval-box">
-      <span class="pending" *ngIf="!canSubmitForApproval">Not Ready</span>
-      <span class="pending warning" *ngIf="currentJob?.status === 'completed_with_warnings'">
+      <span
+        class="pending"
+        *ngIf="!canSubmitForApproval"
+      >
+        Not Ready
+      </span>
+
+      <span
+        class="pending warning"
+        *ngIf="currentJob?.status === 'completed_with_warnings'"
+      >
         Warnings Found
       </span>
-      <span class="pending success" *ngIf="currentJob?.status === 'completed'">
+
+      <span
+        class="pending success"
+        *ngIf="currentJob?.status === 'completed'"
+      >
         Ready
       </span>
 
-      <button class="primary-btn" routerLink="/approval" [disabled]="!canSubmitForApproval">
+      <button
+        class="primary-btn"
+        routerLink="/approval"
+        [disabled]="!canSubmitForApproval"
+      >
         Submit for Approval
       </button>
 
-      <button class="disabled-btn" disabled>
+      <button
+        class="disabled-btn"
+        disabled
+        *ngIf="artifacts.length === 0"
+      >
         Final Download Coming Later
       </button>
     </div>
