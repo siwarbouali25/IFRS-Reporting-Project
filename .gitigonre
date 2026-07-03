@@ -33,3 +33,4 @@ dist/
 Thumbs.db
 
 generated_artifacts/
+generation_inputs/

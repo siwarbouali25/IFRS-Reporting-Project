@@ -3,6 +3,22 @@ from typing import Any
 
 
 @dataclass
+class GenerationWarningData:
+    stage: str
+    warning_type: str
+    message: str
+    details: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class LoaderResult:
+    data: dict[str, Any]
+    loaded_files: list[str] = field(default_factory=list)
+    missing_files: list[str] = field(default_factory=list)
+    warnings: list[GenerationWarningData] = field(default_factory=list)
+
+
+@dataclass
 class LoadedInputs:
     payloads: dict[str, Any]
     requirements: dict[str, Any]
@@ -17,14 +33,6 @@ class SectionOutput:
     status: str = "generated"
     revision_count: int = 0
     metadata: dict[str, Any] = field(default_factory=dict)
-
-
-@dataclass
-class GenerationWarningData:
-    stage: str
-    warning_type: str
-    message: str
-    details: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass

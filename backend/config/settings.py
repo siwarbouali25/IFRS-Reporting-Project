@@ -185,3 +185,4 @@ ARTIFACT_LOCAL_ROOT = BASE_DIR / "generated_artifacts"
 
 ARTIFACT_BUCKET_NAME = "esg-risk-intelligence"
 
+GENERATION_INPUT_ROOT = BASE_DIR / "generation_inputs"
