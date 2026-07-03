@@ -4,32 +4,25 @@ from celery import shared_task
 from django.db import transaction
 from django.utils import timezone
 
-from .models import (
-    GenerationWarning,
-    ReportGenerationJob,
-    ReportVersion,
+from generation_engine.workflow.fake_pipeline import (
+    get_fake_pipeline_stages,
+    run_fake_pipeline,
 )
-
 from report_artifacts.models import ReportArtifact
-from report_artifacts.storage import (
-    save_json_artifact,
-    save_text_artifact,
-)
+from report_artifacts.storage import save_json_artifact, save_text_artifact
+
+from .models import GenerationWarning, ReportGenerationJob, ReportVersion
 
 
 @shared_task(bind=True)
 def run_fake_report_generation_job(self, job_id):
     """
-    Temporary fake async task.
+    Temporary async report generation task.
 
-    This proves:
-    - Django can create a job
-    - Celery can pick it up
-    - the worker can update progress
-    - warnings can be stored
-    - final status can become completed_with_warnings
+    Celery handles the background execution.
+    The fake generation logic is now inside generation_engine.
 
-    Later, this task will be replaced by the real LangGraph workflow.
+    Later, this task will call the real LangGraph workflow instead of run_fake_pipeline().
     """
 
     job = ReportGenerationJob.objects.select_related("bank").get(id=job_id)
@@ -47,47 +40,24 @@ def run_fake_report_generation_job(self, job_id):
         ]
     )
 
-    stages = [
-        ("load_payloads", 15),
-        ("load_ifrs_requirements", 25),
-        ("load_style_assets", 35),
-        ("build_evidence_maps", 45),
-        ("create_disclosure_plans", 55),
-        ("generate_sections", 65),
-        ("run_validation_checks", 75),
-        ("revise_failed_sections", 82),
-        ("assemble_markdown", 90),
-        ("store_artifacts", 95),
-    ]
-
-    for stage, progress in stages:
-        job.current_stage = stage
-        job.progress_percent = progress
+    for stage in get_fake_pipeline_stages():
+        job.current_stage = stage.name
+        job.progress_percent = stage.progress
         job.save(update_fields=["current_stage", "progress_percent"])
 
         time.sleep(1)
 
-    with transaction.atomic():
-        GenerationWarning.objects.create(
-            job=job,
-            stage="connectivity_judge",
-            warning_type="final_connectivity_warning",
-            message=(
-                "Fake workflow completed with a simulated connectivity warning. "
-                "In the current prototype, final validation failures are treated as warnings."
-            ),
-            details={
-                "approved": False,
-                "score": 6,
-                "final_failures_as_warnings": True,
-            },
-        )
+    result = run_fake_pipeline(
+        job_id=str(job.id),
+        bank_name=job.bank.name,
+        reporting_year=job.reporting_year,
+    )
 
+    with transaction.atomic():
         latest_version_number = (
-            ReportVersion.objects.filter(
-                bank=job.bank,
-                reporting_year=job.reporting_year,
-            ).count()
+            ReportVersion.objects
+            .filter(bank=job.bank, reporting_year=job.reporting_year)
+            .count()
             + 1
         )
 
@@ -100,72 +70,44 @@ def run_fake_report_generation_job(self, job_id):
             created_by=job.created_by,
         )
 
-        fake_markdown = f"""# IFRS S1/S2 Sustainability-Related Financial Report
-
-## Entity
-
-{job.bank.name}
-
-## Reporting Year
-
-{job.reporting_year}
-
-## Prototype Notice
-
-This is a fake generated report artifact created by the Celery prototype task.
-
-The real notebook/LangGraph workflow will replace this content later.
-
-## Status
-
-Completed with warnings.
-"""
+        for warning in result.warnings:
+            GenerationWarning.objects.create(
+                job=job,
+                stage=warning.stage,
+                warning_type=warning.warning_type,
+                message=warning.message,
+                details=warning.details,
+            )
 
         save_text_artifact(
             job=job,
             report_version=report_version,
             artifact_type=ReportArtifact.ArtifactType.FINAL_MARKDOWN,
             object_key=f"jobs/{job.id}/final/approved_report_markdown.md",
-            text=fake_markdown,
+            text=result.final_markdown,
             content_type="text/markdown",
         )
-
-        warning_summary = {
-            "job_id": str(job.id),
-            "status": "completed_with_warnings",
-            "warning_count": 1,
-            "warnings": [
-                {
-                    "stage": "connectivity_judge",
-                    "warning_type": "final_connectivity_warning",
-                    "approved": False,
-                    "score": 6,
-                    "message": (
-                        "Final validation issue treated as warning in prototype mode."
-                    ),
-                }
-            ],
-        }
 
         save_json_artifact(
             job=job,
             report_version=report_version,
             artifact_type=ReportArtifact.ArtifactType.WARNING_SUMMARY,
             object_key=f"jobs/{job.id}/warnings/warning_summary.json",
-            data=warning_summary,
+            data=result.warning_summary,
         )
 
-        job.status = ReportGenerationJob.Status.COMPLETED_WITH_WARNINGS
+        warning_count = len(result.warnings)
+
+        job.status = (
+            ReportGenerationJob.Status.COMPLETED_WITH_WARNINGS
+            if warning_count > 0
+            else ReportGenerationJob.Status.COMPLETED
+        )
         job.current_stage = "completed"
         job.progress_percent = 100
-        job.warning_count = 1
+        job.warning_count = warning_count
         job.completed_at = timezone.now()
-        job.final_summary = {
-            "message": "Fake report generation completed with warnings.",
-            "markdown_available": False,
-            "pdf_available": False,
-            "final_failures_as_warnings": True,
-        }
+        job.final_summary = result.final_summary
 
         job.save(
             update_fields=[
