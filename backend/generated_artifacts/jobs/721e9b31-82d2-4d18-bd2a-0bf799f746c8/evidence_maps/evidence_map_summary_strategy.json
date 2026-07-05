@@ -1,0 +1,16 @@
+{
+  "section_name": "Strategy",
+  "requirements_total": 70,
+  "requirements_with_candidates": 70,
+  "requirements_without_candidates": 0,
+  "candidate_root_distribution": {
+    "climate_scenarios": 322,
+    "climate_risk_register": 65,
+    "value_chain_map": 61,
+    "reporting_kpis": 33,
+    "climate_opportunities": 20,
+    "financial_summary": 17,
+    "metadata": 16,
+    "bank": 3
+  }
+}

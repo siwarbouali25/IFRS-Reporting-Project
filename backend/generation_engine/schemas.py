@@ -51,6 +51,25 @@ class WriterContextResult:
     summary: dict[str, Any] = field(default_factory=dict)
     warnings: list[GenerationWarningData] = field(default_factory=list)
 
+@dataclass
+class SectionDraftResult:
+    drafts: dict[str, Any]
+    summary: dict[str, Any] = field(default_factory=dict)
+    warnings: list[GenerationWarningData] = field(default_factory=list)
+
+@dataclass
+class DraftReportResult:
+    markdown: str
+    summary: dict[str, Any] = field(default_factory=dict)
+    warnings: list[GenerationWarningData] = field(default_factory=list)
+
+@dataclass
+class DeterministicValidationResult:
+    passed: bool
+    checks: list[dict[str, Any]]
+    summary: dict[str, Any] = field(default_factory=dict)
+    warnings: list[GenerationWarningData] = field(default_factory=list)
+
 
 @dataclass
 class LoadedInputs:

@@ -1,0 +1,42 @@
+{
+  "payloads": {
+    "loaded_files": 6,
+    "missing_files": 0,
+    "warnings": 0,
+    "sections": [
+      "entity",
+      "general_requirements",
+      "governance",
+      "strategy",
+      "risk_management",
+      "metrics_targets"
+    ]
+  },
+  "requirements": {
+    "loaded_files": 5,
+    "missing_files": 0,
+    "warnings": 0,
+    "files": [
+      "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\generation_inputs\\ifrs-assets\\IFRS-S1-S2\\2024\\general_requirements_requirements.json",
+      "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\generation_inputs\\ifrs-assets\\IFRS-S1-S2\\2024\\governance_requirements.json",
+      "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\generation_inputs\\ifrs-assets\\IFRS-S1-S2\\2024\\metrics_and_targets_requirements.json",
+      "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\generation_inputs\\ifrs-assets\\IFRS-S1-S2\\2024\\risk_management_requirements.json",
+      "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\generation_inputs\\ifrs-assets\\IFRS-S1-S2\\2024\\strategy_requirements.json"
+    ]
+  },
+  "style_assets": {
+    "loaded_files": 16,
+    "missing_files": 0,
+    "warnings": 0,
+    "available_keys": [
+      "global_style",
+      "no_copying_rules",
+      "forbidden_terms",
+      "table_patterns",
+      "style_rubric",
+      "layout_style_guide",
+      "section_styles",
+      "section_blueprints"
+    ]
+  }
+}

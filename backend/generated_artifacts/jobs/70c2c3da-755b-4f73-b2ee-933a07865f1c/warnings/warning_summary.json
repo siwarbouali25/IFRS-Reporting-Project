@@ -1,0 +1,102 @@
+{
+  "job_id": "70c2c3da-755b-4f73-b2ee-933a07865f1c",
+  "status": "completed_with_warnings",
+  "warning_count": 6,
+  "warnings": [
+    {
+      "stage": "connectivity_judge",
+      "warning_type": "final_connectivity_warning",
+      "message": "Fake workflow completed with a simulated connectivity warning. In the current prototype, final validation failures are treated as warnings.",
+      "details": {
+        "approved": false,
+        "score": 6,
+        "final_failures_as_warnings": true
+      }
+    },
+    {
+      "stage": "build_disclosure_plans",
+      "warning_type": "requirements_without_writer_safe_evidence",
+      "message": "General Requirements has 7 requirements without writer-safe evidence. This is warning-only and must not be mentioned in the generated report.",
+      "details": {
+        "section_key": "general_requirements",
+        "section_title": "General Requirements",
+        "requirements_without_writer_safe_evidence": 7,
+        "report_policy": "do_not_mention_missing_data_in_generated_report",
+        "scoring_policy": "do_not_reduce_section_score"
+      }
+    },
+    {
+      "stage": "build_disclosure_plans",
+      "warning_type": "requirements_without_writer_safe_evidence",
+      "message": "Risk Management has 3 requirements without writer-safe evidence. This is warning-only and must not be mentioned in the generated report.",
+      "details": {
+        "section_key": "risk_management",
+        "section_title": "Risk Management",
+        "requirements_without_writer_safe_evidence": 3,
+        "report_policy": "do_not_mention_missing_data_in_generated_report",
+        "scoring_policy": "do_not_reduce_section_score"
+      }
+    },
+    {
+      "stage": "build_disclosure_plans",
+      "warning_type": "requirements_without_writer_safe_evidence",
+      "message": "Metrics and Targets has 2 requirements without writer-safe evidence. This is warning-only and must not be mentioned in the generated report.",
+      "details": {
+        "section_key": "metrics_targets",
+        "section_title": "Metrics and Targets",
+        "requirements_without_writer_safe_evidence": 2,
+        "report_policy": "do_not_mention_missing_data_in_generated_report",
+        "scoring_policy": "do_not_reduce_section_score"
+      }
+    },
+    {
+      "stage": "deterministic_validation",
+      "warning_type": "internal_payload_paths_not_exposed",
+      "message": "Report exposes internal payload paths. This is acceptable only in the prototype.",
+      "details": {
+        "internal_paths_found_count": 306,
+        "sample_internal_paths": [
+          "bank.fiscal_year_end",
+          "bank.regulatory_regime",
+          "bank.reporting_currency",
+          "board_minutes[29].climate_topics_discussed",
+          "board_minutes[29].committee_name",
+          "board_minutes[29].committee_type",
+          "board_minutes[33].committee_name",
+          "board_minutes[33].committee_type",
+          "board_minutes[34].climate_topics_discussed",
+          "board_minutes[35].climate_topics_discussed",
+          "climate_opportunities[0].data_source",
+          "climate_opportunities[1].data_source",
+          "climate_opportunities[2].data_source",
+          "climate_opportunities[3].data_source",
+          "climate_opportunities[4].data_source",
+          "climate_risk_register.risk_rating",
+          "climate_risk_register[0].changed_since_prior_period",
+          "climate_risk_register[0].erm_integrated_flag",
+          "climate_risk_register[0].ifrs_s2_para_evidence",
+          "climate_risk_register[0].likelihood_score"
+        ],
+        "prototype_note": "The deterministic placeholder writer currently exposes evidence paths. The final LLM writer should convert evidence into narrative text.",
+        "severity": "warning",
+        "workflow_impact": "warning_only"
+      }
+    },
+    {
+      "stage": "deterministic_validation",
+      "warning_type": "prototype_language_not_present",
+      "message": "Report still contains prototype placeholder language.",
+      "details": {
+        "found_terms": [
+          "deterministic writer skeleton",
+          "placeholder",
+          "will later be replaced",
+          "draft section generated"
+        ],
+        "prototype_note": "This is expected while the deterministic writer skeleton is active. The final report should not contain this language.",
+        "severity": "warning",
+        "workflow_impact": "warning_only"
+      }
+    }
+  ]
+}

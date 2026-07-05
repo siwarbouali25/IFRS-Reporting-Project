@@ -1,0 +1,9 @@
+{
+  "artifact_type": "assembled_report_markdown",
+  "sections_expected": 5,
+  "sections_included": 5,
+  "markdown_length": 113791,
+  "llm_used": false,
+  "drafting_mode": "deterministic_report_safe_writer",
+  "status": "draft"
+}

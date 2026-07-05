@@ -1,0 +1,52 @@
+{
+  "draft_type": "section_drafts_summary",
+  "sections_total": 5,
+  "requirements_total": 361,
+  "requirements_with_writer_safe_evidence": 349,
+  "drafting_mode": "deterministic_report_safe_writer",
+  "llm_used": false,
+  "policy": {
+    "use_only_writer_safe_evidence": true,
+    "do_not_invent_facts": true,
+    "do_not_use_audit_only_evidence": true,
+    "do_not_mention_missing_data": true,
+    "do_not_expose_payload_paths": true
+  },
+  "sections": {
+    "general_requirements": {
+      "section_title": "General Requirements",
+      "file_slug": "general_requirements",
+      "requirements_total": 108,
+      "requirements_with_writer_safe_evidence": 101,
+      "markdown_length": 53860
+    },
+    "governance": {
+      "section_title": "Governance",
+      "file_slug": "governance",
+      "requirements_total": 15,
+      "requirements_with_writer_safe_evidence": 15,
+      "markdown_length": 2026
+    },
+    "strategy": {
+      "section_title": "Strategy",
+      "file_slug": "strategy",
+      "requirements_total": 70,
+      "requirements_with_writer_safe_evidence": 70,
+      "markdown_length": 32707
+    },
+    "risk_management": {
+      "section_title": "Risk Management",
+      "file_slug": "risk_management",
+      "requirements_total": 17,
+      "requirements_with_writer_safe_evidence": 14,
+      "markdown_length": 3408
+    },
+    "metrics_targets": {
+      "section_title": "Metrics and Targets",
+      "file_slug": "metrics_and_targets",
+      "requirements_total": 151,
+      "requirements_with_writer_safe_evidence": 149,
+      "markdown_length": 21535
+    }
+  }
+}

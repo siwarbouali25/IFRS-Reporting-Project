@@ -1,0 +1,1415 @@
+{
+  "section_key": "governance",
+  "section_title": "Governance",
+  "file_slug": "governance",
+  "context_type": "section_writer_context",
+  "section_style": {
+    "purpose": "Explain how sustainability- and climate-related matters are governed, including oversight, decision rights, accountability, reporting lines, and integration with enterprise risk management and core business decision-making, in a manner consistent with IFRS S1/S2 governance disclosure expectations.",
+    "tone": "Formal, institutional, assurance-oriented and compliance-aligned. Objective and descriptive; emphasizes oversight, accountability, control, and decision-making authority. Avoids promotional language and outcome-claiming.",
+    "level_of_detail": "Moderate-to-high. Provide enough specificity to evidence governance effectiveness through structure and process (who does what, how often in qualitative terms, how escalation works), while avoiding unnecessary operational minutiae or performance claims.",
+    "paragraph_style": "Start with a high-level framing paragraph linking sustainability/climate governance to the business model and operations. Progress from principles/ethos to governance mechanics. Use short, topic-led paragraphs; each paragraph covers one governance dimension (mandate, scope, cadence, coordination, capability-building, evaluation). Use role blocks (label + compact responsibility description) for scanability. Introduce visuals/tables with a lead-in sentence and return to narrative that clarifies responsibilities and review processes.",
+    "sentence_style": "Use precise governance verbs and clear subject-verb-object construction. Prefer multi-clause sentences to enumerate responsibilities in a logical sequence (e.g., propose → validate → approve; monitor → review → report). Use cautious qualifiers for maturity statements (e.g., evolving, in progress, planned) without overcommitting. Use parentheticals sparingly to define generic terms (avoid acronyms unless necessary and defined).",
+    "preferred_disclosure_verbs": [
+      "oversees",
+      "guides",
+      "reviews",
+      "recommends",
+      "approves",
+      "authorises",
+      "monitors",
+      "assesses",
+      "ensures alignment",
+      "reports",
+      "escalates",
+      "validates",
+      "proposes",
+      "implements",
+      "coordinates",
+      "maintains",
+      "updates"
+    ],
+    "preferred_evidence_style": "Evidence through governance mechanics rather than outcomes: (1) governance architecture (diagram/model), (2) formal mandates and delegated authorities, (3) role-to-responsibility mapping and escalation pathways, (4) capability and suitability evidence via structured profiles (genericized), (5) references to documented artifacts (policies, terms of reference, periodic reports) described generically. Use figure/table numbering and descriptive titles for audit-friendly traceability.",
+    "table_usage": "Use tables as structured evidence artifacts. Preferred tables include: (a) governance body/role-to-responsibility mapping, (b) competency/capability overview for governing bodies (genericized; no personal data), (c) lines-of-defence role comparison. Table titles sit directly above tables and describe purpose (not repeating headings). Cells should contain short narrative snippets (mini-paragraphs) rather than single-word entries.",
+    "figure_usage": "Use a governance structure diagram to map oversight and decision-making across levels (board-level, executive/management, operational teams, subsidiaries/regions). Show information flow and accountability with directional connectors and relationship labels (e.g., informs, reports to, approves). Optionally incorporate a lines-of-defence concept as an organizing device. Provide a descriptive caption explaining scope and why the figure matters.",
+    "pdf_layout_usage": "Use a section divider page to signal the chapter. Prefer a two-page rhythm: narrative overview followed by a full-width governance structure figure. Maintain consistent running header/footer with section label and page navigation. Use whitespace to separate narrative blocks from visuals. Place captions adjacent to or below visuals. Where tables and narrative share a page, include a small anchor label/subheading to orient the reader.",
+    "how_to_discuss_missing_data": "State what information is not available or not disclosed, why (e.g., confidentiality, governance in transition, data not yet centrally captured), and what process exists to improve (e.g., planned formalisation, periodic review of terms of reference, capability-building). Avoid implying completeness where gaps exist; describe interim controls and timelines only in qualitative terms.",
+    "what_to_avoid": [
+      "Company-specific names, acronyms, internal body titles, or branded governance forums",
+      "Person names, biographies, career histories, independence classifications tied to individuals, or credential details that identify individuals",
+      "Numeric values (including meeting frequencies, years of experience, KPI weights, targets, dates, baselines) and quantified commitments",
+      "Jurisdiction-specific regulator names or references that would not generalize",
+      "Named tools, vendors, proprietary methodologies, scorecards, or policy/framework titles",
+      "Awards, achievements, or qualitative impact claims presented as outcomes",
+      "Exact ordering or wording of risk-category lists that could mirror a source document too closely",
+      "Overpromising language (e.g., guarantees, ensures outcomes) or promotional adjectives"
+    ]
+  },
+  "section_blueprint": {
+    "recommended_subsections": [
+      "Overview and governance approach",
+      "Governance structure and decision-making model",
+      "Board oversight and delegated authorities",
+      "Management-level governance and operational execution",
+      "Integration with enterprise risk management and internal control",
+      "Reporting lines, escalation pathways, and information flows",
+      "Capability, competence, and training for governance roles",
+      "Performance evaluation and governance effectiveness mechanisms",
+      "Subsidiary/region/business-line governance and cascade model",
+      "Governance evolution and continuous improvement",
+      "Cross-references to broader corporate governance disclosures"
+    ],
+    "recommended_order": [
+      "Overview and governance approach",
+      "Governance structure and decision-making model",
+      "Board oversight and delegated authorities",
+      "Management-level governance and operational execution",
+      "Integration with enterprise risk management and internal control",
+      "Reporting lines, escalation pathways, and information flows",
+      "Capability, competence, and training for governance roles",
+      "Performance evaluation and governance effectiveness mechanisms",
+      "Subsidiary/region/business-line governance and cascade model",
+      "Governance evolution and continuous improvement",
+      "Cross-references to broader corporate governance disclosures"
+    ],
+    "recommended_tables": [
+      {
+        "table_name": "Governance bodies and roles — mandate and decision rights",
+        "purpose": "Provide a structured mapping of governance bodies/roles to mandates, key responsibilities, delegated authorities, and escalation points.",
+        "suggested_columns": [
+          "Governance body/role (generic label)",
+          "Primary mandate (scope statement)",
+          "Key responsibilities (narrative snippets)",
+          "Decision rights (approve/recommend/monitor)",
+          "Reporting line / escalation pathway",
+          "Key governance artifacts (generic: policies, frameworks, reports)"
+        ],
+        "population_rules": [
+          "Use generic role labels (e.g., board, board committee, executive committee, management forum, working group, internal assurance).",
+          "Avoid naming internal committees or using acronyms unless defined generically.",
+          "Do not include numeric cadence; describe cadence qualitatively (e.g., regular, periodic, ad hoc)."
+        ]
+      },
+      {
+        "table_name": "Lines of defence — sustainability/climate governance responsibilities",
+        "purpose": "Show separation of duties and control environment across operational execution, oversight functions, and independent assurance.",
+        "suggested_columns": [
+          "Operational execution (first line)",
+          "Oversight and risk/compliance support (second line)",
+          "Independent assurance (third line)"
+        ],
+        "population_rules": [
+          "Write paragraph-style role narratives in each column.",
+          "Use consistent verbs across columns (define, implement, monitor, validate, review, report).",
+          "Avoid proprietary framework names; describe the model generically."
+        ]
+      },
+      {
+        "table_name": "Capability and competence overview (governance roles)",
+        "purpose": "Evidence that governance roles have appropriate competence and access to expertise without disclosing personal data.",
+        "suggested_columns": [
+          "Governance layer (board/committee/management)",
+          "Competence areas relevant to sustainability/climate oversight",
+          "How competence is maintained (training, briefings, external advice)",
+          "How competence is assessed (evaluation mechanisms)"
+        ],
+        "population_rules": [
+          "Do not include individual names or credentials.",
+          "Describe competence at group/role level (collective capability).",
+          "Avoid claims of superiority; keep factual and process-based."
+        ]
+      }
+    ],
+    "recommended_figures_or_diagrams": [
+      {
+        "figure_name": "Governance structure and information flow diagram",
+        "purpose": "Visually map oversight, decision-making authority, and reporting lines across governance layers.",
+        "design_rules": [
+          "Layered hierarchy with clear vertical grouping (board → management → operational teams → subsidiaries/regions).",
+          "Directional connectors with relationship labels (e.g., reports to, informs, approves, escalates).",
+          "Optionally overlay a lines-of-defence framing as a visual organizing device.",
+          "Caption includes figure number and descriptive title; avoid company-specific labels."
+        ]
+      },
+      {
+        "figure_name": "Decision pathway schematic (propose → validate → approve → monitor)",
+        "purpose": "Clarify how sustainability/climate-related decisions move through governance and control checkpoints.",
+        "design_rules": [
+          "Use generic role boxes (e.g., business owner, risk/compliance, executive sponsor, board/committee).",
+          "Show escalation triggers qualitatively (e.g., materiality threshold) without numeric thresholds.",
+          "Keep the schematic simple; details remain in narrative."
+        ]
+      }
+    ],
+    "recommended_pdf_blocks": [
+      {
+        "block_name": "Section divider page",
+        "content": "Large section title and number; minimal supporting text.",
+        "layout_rules": [
+          "High whitespace; no dense narrative.",
+          "Consistent typography with the rest of the report."
+        ]
+      },
+      {
+        "block_name": "Narrative overview page",
+        "content": "Framing paragraph(s) + brief preview of what the Governance section covers.",
+        "layout_rules": [
+          "Short paragraphs; clear subheading hierarchy.",
+          "Optional callout box for key governance principles (non-promotional)."
+        ]
+      },
+      {
+        "block_name": "Full-width governance diagram page",
+        "content": "Primary governance structure figure with caption.",
+        "layout_rules": [
+          "Figure occupies substantial page area.",
+          "Caption adjacent/below; consistent margins."
+        ]
+      },
+      {
+        "block_name": "Role blocks page",
+        "content": "Repeated mini-headings for each governance role/body with compact responsibility paragraphs.",
+        "layout_rules": [
+          "Whitespace between role blocks for scanability.",
+          "Avoid long uninterrupted text."
+        ]
+      },
+      {
+        "block_name": "Compliance alignment note (optional)",
+        "content": "A short concluding statement linking governance disclosures to IFRS S1/S2 governance requirements and internal governance documentation.",
+        "layout_rules": [
+          "Visually separated from main narrative (e.g., rule line or spacing).",
+          "No jurisdiction-specific regulator references."
+        ]
+      }
+    ],
+    "required_narrative_blocks": [
+      "Framing: how sustainability/climate governance supports the business model, strategy, and risk management",
+      "Who oversees: description of governance layers and delegated authorities (board-level and management-level)",
+      "How oversight operates: agenda integration, review/approval processes, and escalation pathways",
+      "Integration: how sustainability/climate governance connects to enterprise risk management and internal control",
+      "Information flows: what is reported upward, by whom, and how governance bodies receive decision-useful information",
+      "Capability: how competence is ensured (training/briefings/access to expertise) and how effectiveness is evaluated",
+      "Cross-references: where readers can find broader corporate governance information (generic references only)"
+    ],
+    "optional_narrative_blocks": [
+      "Illustrative example of how governance applies to a representative decision/process (kept generic and non-exhaustive)",
+      "Subsidiary/region/business-line cascade example (generic structure only)",
+      "Forward-looking governance enhancements (qualitative, cautious, and tied to periodic review of mandates/terms of reference)"
+    ],
+    "output_structure_rules": [
+      "Use a two-level heading hierarchy: main section title followed by sequentially numbered subsections.",
+      "Keep subsection headings short, functional, and role-focused (e.g., 'Role of the board', 'Management oversight').",
+      "Introduce each table/figure with a lead-in sentence explaining what it shows and why it matters.",
+      "After each visual, include narrative that interprets the governance implications (responsibilities, decision rights, escalation).",
+      "Use consistent governance verbs and avoid outcome claims; focus on mechanisms and controls.",
+      "Ensure traceability: number figures/tables and use descriptive titles; reference them in text.",
+      "Avoid personal data; present capability evidence at collective/role level.",
+      "Use qualitative cadence descriptors (e.g., regular, periodic, ad hoc) rather than numeric frequencies."
+    ]
+  },
+  "global_style": {
+    "report_voice": "Standards-aligned, audit-ready disclosure voice that prioritizes decision-usefulness, neutrality, and traceability over narrative flourish.",
+    "tone": "Formal, precise, neutral, and risk-aware. Analytical and process-focused; avoids promotional, celebratory, or advocacy language.",
+    "point_of_view": "Third-person or first-person plural used consistently (choose one for the full report). Prefer first-person plural for accountability statements (e.g., 'we disclose', 'we assess') and third-person for externally defined requirements (e.g., 'is required', 'is defined').",
+    "paragraph_rules": [
+      "Use a layered structure: overview paragraph → structured bullets/tables → brief interpretation and cross-references.",
+      "Keep paragraphs single-idea and topic-led; avoid multi-topic blocks.",
+      "Introduce each subsection with a one-sentence purpose statement before details.",
+      "Use lead-in sentences before bullets/tables/figures explaining what follows and why it matters.",
+      "Separate 'principles/what' from 'mechanics/how' using headings and short paragraphs.",
+      "Use explicit subheadings for IFRS pillars (Governance, Strategy, Risk Management, Metrics and Targets) and keep ordering consistent across the report.",
+      "Close major subsections with a short 'connectivity' sentence linking to related sections and/or financial statements (via generic cross-reference placeholders).",
+      "Use whitespace to separate narrative blocks from tables/figures and to improve scanability.",
+      "For PDF readability, alternate narrative blocks with tables, diagrams, or callouts in long sections such as Strategy and Metrics and Targets.",
+      "Avoid pages made entirely of dense text; introduce visual anchors such as section subtitles, summary boxes, or compact tables where appropriate."
+    ],
+    "sentence_rules": [
+      "Prefer declarative, unambiguous sentences with clear subject–verb–object structure.",
+      "Use active voice when responsibility is clear; use passive voice sparingly for externally defined requirements.",
+      "Keep sentences short-to-medium length; split long sentences into two when they contain multiple conditions.",
+      "Define key terms before first use; avoid acronyms unless necessary and defined once.",
+      "Use parallel grammar in lists (same tense and structure across bullets).",
+      "Use cautious modality for forward-looking statements and estimates (e.g., 'may', 'could', 'is expected to', 'is intended to').",
+      "Avoid absolute assurances (e.g., 'guarantees', 'ensures outcomes'); describe controls and processes instead."
+    ],
+    "disclosure_language_rules": [
+      "Use standards-oriented verbs (e.g., disclose, describe, explain, identify, assess, measure, calculate, monitor, review, approve, report, reconcile, cross-reference).",
+      "Distinguish clearly between: (a) current-period facts, (b) estimates/judgements, and (c) forward-looking intentions.",
+      "Use controlled vocabulary consistently: 'sustainability-related risks and opportunities', 'climate-related risks and opportunities', 'impact materiality' vs 'financial materiality' (as applicable), 'actual' vs 'potential', and standardized time-horizon buckets defined once.",
+      "When describing effects on financial position/performance/cash flows, use pathway language (cause → mechanism → potential financial statement area) and avoid unsupported quantification.",
+      "Use explicit status labels for applicability and availability: 'not applicable', 'not material', 'not reported for the period', 'under development'.",
+      "Avoid persuasive framing; keep commentary minimal and evidence-led."
+    ],
+    "evidence_and_traceability_rules": [
+      "Support major claims with process evidence (governance mechanics, lifecycle steps, controls, methodologies) rather than outcomes.",
+      "Use consistent cross-reference placeholders (e.g., 'Refer to [Section: X]' or 'See [Appendix: Y]') and avoid hard-coded numbering in templates.",
+      "Number and caption all tables and figures with descriptive titles; reference them in the narrative.",
+      "For metrics/targets, provide traceability metadata per row: definition, boundary, value/status, source type, internal source location descriptor, and mapping to report pillar/section.",
+      "Use footnotes for methodological conventions and edge-case rules; do not hide core definitions in footnotes.",
+      "Where assurance is referenced, separate assurance scope notes from descriptive reporting and use a consolidated legend for any markers."
+    ],
+    "missing_data_language_rules": [
+      "Never leave blanks; use standardized status labels for missing/inapplicable items.",
+      "For missing or incomplete data, state: (1) what is missing, (2) why (reason category), (3) interim approach (estimate/proxy/partial coverage), (4) limitations and potential materiality considerations, and (5) planned enhancement direction (qualitative, non-committal).",
+      "Differentiate 'not currently available' from 'not applicable' and 'not material'.",
+      "Avoid implying certainty where estimates are used; describe key assumptions at a high level."
+    ],
+    "formatting_rules": [
+      "Use a consistent two-level heading hierarchy with numbered subsections (e.g., 1, 1.1, 1.2) aligned to IFRS S1/S2 pillars and general requirements.",
+      "Use bullets for principles, steps, controls, and criteria; use numbered lists for sequential processes.",
+      "Maintain consistent terminology, capitalization, and unit presentation across the report.",
+      "Tables: repeat header rows on multi-page tables; left-align labels and right-align numeric values; allow multi-line cells and bullets within cells.",
+      "Figures: keep conceptual and explanatory; avoid decorative visuals; ensure captions explain purpose and scope.",
+      "Use consistent callout styling for: cross-references, limitations, and methodology notes (same placement and typography throughout).",
+      "Avoid embedding URLs in core narrative; if needed, place as generic source references in footnotes or appendices.",
+      "Ensure accessibility-friendly layout: adequate whitespace, clear hierarchy, and predictable placement of captions and footnotes.",
+      "For PDF production, plan each major section as a report spread: section divider page, section overview, detailed narrative, tables/figures, and a short synthesis or cross-reference.",
+      "Use section opener pages with section number, section title, and optional thematic image placeholder; avoid putting dense disclosure text on section divider pages.",
+      "Use two-column or modular layouts for long narrative sections only when readability is preserved; keep compliance-critical text in a clear single-column flow when needed.",
+      "Use callout boxes sparingly for key definitions, boundary notes, data limitations, or methodology notes.",
+      "For large tables, design for PDF readability: concise cells, wrapped text, repeated headers, clear units, and explicit table captions."
+    ],
+    "do_not_do": [
+      "Do not include reference-company-specific facts, names, achievements, targets, people, locations, committee names, tools, vendors, images, or claims.",
+      "Do not use promotional adjectives, awards language, rankings, or leadership claims.",
+      "Do not present definitive predictions or guarantees about future outcomes or financial impacts.",
+      "Do not hard-code reporting years, dates, currencies, or numeric placeholders into reusable template text.",
+      "Do not cite jurisdiction-specific regulators, scenario names, or external guidance as universally applicable template content; keep references configurable.",
+      "Do not disclose personal data or individual identifiers in governance capability discussions.",
+      "Do not duplicate detailed disclosures across sections; use cross-references to maintain connectivity and avoid inconsistency.",
+      "Do not disclose operationally sensitive thresholds, proprietary model logic, or detailed control testing procedures.",
+      "Reference-company-specific names, facts and design elements are forbidden; target-company-specific names, committees, tools, policies, frameworks, metrics and governance roles are allowed only when supported by the target payload."
+    ]
+  },
+  "layout_style_guide": {
+    "purpose": "PDF layout guidance derived from the reference report style, expressed as reusable design rules for a different IFRS S1/S2 report.",
+    "core_principle": "Use the reference report as inspiration for professional PDF structure and visual hierarchy, not as a content or visual asset source.",
+    "major_section_structure": {
+      "section_divider_page": {
+        "use": "Start every major section with a divider page.",
+        "elements": [
+          "large section number",
+          "section title",
+          "optional full-page or partial-page thematic image placeholder",
+          "minimal text"
+        ],
+        "avoid": [
+          "dense disclosure paragraphs",
+          "tables",
+          "company-specific imagery copied from the reference report"
+        ]
+      },
+      "section_opening_page": {
+        "use": "Follow the divider with a section opening page containing the section title and a short overview.",
+        "elements": [
+          "section title",
+          "short purpose paragraph",
+          "subsection navigation or key disclosure themes",
+          "optional figure/table lead-in"
+        ]
+      },
+      "detail_pages": {
+        "use": "Use detail pages for narrative, processes, tables, figures and evidence-backed disclosure.",
+        "elements": [
+          "numbered subsections",
+          "short paragraphs",
+          "bullets for principles and process steps",
+          "tables for metrics, risks, governance responsibilities and mappings",
+          "figures for governance flow, value chain, risk lifecycle and financed-emissions scope"
+        ]
+      }
+    },
+    "visual_hierarchy": [
+      "Use clear hierarchical numbering for major sections and subsections.",
+      "Use section labels consistently in page headers or footers.",
+      "Use captions for every figure and table.",
+      "Separate overview, methodology, data limitations and results visually.",
+      "Keep compliance-critical text readable before decorative design."
+    ],
+    "section_layout_rules": {
+      "General Requirements": [
+        "Use concise basis-of-preparation layout.",
+        "Prefer short subsections for reporting period, boundaries, fair presentation, connected information, sources of guidance, compliance and materiality.",
+        "Use a compact summary table only if it improves traceability."
+      ],
+      "Governance": [
+        "Use diagrams or responsibility matrices to show oversight structure.",
+        "Use role-based blocks: body/role, mandate, responsibility, reporting or escalation path.",
+        "Use tables for board/committee responsibilities, skills, frequency and oversight topics when supported by payload."
+      ],
+      "Strategy": [
+        "Use a more visual and narrative layout than other sections.",
+        "Use value-chain diagrams, risk/opportunity matrices and time-horizon tables.",
+        "Break long strategy narratives into thematic blocks with clear labels."
+      ],
+      "Risk Management": [
+        "Use process-flow layouts for identify, assess, prioritise, monitor and integrate.",
+        "Use tables for risk type, process, owner, control, monitoring mechanism and escalation.",
+        "Separate general sustainability risk management from climate-specific risk management where applicable."
+      ],
+      "Metrics and Targets": [
+        "Use table-first layout.",
+        "Include metric name, definition, value, unit, source, boundary, target, status and related report section when available.",
+        "Use methodology and limitation callouts for emissions, financed emissions and estimated metrics.",
+        "Keep narrative commentary brief and directly linked to table content."
+      ]
+    },
+    "pdf_readability_rules": [
+      "Avoid long paragraphs wider than a normal report column.",
+      "Use bullets for lists longer than three items.",
+      "Avoid tables with paragraph-length cells unless no alternative exists.",
+      "Use page breaks before major sections and before very large tables.",
+      "Do not use figures as decoration only; every figure must support disclosure understanding.",
+      "Use consistent formatting for data gaps, estimates and externally assured metrics."
+    ],
+    "no_copying_rules_for_layout": [
+      "Do not reuse reference report images, icons, page compositions or distinctive brand design.",
+      "Do not copy exact figure structure if it includes reference-company-specific governance or value-chain entities.",
+      "Recreate only abstract layout patterns such as divider pages, numbered sections, responsibility matrices and metric tables."
+    ]
+  },
+  "table_patterns": {
+    "general_table_rules": [
+      "Use descriptive table titles placed directly above the table; titles state purpose, not just topic.",
+      "Repeat header rows on each page for multi-page tables; keep column widths stable across the report.",
+      "Use concise cell text: label + colon + one-sentence explanation; use bullets within cells for multiple items.",
+      "Right-align numeric values; left-align text labels; keep units consistent and explicit.",
+      "Include explicit status entries for missing/inapplicable data; do not leave blanks.",
+      "Use footnotes for methodology nuances; reference footnotes consistently using a single style.",
+      "Avoid implying completeness; use qualifiers such as 'examples include' where appropriate.",
+      "Where totals are presented, include an explicit total row and define reconciliation logic."
+    ],
+    "governance_tables": [
+      "Prefer role-to-responsibility mapping tables with generic role labels and qualitative cadence descriptors.",
+      "Include columns for mandate, decision rights, reporting/escalation, and key governance artifacts (generic descriptors).",
+      "Avoid personal identifiers; present competence at collective/role level.",
+      "Use consistent governance verbs across rows (oversees, reviews, approves, monitors, reports, escalates)."
+    ],
+    "strategy_tables": [
+      "Use a consistent theme/topic template across the section to enable comparability.",
+      "Separate impact materiality and financial materiality into distinct tables or clearly separated blocks.",
+      "Include standardized time-horizon buckets as discrete fields (not embedded in prose).",
+      "Use value-chain mapping tables with consistent segment definitions (upstream / own operations / downstream).",
+      "Include a financial statement linkage table using generic line-item placeholders and cross-reference placeholders."
+    ],
+    "risk_management_tables": [
+      "Use lifecycle mapping tables (identify → assess → manage → monitor) with owners, controls, outputs, and escalation points.",
+      "Keep controls high-level; avoid detailed risk-control matrices that imply completeness or disclose sensitive detail.",
+      "Use value-chain segmentation tables with generalized risk theme categories and generic input/control descriptions.",
+      "If climate methodology is tabulated, describe inputs/outputs as categories and avoid named scenarios/tools/providers."
+    ],
+    "metrics_and_targets_tables": [
+      "Use a fixed-column metrics register as the primary disclosure vehicle; keep column order consistent across pages.",
+      "Ensure each metric row includes: definition (scope/inclusions/exclusions), value/status, target (if applicable), source type, internal source location descriptor, and mapping to report pillar/section.",
+      "Use nested disaggregation mini-tables within cells where needed; include totals and define category taxonomy.",
+      "Apply assurance markers consistently (if used) and explain them once in a consolidated legend with scope/limitations.",
+      "Separate IFRS S1-aligned metrics from IFRS S2-aligned climate metrics in distinct table blocks."
+    ],
+    "recommended_columns_by_table_type": {
+      "General requirements topic locator (cross-reference map)": [
+        "General requirement topic",
+        "Where addressed in this report package",
+        "Notes on scope/limitations (optional)"
+      ],
+      "Reporting boundary summary": [
+        "Boundary element",
+        "Approach applied",
+        "Alignment to financial reporting (yes/no/partial)",
+        "Key limitations or exclusions (optional)"
+      ],
+      "Materiality process overview (stepwise)": [
+        "Step",
+        "Description",
+        "Inputs considered",
+        "Outputs"
+      ],
+      "Stakeholder categories (grouped listing)": [
+        "Internal stakeholder categories",
+        "External stakeholder categories"
+      ],
+      "Governance bodies and roles — mandate and decision rights": [
+        "Governance body/role (generic label)",
+        "Primary mandate (scope statement)",
+        "Key responsibilities (narrative snippets)",
+        "Decision rights (approve/recommend/monitor)",
+        "Reporting line / escalation pathway",
+        "Key governance artifacts (generic descriptors)"
+      ],
+      "Lines of defence — responsibilities": [
+        "Operational execution (first line)",
+        "Oversight and risk/compliance support (second line)",
+        "Independent assurance (third line)"
+      ],
+      "Capability and competence overview (governance roles)": [
+        "Governance layer",
+        "Competence areas relevant to oversight",
+        "How competence is maintained",
+        "How competence is assessed"
+      ],
+      "Strategy themes matrix (at-a-glance)": [
+        "Theme/Pillar",
+        "Progress/Actions (current period)",
+        "Objectives/Intent (forward-looking)",
+        "Focus/Next steps",
+        "Primary value-chain segment(s) impacted"
+      ],
+      "Impact materiality table (topic-by-topic)": [
+        "Positive impacts",
+        "Actual/Potential (positive)",
+        "Negative impacts",
+        "Actual/Potential (negative)"
+      ],
+      "Financial materiality table (topic-by-topic)": [
+        "Risks",
+        "Time horizon",
+        "Opportunities",
+        "Time horizon"
+      ],
+      "Value-chain mapping table": [
+        "Material topic",
+        "Upstream relevance",
+        "Internal operations relevance",
+        "Downstream relevance",
+        "Key stakeholder groups (generic categories)",
+        "Management implications (high-level)"
+      ],
+      "Financial statement linkage and traceability table": [
+        "Material topic",
+        "Financial statement area (Assets/Liabilities/Income/Expenses/Cash flows)",
+        "Potentially affected line items (generic placeholders)",
+        "Nature of effect (qualitative)",
+        "Note/section reference (placeholder)"
+      ],
+      "Risk management lifecycle mapping": [
+        "Lifecycle stage",
+        "Key activities",
+        "Primary owner (generic function)",
+        "Key controls (high-level)",
+        "Key outputs/artifacts (generic)",
+        "Escalation/approval points"
+      ],
+      "Value chain risk segmentation overview": [
+        "Value chain segment",
+        "Representative sustainability risk themes (general categories)",
+        "Typical assessment inputs (generic)",
+        "Representative controls/mitigations (generic)",
+        "Monitoring approach (generic)"
+      ],
+      "Climate risk methodology summary": [
+        "Component",
+        "Purpose",
+        "Inputs (categories)",
+        "Outputs (categories)",
+        "How results inform decisions (generic)"
+      ],
+      "Metrics and Targets Register (Core Template)": [
+        "Metric",
+        "Metric definition (scope, inclusions/exclusions)",
+        "Reporting-period value (numeric or qualitative status)",
+        "Target (if applicable) and target definition",
+        "External framework/source type (if applicable)",
+        "Internal source location (generic descriptor)",
+        "Mapping to report section/pillar"
+      ],
+      "Boundary and Reconciliation Summary": [
+        "Reconciliation step",
+        "Description (inclusion/exclusion rule)",
+        "Resulting perimeter/status (qualitative or quantitative, as applicable)"
+      ],
+      "Assurance Marker Legend and Scope Summary": [
+        "Marker/symbol",
+        "Meaning (assurance status)",
+        "Scope description (what is covered)",
+        "Limitations (what is not covered)",
+        "Where to find the full assurance statement (generic reference)"
+      ]
+    }
+  },
+  "forbidden_terms": [
+    "Emirates NBD",
+    "Emirates NBD Group",
+    "DenizBank",
+    "Emirates Islamic",
+    "Emirates NBD Capital",
+    "Emirates NBD Asset Management",
+    "Vijay Bains",
+    "Manoj Chawla",
+    "Patrick Sullivan",
+    "BNRESGC",
+    "Board Nomination, Remuneration and Environmental Social Governance Committee",
+    "BRC",
+    "Board Risk Committee",
+    "GRC",
+    "Group Risk Committee",
+    "EXCO",
+    "Group Executive Committee",
+    "Sustainable Finance Forum",
+    "Group Model Oversight Committee",
+    "Management Credit Committee",
+    "Responsible Investment Committee",
+    "AED",
+    "USD",
+    "Dubai",
+    "UAE",
+    "MENA",
+    "MENAT",
+    "CBUAE",
+    "KPMG",
+    "Sustainalytics",
+    "Microsoft Sustainability Manager"
+  ],
+  "no_copying_rules": "# No-copying and style-source rules for report generation\n\nThe reference report is used only to extract reusable style, structure, formatting and PDF layout patterns.\n\n## Allowed\n\n- Use abstract writing style rules.\n- Use abstract section structures.\n- Use generic table and figure patterns.\n- Use PDF layout principles such as section divider pages, numbered sections, captions and scannable tables.\n- Use the target company's own committee names, policies, systems, frameworks, people, tools, locations, targets and metrics only when explicitly supported by the target company payload or approved source data.\n\n## Forbidden\n\n- Do not copy sentences from the reference report.\n- Do not reuse the reference company's facts, names, amounts, awards, targets, people, committees, locations, tools, vendors, images or claims.\n- Do not paste large portions of the reference report into generation prompts.\n- Do not reuse reference report numbers as examples in generated disclosure.\n- Do not imitate distinctive brand design, imagery or exact page compositions.\n- Do not use unsupported marketing or leadership claims.\n\n## Required behavior\n\n- Style guides control tone, structure and formatting only.\n- IFRS requirements control disclosure coverage.\n- Company payloads control factual content.\n- Unsupported disclosure requirements must be marked as data gaps rather than invented.\n",
+  "requirements_total": 15,
+  "requirements_with_writer_safe_evidence": 15,
+  "requirements_without_writer_safe_evidence": 0,
+  "unique_selected_evidence_paths": [
+    "board_minutes[29].climate_topics_discussed",
+    "board_minutes[29].committee_name",
+    "board_minutes[29].committee_type",
+    "board_minutes[33].committee_name",
+    "board_minutes[33].committee_type",
+    "board_minutes[34].climate_topics_discussed",
+    "board_minutes[35].climate_topics_discussed",
+    "governance[0].board_climate_expertise_pct",
+    "governance[0].board_size",
+    "governance[0].climate_risk_reporting_to_board",
+    "governance[0].esg_committee_exists",
+    "governance[0].esg_committee_meetings_per_year",
+    "governance[0].independent_directors_pct",
+    "governance[0].major_transactions_climate_check",
+    "governance[0].management_committee_name",
+    "governance[1].major_transactions_climate_check",
+    "governance[1].management_committee_name",
+    "governance[2].management_committee_name",
+    "reporting_kpis.governance_maturity.board_climate_expertise_pct",
+    "reporting_kpis.governance_maturity.esg_committee_exists",
+    "reporting_kpis.governance_maturity.esg_committee_meetings"
+  ],
+  "requirements": [
+    {
+      "requirement_id": "IFRS_S1_27_C02",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (a) the governance body(s) (which can include a board, committee or equivalent body charged with governance) or individual(s) responsible for oversight of sustainability-related risks and opportunities. Specifically, the entity shall identify that body(s) or individual(s) and disclose information about: — (i) how responsibilities for sustainability-related risks and opportunities are reflected in the terms of reference, mandates, role descriptions and other related policies applicable to that body(s) or individual(s)",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "evidence": [
+        {
+          "payload_path": "governance[0].board_size",
+          "payload_root": "governance",
+          "value_preview": "10",
+          "value_type": "int",
+          "match_score": 18,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].esg_committee_exists",
+          "payload_root": "governance",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 18,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].esg_committee_meetings_per_year",
+          "payload_root": "governance",
+          "value_preview": "5",
+          "value_type": "int",
+          "match_score": 18,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].board_climate_expertise_pct",
+          "payload_root": "governance",
+          "value_preview": "30.0",
+          "value_type": "float",
+          "match_score": 18,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].climate_risk_reporting_to_board",
+          "payload_root": "governance",
+          "value_preview": "semi_annual",
+          "value_type": "str",
+          "match_score": 18,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        }
+      ],
+      "writer_instruction": "Address this requirement only using the listed writer-safe evidence. If evidence is unavailable, do not invent facts and do not mention missing data."
+    },
+    {
+      "requirement_id": "IFRS_S1_27_C03",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (a) the governance body(s) (which can include a board, committee or equivalent body charged with governance) or individual(s) responsible for oversight of sustainability-related risks and opportunities. Specifically, the entity shall identify that body(s) or individual(s) and disclose information about: — (ii) how the body(s) or individual(s) determines whether appropriate skills and competencies are available or will be developed to oversee strategies designed to respond to sustainability-related risks and opportunities",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "evidence": [
+        {
+          "payload_path": "governance[0].board_size",
+          "payload_root": "governance",
+          "value_preview": "10",
+          "value_type": "int",
+          "match_score": 18,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].esg_committee_exists",
+          "payload_root": "governance",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 18,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].esg_committee_meetings_per_year",
+          "payload_root": "governance",
+          "value_preview": "5",
+          "value_type": "int",
+          "match_score": 18,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].board_climate_expertise_pct",
+          "payload_root": "governance",
+          "value_preview": "30.0",
+          "value_type": "float",
+          "match_score": 18,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].climate_risk_reporting_to_board",
+          "payload_root": "governance",
+          "value_preview": "semi_annual",
+          "value_type": "str",
+          "match_score": 18,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        }
+      ],
+      "writer_instruction": "Address this requirement only using the listed writer-safe evidence. If evidence is unavailable, do not invent facts and do not mention missing data."
+    },
+    {
+      "requirement_id": "IFRS_S1_27_C04",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (a) the governance body(s) (which can include a board, committee or equivalent body charged with governance) or individual(s) responsible for oversight of sustainability-related risks and opportunities. Specifically, the entity shall identify that body(s) or individual(s) and disclose information about: — (iii) how and how often the body(s) or individual(s) is informed about sustainability-related risks and opportunities",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "evidence": [
+        {
+          "payload_path": "governance[0].board_size",
+          "payload_root": "governance",
+          "value_preview": "10",
+          "value_type": "int",
+          "match_score": 18,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].esg_committee_exists",
+          "payload_root": "governance",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 18,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].esg_committee_meetings_per_year",
+          "payload_root": "governance",
+          "value_preview": "5",
+          "value_type": "int",
+          "match_score": 18,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].board_climate_expertise_pct",
+          "payload_root": "governance",
+          "value_preview": "30.0",
+          "value_type": "float",
+          "match_score": 18,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].climate_risk_reporting_to_board",
+          "payload_root": "governance",
+          "value_preview": "semi_annual",
+          "value_type": "str",
+          "match_score": 18,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        }
+      ],
+      "writer_instruction": "Address this requirement only using the listed writer-safe evidence. If evidence is unavailable, do not invent facts and do not mention missing data."
+    },
+    {
+      "requirement_id": "IFRS_S1_27_C05",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (a) the governance body(s) (which can include a board, committee or equivalent body charged with governance) or individual(s) responsible for oversight of sustainability-related risks and opportunities. Specifically, the entity shall identify that body(s) or individual(s) and disclose information about: — (iv) how the body(s) or individual(s) takes into account sustainability-related risks and opportunities when overseeing the entity’s strategy, its decisions on major transactions and its risk management processes and related policies, including whether the body(s) or individual(s) has considered trade-offs associated with those risks and opportunities",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "evidence": [
+        {
+          "payload_path": "governance[0].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "Group Sustainability Committee",
+          "value_type": "str",
+          "match_score": 19,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].major_transactions_climate_check",
+          "payload_root": "governance",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 19,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[1].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "ESG Executive Committee",
+          "value_type": "str",
+          "match_score": 19,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[1].major_transactions_climate_check",
+          "payload_root": "governance",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 19,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[2].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "Climate Risk Management Committee",
+          "value_type": "str",
+          "match_score": 19,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        }
+      ],
+      "writer_instruction": "Address this requirement only using the listed writer-safe evidence. If evidence is unavailable, do not invent facts and do not mention missing data."
+    },
+    {
+      "requirement_id": "IFRS_S1_27_C06",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (a) the governance body(s) (which can include a board, committee or equivalent body charged with governance) or individual(s) responsible for oversight of sustainability-related risks and opportunities. Specifically, the entity shall identify that body(s) or individual(s) and disclose information about: — (v) how the body(s) or individual(s) oversees the setting of targets related to sustainability-related risks and opportunities, and monitors progress towards those targets (see paragraph 51), including whether and how related performance metrics are included in remuneration policies.",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "evidence": [
+        {
+          "payload_path": "board_minutes[34].climate_topics_discussed",
+          "payload_root": "board_minutes",
+          "value_preview": "exec_remuneration_esg_kpis|carbon_credit_approval|net_zero_progress",
+          "value_type": "str",
+          "match_score": 19,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "board_minutes[35].climate_topics_discussed",
+          "payload_root": "board_minutes",
+          "value_preview": "net_zero_progress|exec_remuneration_esg_kpis",
+          "value_type": "str",
+          "match_score": 19,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "reporting_kpis.governance_maturity.esg_committee_exists",
+          "payload_root": "reporting_kpis",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 18,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "reporting_kpis.governance_maturity.esg_committee_meetings",
+          "payload_root": "reporting_kpis",
+          "value_preview": "7",
+          "value_type": "int",
+          "match_score": 18,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "reporting_kpis.governance_maturity.board_climate_expertise_pct",
+          "payload_root": "reporting_kpis",
+          "value_preview": "40.0",
+          "value_type": "float",
+          "match_score": 18,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        }
+      ],
+      "writer_instruction": "Address this requirement only using the listed writer-safe evidence. If evidence is unavailable, do not invent facts and do not mention missing data."
+    },
+    {
+      "requirement_id": "IFRS_S1_27_C08",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (b) management’s role in the governance processes, controls and procedures used to monitor, manage and oversee sustainability-related risks and opportunities, including information about: — (i) whether the role is delegated to a specific management-level position or management-level committee and how oversight is exercised over that position or committee",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "evidence": [
+        {
+          "payload_path": "governance[0].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "Group Sustainability Committee",
+          "value_type": "str",
+          "match_score": 19,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[1].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "ESG Executive Committee",
+          "value_type": "str",
+          "match_score": 19,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[2].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "Climate Risk Management Committee",
+          "value_type": "str",
+          "match_score": 19,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].esg_committee_exists",
+          "payload_root": "governance",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 18,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].esg_committee_meetings_per_year",
+          "payload_root": "governance",
+          "value_preview": "5",
+          "value_type": "int",
+          "match_score": 18,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        }
+      ],
+      "writer_instruction": "Address this requirement only using the listed writer-safe evidence. If evidence is unavailable, do not invent facts and do not mention missing data."
+    },
+    {
+      "requirement_id": "IFRS_S1_27_C09",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (b) management’s role in the governance processes, controls and procedures used to monitor, manage and oversee sustainability-related risks and opportunities, including information about: — (ii) whether management uses controls and procedures to support the oversight of sustainability-related risks and opportunities and, if so, how these controls and procedures are integrated with other internal functions.",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "evidence": [
+        {
+          "payload_path": "governance[0].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "Group Sustainability Committee",
+          "value_type": "str",
+          "match_score": 18,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[1].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "ESG Executive Committee",
+          "value_type": "str",
+          "match_score": 18,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[2].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "Climate Risk Management Committee",
+          "value_type": "str",
+          "match_score": 18,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].board_size",
+          "payload_root": "governance",
+          "value_preview": "10",
+          "value_type": "int",
+          "match_score": 17,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].independent_directors_pct",
+          "payload_root": "governance",
+          "value_preview": "70.0",
+          "value_type": "float",
+          "match_score": 17,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        }
+      ],
+      "writer_instruction": "Address this requirement only using the listed writer-safe evidence. If evidence is unavailable, do not invent facts and do not mention missing data."
+    },
+    {
+      "requirement_id": "IFRS_S2_6_C02",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (a) the governance body(s) (which can include a board, committee or equivalent body charged with governance) or individual(s) responsible for oversight of climate-related risks and opportunities. Specifically, the entity shall identify that body(s) or individual(s) and disclose information about: — (i) how responsibilities for climate-related risks and opportunities are reflected in the terms of reference, mandates, role descriptions and other related policies applicable to that body(s) or individual(s)",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "evidence": [
+        {
+          "payload_path": "governance[0].board_size",
+          "payload_root": "governance",
+          "value_preview": "10",
+          "value_type": "int",
+          "match_score": 12,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].esg_committee_exists",
+          "payload_root": "governance",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 12,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].esg_committee_meetings_per_year",
+          "payload_root": "governance",
+          "value_preview": "5",
+          "value_type": "int",
+          "match_score": 12,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].board_climate_expertise_pct",
+          "payload_root": "governance",
+          "value_preview": "30.0",
+          "value_type": "float",
+          "match_score": 12,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].climate_risk_reporting_to_board",
+          "payload_root": "governance",
+          "value_preview": "semi_annual",
+          "value_type": "str",
+          "match_score": 12,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        }
+      ],
+      "writer_instruction": "Address this requirement only using the listed writer-safe evidence. If evidence is unavailable, do not invent facts and do not mention missing data."
+    },
+    {
+      "requirement_id": "IFRS_S2_6_C03",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (a) the governance body(s) (which can include a board, committee or equivalent body charged with governance) or individual(s) responsible for oversight of climate-related risks and opportunities. Specifically, the entity shall identify that body(s) or individual(s) and disclose information about: — (ii) how the body(s) or individual(s) determines whether appropriate skills and competencies are available or will be developed to oversee strategies designed to respond to climate-related risks and opportunities",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "evidence": [
+        {
+          "payload_path": "governance[0].board_size",
+          "payload_root": "governance",
+          "value_preview": "10",
+          "value_type": "int",
+          "match_score": 12,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].esg_committee_exists",
+          "payload_root": "governance",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 12,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].esg_committee_meetings_per_year",
+          "payload_root": "governance",
+          "value_preview": "5",
+          "value_type": "int",
+          "match_score": 12,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].board_climate_expertise_pct",
+          "payload_root": "governance",
+          "value_preview": "30.0",
+          "value_type": "float",
+          "match_score": 12,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].climate_risk_reporting_to_board",
+          "payload_root": "governance",
+          "value_preview": "semi_annual",
+          "value_type": "str",
+          "match_score": 12,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        }
+      ],
+      "writer_instruction": "Address this requirement only using the listed writer-safe evidence. If evidence is unavailable, do not invent facts and do not mention missing data."
+    },
+    {
+      "requirement_id": "IFRS_S2_6_C04",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (a) the governance body(s) (which can include a board, committee or equivalent body charged with governance) or individual(s) responsible for oversight of climate-related risks and opportunities. Specifically, the entity shall identify that body(s) or individual(s) and disclose information about: — (iii) how and how often the body(s) or individual(s) is informed about climate-related risks and opportunities",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "evidence": [
+        {
+          "payload_path": "governance[0].board_size",
+          "payload_root": "governance",
+          "value_preview": "10",
+          "value_type": "int",
+          "match_score": 12,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].esg_committee_exists",
+          "payload_root": "governance",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 12,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].esg_committee_meetings_per_year",
+          "payload_root": "governance",
+          "value_preview": "5",
+          "value_type": "int",
+          "match_score": 12,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].board_climate_expertise_pct",
+          "payload_root": "governance",
+          "value_preview": "30.0",
+          "value_type": "float",
+          "match_score": 12,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].climate_risk_reporting_to_board",
+          "payload_root": "governance",
+          "value_preview": "semi_annual",
+          "value_type": "str",
+          "match_score": 12,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        }
+      ],
+      "writer_instruction": "Address this requirement only using the listed writer-safe evidence. If evidence is unavailable, do not invent facts and do not mention missing data."
+    },
+    {
+      "requirement_id": "IFRS_S2_6_C05",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (a) the governance body(s) (which can include a board, committee or equivalent body charged with governance) or individual(s) responsible for oversight of climate-related risks and opportunities. Specifically, the entity shall identify that body(s) or individual(s) and disclose information about: — (iv) how the body(s) or individual(s) takes into account climate-related risks and opportunities when overseeing the entity’s strategy, its decisions on major transactions and its risk management processes and related policies, including whether the body(s) or individual(s) has considered trade-offs associated with those risks and opportunities",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "evidence": [
+        {
+          "payload_path": "governance[0].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "Group Sustainability Committee",
+          "value_type": "str",
+          "match_score": 13,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].major_transactions_climate_check",
+          "payload_root": "governance",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 13,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[1].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "ESG Executive Committee",
+          "value_type": "str",
+          "match_score": 13,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[1].major_transactions_climate_check",
+          "payload_root": "governance",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 13,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[2].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "Climate Risk Management Committee",
+          "value_type": "str",
+          "match_score": 13,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        }
+      ],
+      "writer_instruction": "Address this requirement only using the listed writer-safe evidence. If evidence is unavailable, do not invent facts and do not mention missing data."
+    },
+    {
+      "requirement_id": "IFRS_S2_6_C06",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (a) the governance body(s) (which can include a board, committee or equivalent body charged with governance) or individual(s) responsible for oversight of climate-related risks and opportunities. Specifically, the entity shall identify that body(s) or individual(s) and disclose information about: — (v) how the body(s) or individual(s) oversees the setting of targets related to climate-related risks and opportunities, and monitors progress towards those targets (see paragraphs 33–36), including whether and how related performance metrics are included in remuneration policies (see paragraph 29(g)).",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "evidence": [
+        {
+          "payload_path": "board_minutes[29].committee_name",
+          "payload_root": "board_minutes",
+          "value_preview": "Full Board",
+          "value_type": "str",
+          "match_score": 13,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "board_minutes[29].committee_type",
+          "payload_root": "board_minutes",
+          "value_preview": "full_board",
+          "value_type": "str",
+          "match_score": 13,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "board_minutes[29].climate_topics_discussed",
+          "payload_root": "board_minutes",
+          "value_preview": "exec_remuneration_esg_kpis|physical_risk_update",
+          "value_type": "str",
+          "match_score": 13,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "board_minutes[33].committee_name",
+          "payload_root": "board_minutes",
+          "value_preview": "ESG & Sustainability Committee",
+          "value_type": "str",
+          "match_score": 13,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "board_minutes[33].committee_type",
+          "payload_root": "board_minutes",
+          "value_preview": "esg_committee",
+          "value_type": "str",
+          "match_score": 13,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        }
+      ],
+      "writer_instruction": "Address this requirement only using the listed writer-safe evidence. If evidence is unavailable, do not invent facts and do not mention missing data."
+    },
+    {
+      "requirement_id": "IFRS_S2_6_C08",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (b) management’s role in the governance processes, controls and procedures used to monitor, manage and oversee climate-related risks and opportunities, including information about: — (i) whether the role is delegated to a specific management-level position or management-level committee and how oversight is exercised over that position or committee",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "evidence": [
+        {
+          "payload_path": "governance[0].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "Group Sustainability Committee",
+          "value_type": "str",
+          "match_score": 13,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[1].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "ESG Executive Committee",
+          "value_type": "str",
+          "match_score": 13,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[2].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "Climate Risk Management Committee",
+          "value_type": "str",
+          "match_score": 13,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].esg_committee_exists",
+          "payload_root": "governance",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 12,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].esg_committee_meetings_per_year",
+          "payload_root": "governance",
+          "value_preview": "5",
+          "value_type": "int",
+          "match_score": 12,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        }
+      ],
+      "writer_instruction": "Address this requirement only using the listed writer-safe evidence. If evidence is unavailable, do not invent facts and do not mention missing data."
+    },
+    {
+      "requirement_id": "IFRS_S2_6_C09",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (b) management’s role in the governance processes, controls and procedures used to monitor, manage and oversee climate-related risks and opportunities, including information about: — (ii) whether management uses controls and procedures to support the oversight of climate-related risks and opportunities and, if so, how these controls and procedures are integrated with other internal functions.",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "evidence": [
+        {
+          "payload_path": "governance[0].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "Group Sustainability Committee",
+          "value_type": "str",
+          "match_score": 12,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[1].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "ESG Executive Committee",
+          "value_type": "str",
+          "match_score": 12,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[2].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "Climate Risk Management Committee",
+          "value_type": "str",
+          "match_score": 12,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].board_size",
+          "payload_root": "governance",
+          "value_preview": "10",
+          "value_type": "int",
+          "match_score": 11,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].independent_directors_pct",
+          "payload_root": "governance",
+          "value_preview": "70.0",
+          "value_type": "float",
+          "match_score": 11,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        }
+      ],
+      "writer_instruction": "Address this requirement only using the listed writer-safe evidence. If evidence is unavailable, do not invent facts and do not mention missing data."
+    },
+    {
+      "requirement_id": "IFRS_S2_7_C01",
+      "requirement_text": "In preparing disclosures to fulfil the requirements in paragraph 6, an entity shall avoid unnecessary duplication in accordance with IFRS S1 General Requirements for Disclosure of Sustainability-related Financial Information (IFRS S1) (see paragraph B42(b) of IFRS S1). For example, although an entity shall provide the information required by paragraph 6, if oversight of sustainability-related risks and opportunities is managed on an integrated basis, the entity would avoid duplication by providing integrated governance disclosures instead of separate disclosures for each sustainability-related risk and opportunity.",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "evidence": [
+        {
+          "payload_path": "governance[0].board_size",
+          "payload_root": "governance",
+          "value_preview": "10",
+          "value_type": "int",
+          "match_score": 11,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].independent_directors_pct",
+          "payload_root": "governance",
+          "value_preview": "70.0",
+          "value_type": "float",
+          "match_score": 11,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].esg_committee_exists",
+          "payload_root": "governance",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 11,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].esg_committee_meetings_per_year",
+          "payload_root": "governance",
+          "value_preview": "5",
+          "value_type": "int",
+          "match_score": 11,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        },
+        {
+          "payload_path": "governance[0].board_climate_expertise_pct",
+          "payload_root": "governance",
+          "value_preview": "30.0",
+          "value_type": "float",
+          "match_score": 11,
+          "evidence_strength": "strong",
+          "writer_safe": true
+        }
+      ],
+      "writer_instruction": "Address this requirement only using the listed writer-safe evidence. If evidence is unavailable, do not invent facts and do not mention missing data."
+    }
+  ],
+  "writer_rules": {
+    "use_only_writer_safe_evidence": true,
+    "do_not_invent_facts": true,
+    "do_not_use_audit_only_evidence": true,
+    "do_not_mention_missing_data": true,
+    "do_not_reduce_score_for_missing_synthetic_data": true,
+    "follow_section_blueprint": true,
+    "follow_style_guides": true,
+    "maintain_ifrs_s1_s2_professional_tone": true
+  },
+  "missing_data_policy": {
+    "report_policy": "do_not_mention_missing_data_in_generated_report",
+    "scoring_policy": "do_not_reduce_section_score",
+    "workflow_impact": "warning_only"
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "summary": {
+    "validation_type": "deterministic_draft_report_validation",
+    "passed": true,
+    "checks_total": 5,
+    "checks_passed": 3,
+    "checks_failed": 2,
+    "error_count": 0,
+    "warning_count": 2,
+    "policy": {
+      "warnings_do_not_block_generation": true,
+      "missing_data_does_not_reduce_score": true,
+      "do_not_mention_missing_data_in_report": true
+    }
+  },
+  "checks": [
+    {
+      "check_id": "report_not_empty",
+      "passed": true,
+      "severity": "info",
+      "message": "Report markdown is not empty."
+    },
+    {
+      "check_id": "required_sections_present",
+      "passed": true,
+      "severity": "info",
+      "message": "All required report sections are present.",
+      "details": {
+        "missing_sections": []
+      }
+    },
+    {
+      "check_id": "missing_data_not_mentioned",
+      "passed": true,
+      "severity": "info",
+      "message": "Report does not mention missing data.",
+      "details": {
+        "found_terms": [],
+        "policy": "do_not_mention_missing_data_in_generated_report"
+      }
+    },
+    {
+      "check_id": "internal_payload_paths_not_exposed",
+      "passed": false,
+      "severity": "warning",
+      "message": "Report exposes internal payload paths. This is acceptable only in the prototype.",
+      "details": {
+        "internal_paths_found_count": 306,
+        "sample_internal_paths": [
+          "bank.fiscal_year_end",
+          "bank.regulatory_regime",
+          "bank.reporting_currency",
+          "board_minutes[29].climate_topics_discussed",
+          "board_minutes[29].committee_name",
+          "board_minutes[29].committee_type",
+          "board_minutes[33].committee_name",
+          "board_minutes[33].committee_type",
+          "board_minutes[34].climate_topics_discussed",
+          "board_minutes[35].climate_topics_discussed",
+          "climate_opportunities[0].data_source",
+          "climate_opportunities[1].data_source",
+          "climate_opportunities[2].data_source",
+          "climate_opportunities[3].data_source",
+          "climate_opportunities[4].data_source",
+          "climate_risk_register.risk_rating",
+          "climate_risk_register[0].changed_since_prior_period",
+          "climate_risk_register[0].erm_integrated_flag",
+          "climate_risk_register[0].ifrs_s2_para_evidence",
+          "climate_risk_register[0].likelihood_score"
+        ],
+        "prototype_note": "The deterministic placeholder writer currently exposes evidence paths. The final LLM writer should convert evidence into narrative text."
+      }
+    },
+    {
+      "check_id": "prototype_language_not_present",
+      "passed": false,
+      "severity": "warning",
+      "message": "Report still contains prototype placeholder language.",
+      "details": {
+        "found_terms": [
+          "deterministic writer skeleton",
+          "placeholder",
+          "will later be replaced",
+          "draft section generated"
+        ],
+        "prototype_note": "This is expected while the deterministic writer skeleton is active. The final report should not contain this language."
+      }
+    }
+  ]
+}

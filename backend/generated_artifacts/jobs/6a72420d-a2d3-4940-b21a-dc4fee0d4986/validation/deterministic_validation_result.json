@@ -1,0 +1,68 @@
+{
+  "summary": {
+    "validation_type": "deterministic_draft_report_validation",
+    "passed": true,
+    "checks_total": 5,
+    "checks_passed": 4,
+    "checks_failed": 1,
+    "error_count": 0,
+    "warning_count": 1,
+    "policy": {
+      "warnings_do_not_block_generation": true,
+      "missing_data_does_not_reduce_score": true,
+      "do_not_mention_missing_data_in_report": true
+    }
+  },
+  "checks": [
+    {
+      "check_id": "report_not_empty",
+      "passed": true,
+      "severity": "info",
+      "message": "Report markdown is not empty."
+    },
+    {
+      "check_id": "required_sections_present",
+      "passed": true,
+      "severity": "info",
+      "message": "All required report sections are present.",
+      "details": {
+        "missing_sections": []
+      }
+    },
+    {
+      "check_id": "missing_data_not_mentioned",
+      "passed": true,
+      "severity": "info",
+      "message": "Report does not mention missing data.",
+      "details": {
+        "found_terms": [],
+        "policy": "do_not_mention_missing_data_in_generated_report"
+      }
+    },
+    {
+      "check_id": "internal_payload_paths_not_exposed",
+      "passed": false,
+      "severity": "warning",
+      "message": "Report exposes internal payload paths. This is acceptable only in the prototype.",
+      "details": {
+        "internal_paths_found_count": 3,
+        "sample_internal_paths": [
+          "climate_risk_register.risk_rating",
+          "rec_registry.csv",
+          "utility_invoices.scope2_market_tco2e"
+        ],
+        "prototype_note": "The deterministic placeholder writer currently exposes evidence paths. The final LLM writer should convert evidence into narrative text."
+      }
+    },
+    {
+      "check_id": "prototype_language_not_present",
+      "passed": true,
+      "severity": "info",
+      "message": "Report does not contain prototype placeholder language.",
+      "details": {
+        "found_terms": [],
+        "prototype_note": "This is expected while the deterministic writer skeleton is active. The final report should not contain this language."
+      }
+    }
+  ]
+}

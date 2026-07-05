@@ -1,10 +1,9 @@
-import time
-
 from celery import shared_task
 from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 
+from generation_engine.assembly.markdown_assembler import assemble_draft_report
 from generation_engine.evidence.coverage import build_coverage_summary
 from generation_engine.evidence.evidence_mapper import build_evidence_maps
 from generation_engine.evidence.missing_register import build_missing_requirements_register
@@ -12,11 +11,12 @@ from generation_engine.loaders.payload_loader import load_payloads_from_prefix
 from generation_engine.loaders.requirements_loader import load_requirements_from_prefix
 from generation_engine.loaders.style_loader import load_style_assets_from_prefix
 from generation_engine.planning.disclosure_plan_builder import build_disclosure_plans
-from generation_engine.writing.writer_context import build_writer_contexts
-from generation_engine.workflow.fake_pipeline import (
-    get_fake_pipeline_stages,
-    run_fake_pipeline,
+from generation_engine.validation.deterministic_gates import (
+    run_deterministic_validation_gates,
 )
+from generation_engine.writing.section_writer import build_section_drafts
+from generation_engine.writing.writer_context import build_writer_contexts
+from generation_engine.workflow.fake_pipeline import run_fake_pipeline
 
 from report_artifacts.models import ReportArtifact
 from report_artifacts.storage import (
@@ -45,7 +45,10 @@ def run_fake_report_generation_job(self, job_id):
     - build missing requirements register
     - build disclosure plans
     - build writer contexts
-    - create fake final report artifact
+    - build deterministic section drafts
+    - assemble full draft report markdown
+    - run deterministic validation gates
+    - use assembled draft as the primary report markdown
 
     Later, this task will call the real LangGraph workflow.
     """
@@ -73,19 +76,6 @@ def run_fake_report_generation_job(self, job_id):
                 "started_at",
             ]
         )
-
-        # Simulated progress stages.
-        # The real work happens below, but this keeps the frontend progress visible.
-        for stage in get_fake_pipeline_stages():
-            job.current_stage = stage.name
-            job.progress_percent = stage.progress
-            job.save(
-                update_fields=[
-                    "current_stage",
-                    "progress_percent",
-                ]
-            )
-            time.sleep(1)
 
         input_root = settings.GENERATION_INPUT_ROOT
 
@@ -161,8 +151,34 @@ def run_fake_report_generation_job(self, job_id):
             style_result=style_result,
         )
 
+        job.current_stage = "build_section_drafts"
+        job.progress_percent = 78
+        job.save(update_fields=["current_stage", "progress_percent"])
+
+        section_draft_result = build_section_drafts(
+            writer_context_result=writer_context_result,
+        )
+
+        job.current_stage = "assemble_draft_report"
+        job.progress_percent = 84
+        job.save(update_fields=["current_stage", "progress_percent"])
+
+        draft_report_result = assemble_draft_report(
+            section_draft_result=section_draft_result,
+            bank_name=job.bank.name,
+            reporting_year=job.reporting_year,
+        )
+
+        job.current_stage = "run_deterministic_validation"
+        job.progress_percent = 86
+        job.save(update_fields=["current_stage", "progress_percent"])
+
+        deterministic_validation_result = run_deterministic_validation_gates(
+            markdown=draft_report_result.markdown,
+        )
+
         job.current_stage = "run_fake_pipeline"
-        job.progress_percent = 75
+        job.progress_percent = 90
         job.save(update_fields=["current_stage", "progress_percent"])
 
         result = run_fake_pipeline(
@@ -174,6 +190,8 @@ def run_fake_report_generation_job(self, job_id):
             style_result=style_result,
             evidence_result=evidence_result,
         )
+
+        primary_report_markdown = draft_report_result.markdown
 
         result.final_summary["coverage_summary"] = coverage_result.coverage_summary[
             "overall"
@@ -190,6 +208,29 @@ def run_fake_report_generation_job(self, job_id):
         result.final_summary["writer_context_summary"] = (
             writer_context_result.summary
         )
+
+        result.final_summary["section_draft_summary"] = (
+            section_draft_result.summary
+        )
+
+        result.final_summary["draft_report_summary"] = (
+            draft_report_result.summary
+        )
+
+        result.final_summary["deterministic_validation_summary"] = (
+            deterministic_validation_result.summary
+        )
+
+        result.final_summary["primary_report_source"] = {
+            "source": "assembled_draft_report",
+            "llm_used": False,
+            "status": "draft",
+            "note": (
+                "The main downloadable Markdown report is currently assembled from "
+                "deterministic section drafts. It will later be replaced by the "
+                "LLM-generated validated report."
+            ),
+        }
 
         result.final_summary["missing_data_policy"] = {
             "report_policy": "do_not_mention_missing_data_in_generated_report",
@@ -221,6 +262,9 @@ def run_fake_report_generation_job(self, job_id):
                 *missing_result.warnings,
                 *disclosure_plan_result.warnings,
                 *writer_context_result.warnings,
+                *section_draft_result.warnings,
+                *draft_report_result.warnings,
+                *deterministic_validation_result.warnings,
             ]
 
             warning_count = len(all_warnings)
@@ -257,8 +301,8 @@ def run_fake_report_generation_job(self, job_id):
                 job=job,
                 report_version=report_version,
                 artifact_type=ReportArtifact.ArtifactType.FINAL_MARKDOWN,
-                object_key=f"jobs/{job.id}/final/approved_report_markdown.md",
-                text=result.final_markdown,
+                object_key=f"jobs/{job.id}/final/report_markdown.md",
+                text=primary_report_markdown,
                 content_type="text/markdown",
             )
 
@@ -371,6 +415,63 @@ def run_fake_report_generation_job(self, job_id):
                     "writer_context_summary.json"
                 ),
                 data=writer_context_result.summary,
+            )
+
+            for section_key, draft in section_draft_result.drafts.items():
+                file_slug = draft["file_slug"]
+
+                save_text_artifact(
+                    job=job,
+                    report_version=report_version,
+                    artifact_type=ReportArtifact.ArtifactType.DRAFT_SECTION,
+                    object_key=(
+                        f"jobs/{job.id}/draft_sections/"
+                        f"draft_{file_slug}.md"
+                    ),
+                    text=draft["markdown"],
+                    content_type="text/markdown",
+                )
+
+            save_json_artifact(
+                job=job,
+                report_version=report_version,
+                artifact_type=ReportArtifact.ArtifactType.LOG,
+                object_key=(
+                    f"jobs/{job.id}/draft_sections/"
+                    "draft_sections_summary.json"
+                ),
+                data=section_draft_result.summary,
+            )
+
+            save_text_artifact(
+                job=job,
+                report_version=report_version,
+                artifact_type=ReportArtifact.ArtifactType.LOG,
+                object_key=f"jobs/{job.id}/draft_report/full_draft_report.md",
+                text=draft_report_result.markdown,
+                content_type="text/markdown",
+            )
+
+            save_json_artifact(
+                job=job,
+                report_version=report_version,
+                artifact_type=ReportArtifact.ArtifactType.LOG,
+                object_key=f"jobs/{job.id}/draft_report/full_draft_report_summary.json",
+                data=draft_report_result.summary,
+            )
+
+            save_json_artifact(
+                job=job,
+                report_version=report_version,
+                artifact_type=ReportArtifact.ArtifactType.VALIDATION_RESULT,
+                object_key=(
+                    f"jobs/{job.id}/validation/"
+                    "deterministic_validation_result.json"
+                ),
+                data={
+                    "summary": deterministic_validation_result.summary,
+                    "checks": deterministic_validation_result.checks,
+                },
             )
 
             save_json_artifact(
