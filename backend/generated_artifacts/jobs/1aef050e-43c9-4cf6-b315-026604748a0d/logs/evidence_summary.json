@@ -1,0 +1,82 @@
+{
+  "sections": {
+    "general_requirements": {
+      "section_name": "General Requirements",
+      "requirements_total": 108,
+      "requirements_with_candidates": 101,
+      "requirements_without_candidates": 7,
+      "candidate_root_distribution": {
+        "climate_scenarios": 447,
+        "metadata": 125,
+        "targets": 47,
+        "governance": 35,
+        "value_chain_map": 31,
+        "reporting_kpis": 24,
+        "climate_risk_register": 23,
+        "financial_summary": 19,
+        "physical_risk_exposures": 13,
+        "bank": 6
+      }
+    },
+    "governance": {
+      "section_name": "Governance",
+      "requirements_total": 15,
+      "requirements_with_candidates": 15,
+      "requirements_without_candidates": 0,
+      "candidate_root_distribution": {
+        "governance": 107,
+        "board_minutes": 10,
+        "reporting_kpis": 3
+      }
+    },
+    "strategy": {
+      "section_name": "Strategy",
+      "requirements_total": 70,
+      "requirements_with_candidates": 70,
+      "requirements_without_candidates": 0,
+      "candidate_root_distribution": {
+        "climate_scenarios": 322,
+        "climate_risk_register": 65,
+        "value_chain_map": 61,
+        "reporting_kpis": 33,
+        "climate_opportunities": 20,
+        "financial_summary": 17,
+        "metadata": 16,
+        "bank": 3
+      }
+    },
+    "risk_management": {
+      "section_name": "Risk Management",
+      "requirements_total": 17,
+      "requirements_with_candidates": 14,
+      "requirements_without_candidates": 3,
+      "candidate_root_distribution": {
+        "climate_risk_register": 76,
+        "metadata": 13,
+        "value_chain_map": 12,
+        "physical_risk_exposures": 9
+      }
+    },
+    "metrics_targets": {
+      "section_name": "Metrics and Targets",
+      "requirements_total": 151,
+      "requirements_with_candidates": 149,
+      "requirements_without_candidates": 2,
+      "candidate_root_distribution": {
+        "reporting_kpis": 419,
+        "financed_emissions_equity": 311,
+        "targets": 248,
+        "financed_emissions": 77,
+        "financed_emissions_sovereign": 32,
+        "metadata": 28,
+        "financial_summary": 20,
+        "scope1": 10,
+        "internal_carbon_price": 3,
+        "bank": 1
+      }
+    }
+  },
+  "total_requirements": 361,
+  "total_requirements_with_candidates": 349,
+  "total_requirements_without_candidates": 12
+}

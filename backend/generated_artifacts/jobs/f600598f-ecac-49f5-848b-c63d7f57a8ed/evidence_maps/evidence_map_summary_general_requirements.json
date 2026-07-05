@@ -1,0 +1,18 @@
+{
+  "section_name": "General Requirements",
+  "requirements_total": 108,
+  "requirements_with_candidates": 101,
+  "requirements_without_candidates": 7,
+  "candidate_root_distribution": {
+    "climate_scenarios": 447,
+    "metadata": 125,
+    "targets": 47,
+    "governance": 35,
+    "value_chain_map": 31,
+    "reporting_kpis": 24,
+    "climate_risk_register": 23,
+    "financial_summary": 19,
+    "physical_risk_exposures": 13,
+    "bank": 6
+  }
+}

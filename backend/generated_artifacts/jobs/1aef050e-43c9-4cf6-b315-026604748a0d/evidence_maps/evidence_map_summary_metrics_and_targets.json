@@ -1,0 +1,18 @@
+{
+  "section_name": "Metrics and Targets",
+  "requirements_total": 151,
+  "requirements_with_candidates": 149,
+  "requirements_without_candidates": 2,
+  "candidate_root_distribution": {
+    "reporting_kpis": 419,
+    "financed_emissions_equity": 311,
+    "targets": 248,
+    "financed_emissions": 77,
+    "financed_emissions_sovereign": 32,
+    "metadata": 28,
+    "financial_summary": 20,
+    "scope1": 10,
+    "internal_carbon_price": 3,
+    "bank": 1
+  }
+}

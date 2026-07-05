@@ -1,0 +1,53 @@
+{
+  "job_id": "7f1a3898-1f9a-4303-993d-538922447d9d",
+  "status": "completed_with_warnings",
+  "warning_count": 4,
+  "warnings": [
+    {
+      "stage": "connectivity_judge",
+      "warning_type": "final_connectivity_warning",
+      "message": "Fake workflow completed with a simulated connectivity warning. In the current prototype, final validation failures are treated as warnings.",
+      "details": {
+        "approved": false,
+        "score": 6,
+        "final_failures_as_warnings": true
+      }
+    },
+    {
+      "stage": "build_disclosure_plans",
+      "warning_type": "requirements_without_writer_safe_evidence",
+      "message": "General Requirements has 7 requirements without writer-safe evidence. This is warning-only and must not be mentioned in the generated report.",
+      "details": {
+        "section_key": "general_requirements",
+        "section_title": "General Requirements",
+        "requirements_without_writer_safe_evidence": 7,
+        "report_policy": "do_not_mention_missing_data_in_generated_report",
+        "scoring_policy": "do_not_reduce_section_score"
+      }
+    },
+    {
+      "stage": "build_disclosure_plans",
+      "warning_type": "requirements_without_writer_safe_evidence",
+      "message": "Risk Management has 3 requirements without writer-safe evidence. This is warning-only and must not be mentioned in the generated report.",
+      "details": {
+        "section_key": "risk_management",
+        "section_title": "Risk Management",
+        "requirements_without_writer_safe_evidence": 3,
+        "report_policy": "do_not_mention_missing_data_in_generated_report",
+        "scoring_policy": "do_not_reduce_section_score"
+      }
+    },
+    {
+      "stage": "build_disclosure_plans",
+      "warning_type": "requirements_without_writer_safe_evidence",
+      "message": "Metrics and Targets has 2 requirements without writer-safe evidence. This is warning-only and must not be mentioned in the generated report.",
+      "details": {
+        "section_key": "metrics_targets",
+        "section_title": "Metrics and Targets",
+        "requirements_without_writer_safe_evidence": 2,
+        "report_policy": "do_not_mention_missing_data_in_generated_report",
+        "scoring_policy": "do_not_reduce_section_score"
+      }
+    }
+  ]
+}

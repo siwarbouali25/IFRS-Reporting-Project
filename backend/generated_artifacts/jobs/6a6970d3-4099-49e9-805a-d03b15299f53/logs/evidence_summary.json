@@ -1,0 +1,30 @@
+{
+  "sections": {
+    "general_requirements": {
+      "entity_fact_count": 6361,
+      "section_fact_count": 733,
+      "total_fact_count": 7094
+    },
+    "governance": {
+      "entity_fact_count": 6361,
+      "section_fact_count": 939,
+      "total_fact_count": 7300
+    },
+    "strategy": {
+      "entity_fact_count": 6361,
+      "section_fact_count": 1371,
+      "total_fact_count": 7732
+    },
+    "risk_management": {
+      "entity_fact_count": 6361,
+      "section_fact_count": 3372,
+      "total_fact_count": 9733
+    },
+    "metrics_targets": {
+      "entity_fact_count": 6361,
+      "section_fact_count": 1694,
+      "total_fact_count": 8055
+    }
+  },
+  "total_facts": 39914
+}

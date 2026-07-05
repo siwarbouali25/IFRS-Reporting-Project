@@ -1,0 +1,1676 @@
+{
+  "section_key": "governance",
+  "section_title": "Governance",
+  "file_slug": "governance",
+  "plan_type": "requirement_evidence_disclosure_plan",
+  "requirements_total": 15,
+  "requirements_with_writer_safe_evidence": 15,
+  "requirements_without_writer_safe_evidence": 0,
+  "unique_selected_evidence_paths_count": 21,
+  "unique_selected_evidence_paths": [
+    "board_minutes[29].climate_topics_discussed",
+    "board_minutes[29].committee_name",
+    "board_minutes[29].committee_type",
+    "board_minutes[33].committee_name",
+    "board_minutes[33].committee_type",
+    "board_minutes[34].climate_topics_discussed",
+    "board_minutes[35].climate_topics_discussed",
+    "governance[0].board_climate_expertise_pct",
+    "governance[0].board_size",
+    "governance[0].climate_risk_reporting_to_board",
+    "governance[0].esg_committee_exists",
+    "governance[0].esg_committee_meetings_per_year",
+    "governance[0].independent_directors_pct",
+    "governance[0].major_transactions_climate_check",
+    "governance[0].management_committee_name",
+    "governance[1].major_transactions_climate_check",
+    "governance[1].management_committee_name",
+    "governance[2].management_committee_name",
+    "reporting_kpis.governance_maturity.board_climate_expertise_pct",
+    "reporting_kpis.governance_maturity.esg_committee_exists",
+    "reporting_kpis.governance_maturity.esg_committee_meetings"
+  ],
+  "requirements": [
+    {
+      "requirement_id": "IFRS_S1_27_C02",
+      "section_name": "Governance",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (a) the governance body(s) (which can include a board, committee or equivalent body charged with governance) or individual(s) responsible for oversight of sustainability-related risks and opportunities. Specifically, the entity shall identify that body(s) or individual(s) and disclose information about: — (i) how responsibilities for sustainability-related risks and opportunities are reflected in the terms of reference, mandates, role descriptions and other related policies applicable to that body(s) or individual(s)",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "selected_evidence_count": 5,
+      "selected_evidence_paths": [
+        "governance[0].board_size",
+        "governance[0].esg_committee_exists",
+        "governance[0].esg_committee_meetings_per_year",
+        "governance[0].board_climate_expertise_pct",
+        "governance[0].climate_risk_reporting_to_board"
+      ],
+      "selected_evidence_candidates": [
+        {
+          "payload_path": "governance[0].board_size",
+          "payload_root": "governance",
+          "value_preview": "10",
+          "value_type": "int",
+          "match_score": 18,
+          "matched_keywords": [
+            "board",
+            "governance"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].esg_committee_exists",
+          "payload_root": "governance",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 18,
+          "matched_keywords": [
+            "committee",
+            "governance"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].esg_committee_meetings_per_year",
+          "payload_root": "governance",
+          "value_preview": "5",
+          "value_type": "int",
+          "match_score": 18,
+          "matched_keywords": [
+            "committee",
+            "governance"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].board_climate_expertise_pct",
+          "payload_root": "governance",
+          "value_preview": "30.0",
+          "value_type": "float",
+          "match_score": 18,
+          "matched_keywords": [
+            "board",
+            "governance"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].climate_risk_reporting_to_board",
+          "payload_root": "governance",
+          "value_preview": "semi_annual",
+          "value_type": "str",
+          "match_score": 18,
+          "matched_keywords": [
+            "board",
+            "governance"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        }
+      ],
+      "writing_instruction": "Use only the selected writer-safe evidence candidates. Do not mention missing evidence or data gaps in the generated report.",
+      "missing_data_policy": {
+        "report_policy": "do_not_mention_missing_data_in_generated_report",
+        "scoring_policy": "do_not_reduce_section_score",
+        "workflow_impact": "warning_only"
+      }
+    },
+    {
+      "requirement_id": "IFRS_S1_27_C03",
+      "section_name": "Governance",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (a) the governance body(s) (which can include a board, committee or equivalent body charged with governance) or individual(s) responsible for oversight of sustainability-related risks and opportunities. Specifically, the entity shall identify that body(s) or individual(s) and disclose information about: — (ii) how the body(s) or individual(s) determines whether appropriate skills and competencies are available or will be developed to oversee strategies designed to respond to sustainability-related risks and opportunities",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "selected_evidence_count": 5,
+      "selected_evidence_paths": [
+        "governance[0].board_size",
+        "governance[0].esg_committee_exists",
+        "governance[0].esg_committee_meetings_per_year",
+        "governance[0].board_climate_expertise_pct",
+        "governance[0].climate_risk_reporting_to_board"
+      ],
+      "selected_evidence_candidates": [
+        {
+          "payload_path": "governance[0].board_size",
+          "payload_root": "governance",
+          "value_preview": "10",
+          "value_type": "int",
+          "match_score": 18,
+          "matched_keywords": [
+            "board",
+            "governance"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].esg_committee_exists",
+          "payload_root": "governance",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 18,
+          "matched_keywords": [
+            "committee",
+            "governance"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].esg_committee_meetings_per_year",
+          "payload_root": "governance",
+          "value_preview": "5",
+          "value_type": "int",
+          "match_score": 18,
+          "matched_keywords": [
+            "committee",
+            "governance"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].board_climate_expertise_pct",
+          "payload_root": "governance",
+          "value_preview": "30.0",
+          "value_type": "float",
+          "match_score": 18,
+          "matched_keywords": [
+            "board",
+            "governance"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].climate_risk_reporting_to_board",
+          "payload_root": "governance",
+          "value_preview": "semi_annual",
+          "value_type": "str",
+          "match_score": 18,
+          "matched_keywords": [
+            "board",
+            "governance"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        }
+      ],
+      "writing_instruction": "Use only the selected writer-safe evidence candidates. Do not mention missing evidence or data gaps in the generated report.",
+      "missing_data_policy": {
+        "report_policy": "do_not_mention_missing_data_in_generated_report",
+        "scoring_policy": "do_not_reduce_section_score",
+        "workflow_impact": "warning_only"
+      }
+    },
+    {
+      "requirement_id": "IFRS_S1_27_C04",
+      "section_name": "Governance",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (a) the governance body(s) (which can include a board, committee or equivalent body charged with governance) or individual(s) responsible for oversight of sustainability-related risks and opportunities. Specifically, the entity shall identify that body(s) or individual(s) and disclose information about: — (iii) how and how often the body(s) or individual(s) is informed about sustainability-related risks and opportunities",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "selected_evidence_count": 5,
+      "selected_evidence_paths": [
+        "governance[0].board_size",
+        "governance[0].esg_committee_exists",
+        "governance[0].esg_committee_meetings_per_year",
+        "governance[0].board_climate_expertise_pct",
+        "governance[0].climate_risk_reporting_to_board"
+      ],
+      "selected_evidence_candidates": [
+        {
+          "payload_path": "governance[0].board_size",
+          "payload_root": "governance",
+          "value_preview": "10",
+          "value_type": "int",
+          "match_score": 18,
+          "matched_keywords": [
+            "board",
+            "governance"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].esg_committee_exists",
+          "payload_root": "governance",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 18,
+          "matched_keywords": [
+            "committee",
+            "governance"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].esg_committee_meetings_per_year",
+          "payload_root": "governance",
+          "value_preview": "5",
+          "value_type": "int",
+          "match_score": 18,
+          "matched_keywords": [
+            "committee",
+            "governance"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].board_climate_expertise_pct",
+          "payload_root": "governance",
+          "value_preview": "30.0",
+          "value_type": "float",
+          "match_score": 18,
+          "matched_keywords": [
+            "board",
+            "governance"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].climate_risk_reporting_to_board",
+          "payload_root": "governance",
+          "value_preview": "semi_annual",
+          "value_type": "str",
+          "match_score": 18,
+          "matched_keywords": [
+            "board",
+            "governance"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        }
+      ],
+      "writing_instruction": "Use only the selected writer-safe evidence candidates. Do not mention missing evidence or data gaps in the generated report.",
+      "missing_data_policy": {
+        "report_policy": "do_not_mention_missing_data_in_generated_report",
+        "scoring_policy": "do_not_reduce_section_score",
+        "workflow_impact": "warning_only"
+      }
+    },
+    {
+      "requirement_id": "IFRS_S1_27_C05",
+      "section_name": "Governance",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (a) the governance body(s) (which can include a board, committee or equivalent body charged with governance) or individual(s) responsible for oversight of sustainability-related risks and opportunities. Specifically, the entity shall identify that body(s) or individual(s) and disclose information about: — (iv) how the body(s) or individual(s) takes into account sustainability-related risks and opportunities when overseeing the entity’s strategy, its decisions on major transactions and its risk management processes and related policies, including whether the body(s) or individual(s) has considered trade-offs associated with those risks and opportunities",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "selected_evidence_count": 5,
+      "selected_evidence_paths": [
+        "governance[0].management_committee_name",
+        "governance[0].major_transactions_climate_check",
+        "governance[1].management_committee_name",
+        "governance[1].major_transactions_climate_check",
+        "governance[2].management_committee_name"
+      ],
+      "selected_evidence_candidates": [
+        {
+          "payload_path": "governance[0].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "Group Sustainability Committee",
+          "value_type": "str",
+          "match_score": 19,
+          "matched_keywords": [
+            "committee",
+            "governance",
+            "management"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].major_transactions_climate_check",
+          "payload_root": "governance",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 19,
+          "matched_keywords": [
+            "governance",
+            "major",
+            "transactions"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[1].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "ESG Executive Committee",
+          "value_type": "str",
+          "match_score": 19,
+          "matched_keywords": [
+            "committee",
+            "governance",
+            "management"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[1].major_transactions_climate_check",
+          "payload_root": "governance",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 19,
+          "matched_keywords": [
+            "governance",
+            "major",
+            "transactions"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[2].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "Climate Risk Management Committee",
+          "value_type": "str",
+          "match_score": 19,
+          "matched_keywords": [
+            "committee",
+            "governance",
+            "management"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        }
+      ],
+      "writing_instruction": "Use only the selected writer-safe evidence candidates. Do not mention missing evidence or data gaps in the generated report.",
+      "missing_data_policy": {
+        "report_policy": "do_not_mention_missing_data_in_generated_report",
+        "scoring_policy": "do_not_reduce_section_score",
+        "workflow_impact": "warning_only"
+      }
+    },
+    {
+      "requirement_id": "IFRS_S1_27_C06",
+      "section_name": "Governance",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (a) the governance body(s) (which can include a board, committee or equivalent body charged with governance) or individual(s) responsible for oversight of sustainability-related risks and opportunities. Specifically, the entity shall identify that body(s) or individual(s) and disclose information about: — (v) how the body(s) or individual(s) oversees the setting of targets related to sustainability-related risks and opportunities, and monitors progress towards those targets (see paragraph 51), including whether and how related performance metrics are included in remuneration policies.",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "selected_evidence_count": 5,
+      "selected_evidence_paths": [
+        "board_minutes[34].climate_topics_discussed",
+        "board_minutes[35].climate_topics_discussed",
+        "reporting_kpis.governance_maturity.esg_committee_exists",
+        "reporting_kpis.governance_maturity.esg_committee_meetings",
+        "reporting_kpis.governance_maturity.board_climate_expertise_pct"
+      ],
+      "selected_evidence_candidates": [
+        {
+          "payload_path": "board_minutes[34].climate_topics_discussed",
+          "payload_root": "board_minutes",
+          "value_preview": "exec_remuneration_esg_kpis|carbon_credit_approval|net_zero_progress",
+          "value_type": "str",
+          "match_score": 19,
+          "matched_keywords": [
+            "board",
+            "progress",
+            "remuneration"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "board_minutes[35].climate_topics_discussed",
+          "payload_root": "board_minutes",
+          "value_preview": "net_zero_progress|exec_remuneration_esg_kpis",
+          "value_type": "str",
+          "match_score": 19,
+          "matched_keywords": [
+            "board",
+            "progress",
+            "remuneration"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "reporting_kpis.governance_maturity.esg_committee_exists",
+          "payload_root": "reporting_kpis",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 18,
+          "matched_keywords": [
+            "committee",
+            "governance"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "reporting_kpis.governance_maturity.esg_committee_meetings",
+          "payload_root": "reporting_kpis",
+          "value_preview": "7",
+          "value_type": "int",
+          "match_score": 18,
+          "matched_keywords": [
+            "committee",
+            "governance"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "reporting_kpis.governance_maturity.board_climate_expertise_pct",
+          "payload_root": "reporting_kpis",
+          "value_preview": "40.0",
+          "value_type": "float",
+          "match_score": 18,
+          "matched_keywords": [
+            "board",
+            "governance"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        }
+      ],
+      "writing_instruction": "Use only the selected writer-safe evidence candidates. Do not mention missing evidence or data gaps in the generated report.",
+      "missing_data_policy": {
+        "report_policy": "do_not_mention_missing_data_in_generated_report",
+        "scoring_policy": "do_not_reduce_section_score",
+        "workflow_impact": "warning_only"
+      }
+    },
+    {
+      "requirement_id": "IFRS_S1_27_C08",
+      "section_name": "Governance",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (b) management’s role in the governance processes, controls and procedures used to monitor, manage and oversee sustainability-related risks and opportunities, including information about: — (i) whether the role is delegated to a specific management-level position or management-level committee and how oversight is exercised over that position or committee",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "selected_evidence_count": 5,
+      "selected_evidence_paths": [
+        "governance[0].management_committee_name",
+        "governance[1].management_committee_name",
+        "governance[2].management_committee_name",
+        "governance[0].esg_committee_exists",
+        "governance[0].esg_committee_meetings_per_year"
+      ],
+      "selected_evidence_candidates": [
+        {
+          "payload_path": "governance[0].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "Group Sustainability Committee",
+          "value_type": "str",
+          "match_score": 19,
+          "matched_keywords": [
+            "committee",
+            "governance",
+            "management"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[1].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "ESG Executive Committee",
+          "value_type": "str",
+          "match_score": 19,
+          "matched_keywords": [
+            "committee",
+            "governance",
+            "management"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[2].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "Climate Risk Management Committee",
+          "value_type": "str",
+          "match_score": 19,
+          "matched_keywords": [
+            "committee",
+            "governance",
+            "management"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].esg_committee_exists",
+          "payload_root": "governance",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 18,
+          "matched_keywords": [
+            "committee",
+            "governance"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].esg_committee_meetings_per_year",
+          "payload_root": "governance",
+          "value_preview": "5",
+          "value_type": "int",
+          "match_score": 18,
+          "matched_keywords": [
+            "committee",
+            "governance"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        }
+      ],
+      "writing_instruction": "Use only the selected writer-safe evidence candidates. Do not mention missing evidence or data gaps in the generated report.",
+      "missing_data_policy": {
+        "report_policy": "do_not_mention_missing_data_in_generated_report",
+        "scoring_policy": "do_not_reduce_section_score",
+        "workflow_impact": "warning_only"
+      }
+    },
+    {
+      "requirement_id": "IFRS_S1_27_C09",
+      "section_name": "Governance",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (b) management’s role in the governance processes, controls and procedures used to monitor, manage and oversee sustainability-related risks and opportunities, including information about: — (ii) whether management uses controls and procedures to support the oversight of sustainability-related risks and opportunities and, if so, how these controls and procedures are integrated with other internal functions.",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "selected_evidence_count": 5,
+      "selected_evidence_paths": [
+        "governance[0].management_committee_name",
+        "governance[1].management_committee_name",
+        "governance[2].management_committee_name",
+        "governance[0].board_size",
+        "governance[0].independent_directors_pct"
+      ],
+      "selected_evidence_candidates": [
+        {
+          "payload_path": "governance[0].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "Group Sustainability Committee",
+          "value_type": "str",
+          "match_score": 18,
+          "matched_keywords": [
+            "governance",
+            "management"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[1].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "ESG Executive Committee",
+          "value_type": "str",
+          "match_score": 18,
+          "matched_keywords": [
+            "governance",
+            "management"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[2].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "Climate Risk Management Committee",
+          "value_type": "str",
+          "match_score": 18,
+          "matched_keywords": [
+            "governance",
+            "management"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].board_size",
+          "payload_root": "governance",
+          "value_preview": "10",
+          "value_type": "int",
+          "match_score": 17,
+          "matched_keywords": [
+            "governance"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].independent_directors_pct",
+          "payload_root": "governance",
+          "value_preview": "70.0",
+          "value_type": "float",
+          "match_score": 17,
+          "matched_keywords": [
+            "governance"
+          ],
+          "mapping_reason": "manual_requirement_route+payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        }
+      ],
+      "writing_instruction": "Use only the selected writer-safe evidence candidates. Do not mention missing evidence or data gaps in the generated report.",
+      "missing_data_policy": {
+        "report_policy": "do_not_mention_missing_data_in_generated_report",
+        "scoring_policy": "do_not_reduce_section_score",
+        "workflow_impact": "warning_only"
+      }
+    },
+    {
+      "requirement_id": "IFRS_S2_6_C02",
+      "section_name": "Governance",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (a) the governance body(s) (which can include a board, committee or equivalent body charged with governance) or individual(s) responsible for oversight of climate-related risks and opportunities. Specifically, the entity shall identify that body(s) or individual(s) and disclose information about: — (i) how responsibilities for climate-related risks and opportunities are reflected in the terms of reference, mandates, role descriptions and other related policies applicable to that body(s) or individual(s)",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "selected_evidence_count": 5,
+      "selected_evidence_paths": [
+        "governance[0].board_size",
+        "governance[0].esg_committee_exists",
+        "governance[0].esg_committee_meetings_per_year",
+        "governance[0].board_climate_expertise_pct",
+        "governance[0].climate_risk_reporting_to_board"
+      ],
+      "selected_evidence_candidates": [
+        {
+          "payload_path": "governance[0].board_size",
+          "payload_root": "governance",
+          "value_preview": "10",
+          "value_type": "int",
+          "match_score": 12,
+          "matched_keywords": [
+            "board",
+            "governance"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].esg_committee_exists",
+          "payload_root": "governance",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 12,
+          "matched_keywords": [
+            "committee",
+            "governance"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].esg_committee_meetings_per_year",
+          "payload_root": "governance",
+          "value_preview": "5",
+          "value_type": "int",
+          "match_score": 12,
+          "matched_keywords": [
+            "committee",
+            "governance"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].board_climate_expertise_pct",
+          "payload_root": "governance",
+          "value_preview": "30.0",
+          "value_type": "float",
+          "match_score": 12,
+          "matched_keywords": [
+            "board",
+            "governance"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].climate_risk_reporting_to_board",
+          "payload_root": "governance",
+          "value_preview": "semi_annual",
+          "value_type": "str",
+          "match_score": 12,
+          "matched_keywords": [
+            "board",
+            "governance"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        }
+      ],
+      "writing_instruction": "Use only the selected writer-safe evidence candidates. Do not mention missing evidence or data gaps in the generated report.",
+      "missing_data_policy": {
+        "report_policy": "do_not_mention_missing_data_in_generated_report",
+        "scoring_policy": "do_not_reduce_section_score",
+        "workflow_impact": "warning_only"
+      }
+    },
+    {
+      "requirement_id": "IFRS_S2_6_C03",
+      "section_name": "Governance",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (a) the governance body(s) (which can include a board, committee or equivalent body charged with governance) or individual(s) responsible for oversight of climate-related risks and opportunities. Specifically, the entity shall identify that body(s) or individual(s) and disclose information about: — (ii) how the body(s) or individual(s) determines whether appropriate skills and competencies are available or will be developed to oversee strategies designed to respond to climate-related risks and opportunities",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "selected_evidence_count": 5,
+      "selected_evidence_paths": [
+        "governance[0].board_size",
+        "governance[0].esg_committee_exists",
+        "governance[0].esg_committee_meetings_per_year",
+        "governance[0].board_climate_expertise_pct",
+        "governance[0].climate_risk_reporting_to_board"
+      ],
+      "selected_evidence_candidates": [
+        {
+          "payload_path": "governance[0].board_size",
+          "payload_root": "governance",
+          "value_preview": "10",
+          "value_type": "int",
+          "match_score": 12,
+          "matched_keywords": [
+            "board",
+            "governance"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].esg_committee_exists",
+          "payload_root": "governance",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 12,
+          "matched_keywords": [
+            "committee",
+            "governance"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].esg_committee_meetings_per_year",
+          "payload_root": "governance",
+          "value_preview": "5",
+          "value_type": "int",
+          "match_score": 12,
+          "matched_keywords": [
+            "committee",
+            "governance"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].board_climate_expertise_pct",
+          "payload_root": "governance",
+          "value_preview": "30.0",
+          "value_type": "float",
+          "match_score": 12,
+          "matched_keywords": [
+            "board",
+            "governance"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].climate_risk_reporting_to_board",
+          "payload_root": "governance",
+          "value_preview": "semi_annual",
+          "value_type": "str",
+          "match_score": 12,
+          "matched_keywords": [
+            "board",
+            "governance"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        }
+      ],
+      "writing_instruction": "Use only the selected writer-safe evidence candidates. Do not mention missing evidence or data gaps in the generated report.",
+      "missing_data_policy": {
+        "report_policy": "do_not_mention_missing_data_in_generated_report",
+        "scoring_policy": "do_not_reduce_section_score",
+        "workflow_impact": "warning_only"
+      }
+    },
+    {
+      "requirement_id": "IFRS_S2_6_C04",
+      "section_name": "Governance",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (a) the governance body(s) (which can include a board, committee or equivalent body charged with governance) or individual(s) responsible for oversight of climate-related risks and opportunities. Specifically, the entity shall identify that body(s) or individual(s) and disclose information about: — (iii) how and how often the body(s) or individual(s) is informed about climate-related risks and opportunities",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "selected_evidence_count": 5,
+      "selected_evidence_paths": [
+        "governance[0].board_size",
+        "governance[0].esg_committee_exists",
+        "governance[0].esg_committee_meetings_per_year",
+        "governance[0].board_climate_expertise_pct",
+        "governance[0].climate_risk_reporting_to_board"
+      ],
+      "selected_evidence_candidates": [
+        {
+          "payload_path": "governance[0].board_size",
+          "payload_root": "governance",
+          "value_preview": "10",
+          "value_type": "int",
+          "match_score": 12,
+          "matched_keywords": [
+            "board",
+            "governance"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].esg_committee_exists",
+          "payload_root": "governance",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 12,
+          "matched_keywords": [
+            "committee",
+            "governance"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].esg_committee_meetings_per_year",
+          "payload_root": "governance",
+          "value_preview": "5",
+          "value_type": "int",
+          "match_score": 12,
+          "matched_keywords": [
+            "committee",
+            "governance"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].board_climate_expertise_pct",
+          "payload_root": "governance",
+          "value_preview": "30.0",
+          "value_type": "float",
+          "match_score": 12,
+          "matched_keywords": [
+            "board",
+            "governance"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].climate_risk_reporting_to_board",
+          "payload_root": "governance",
+          "value_preview": "semi_annual",
+          "value_type": "str",
+          "match_score": 12,
+          "matched_keywords": [
+            "board",
+            "governance"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        }
+      ],
+      "writing_instruction": "Use only the selected writer-safe evidence candidates. Do not mention missing evidence or data gaps in the generated report.",
+      "missing_data_policy": {
+        "report_policy": "do_not_mention_missing_data_in_generated_report",
+        "scoring_policy": "do_not_reduce_section_score",
+        "workflow_impact": "warning_only"
+      }
+    },
+    {
+      "requirement_id": "IFRS_S2_6_C05",
+      "section_name": "Governance",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (a) the governance body(s) (which can include a board, committee or equivalent body charged with governance) or individual(s) responsible for oversight of climate-related risks and opportunities. Specifically, the entity shall identify that body(s) or individual(s) and disclose information about: — (iv) how the body(s) or individual(s) takes into account climate-related risks and opportunities when overseeing the entity’s strategy, its decisions on major transactions and its risk management processes and related policies, including whether the body(s) or individual(s) has considered trade-offs associated with those risks and opportunities",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "selected_evidence_count": 5,
+      "selected_evidence_paths": [
+        "governance[0].management_committee_name",
+        "governance[0].major_transactions_climate_check",
+        "governance[1].management_committee_name",
+        "governance[1].major_transactions_climate_check",
+        "governance[2].management_committee_name"
+      ],
+      "selected_evidence_candidates": [
+        {
+          "payload_path": "governance[0].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "Group Sustainability Committee",
+          "value_type": "str",
+          "match_score": 13,
+          "matched_keywords": [
+            "committee",
+            "governance",
+            "management"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].major_transactions_climate_check",
+          "payload_root": "governance",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 13,
+          "matched_keywords": [
+            "governance",
+            "major",
+            "transactions"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[1].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "ESG Executive Committee",
+          "value_type": "str",
+          "match_score": 13,
+          "matched_keywords": [
+            "committee",
+            "governance",
+            "management"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[1].major_transactions_climate_check",
+          "payload_root": "governance",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 13,
+          "matched_keywords": [
+            "governance",
+            "major",
+            "transactions"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[2].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "Climate Risk Management Committee",
+          "value_type": "str",
+          "match_score": 13,
+          "matched_keywords": [
+            "committee",
+            "governance",
+            "management"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        }
+      ],
+      "writing_instruction": "Use only the selected writer-safe evidence candidates. Do not mention missing evidence or data gaps in the generated report.",
+      "missing_data_policy": {
+        "report_policy": "do_not_mention_missing_data_in_generated_report",
+        "scoring_policy": "do_not_reduce_section_score",
+        "workflow_impact": "warning_only"
+      }
+    },
+    {
+      "requirement_id": "IFRS_S2_6_C06",
+      "section_name": "Governance",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (a) the governance body(s) (which can include a board, committee or equivalent body charged with governance) or individual(s) responsible for oversight of climate-related risks and opportunities. Specifically, the entity shall identify that body(s) or individual(s) and disclose information about: — (v) how the body(s) or individual(s) oversees the setting of targets related to climate-related risks and opportunities, and monitors progress towards those targets (see paragraphs 33–36), including whether and how related performance metrics are included in remuneration policies (see paragraph 29(g)).",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "selected_evidence_count": 5,
+      "selected_evidence_paths": [
+        "board_minutes[29].committee_name",
+        "board_minutes[29].committee_type",
+        "board_minutes[29].climate_topics_discussed",
+        "board_minutes[33].committee_name",
+        "board_minutes[33].committee_type"
+      ],
+      "selected_evidence_candidates": [
+        {
+          "payload_path": "board_minutes[29].committee_name",
+          "payload_root": "board_minutes",
+          "value_preview": "Full Board",
+          "value_type": "str",
+          "match_score": 13,
+          "matched_keywords": [
+            "29",
+            "board",
+            "committee"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "board_minutes[29].committee_type",
+          "payload_root": "board_minutes",
+          "value_preview": "full_board",
+          "value_type": "str",
+          "match_score": 13,
+          "matched_keywords": [
+            "29",
+            "board",
+            "committee"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "board_minutes[29].climate_topics_discussed",
+          "payload_root": "board_minutes",
+          "value_preview": "exec_remuneration_esg_kpis|physical_risk_update",
+          "value_type": "str",
+          "match_score": 13,
+          "matched_keywords": [
+            "29",
+            "board",
+            "remuneration"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "board_minutes[33].committee_name",
+          "payload_root": "board_minutes",
+          "value_preview": "ESG & Sustainability Committee",
+          "value_type": "str",
+          "match_score": 13,
+          "matched_keywords": [
+            "33",
+            "board",
+            "committee"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "board_minutes[33].committee_type",
+          "payload_root": "board_minutes",
+          "value_preview": "esg_committee",
+          "value_type": "str",
+          "match_score": 13,
+          "matched_keywords": [
+            "33",
+            "board",
+            "committee"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        }
+      ],
+      "writing_instruction": "Use only the selected writer-safe evidence candidates. Do not mention missing evidence or data gaps in the generated report.",
+      "missing_data_policy": {
+        "report_policy": "do_not_mention_missing_data_in_generated_report",
+        "scoring_policy": "do_not_reduce_section_score",
+        "workflow_impact": "warning_only"
+      }
+    },
+    {
+      "requirement_id": "IFRS_S2_6_C08",
+      "section_name": "Governance",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (b) management’s role in the governance processes, controls and procedures used to monitor, manage and oversee climate-related risks and opportunities, including information about: — (i) whether the role is delegated to a specific management-level position or management-level committee and how oversight is exercised over that position or committee",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "selected_evidence_count": 5,
+      "selected_evidence_paths": [
+        "governance[0].management_committee_name",
+        "governance[1].management_committee_name",
+        "governance[2].management_committee_name",
+        "governance[0].esg_committee_exists",
+        "governance[0].esg_committee_meetings_per_year"
+      ],
+      "selected_evidence_candidates": [
+        {
+          "payload_path": "governance[0].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "Group Sustainability Committee",
+          "value_type": "str",
+          "match_score": 13,
+          "matched_keywords": [
+            "committee",
+            "governance",
+            "management"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[1].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "ESG Executive Committee",
+          "value_type": "str",
+          "match_score": 13,
+          "matched_keywords": [
+            "committee",
+            "governance",
+            "management"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[2].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "Climate Risk Management Committee",
+          "value_type": "str",
+          "match_score": 13,
+          "matched_keywords": [
+            "committee",
+            "governance",
+            "management"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].esg_committee_exists",
+          "payload_root": "governance",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 12,
+          "matched_keywords": [
+            "committee",
+            "governance"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].esg_committee_meetings_per_year",
+          "payload_root": "governance",
+          "value_preview": "5",
+          "value_type": "int",
+          "match_score": 12,
+          "matched_keywords": [
+            "committee",
+            "governance"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        }
+      ],
+      "writing_instruction": "Use only the selected writer-safe evidence candidates. Do not mention missing evidence or data gaps in the generated report.",
+      "missing_data_policy": {
+        "report_policy": "do_not_mention_missing_data_in_generated_report",
+        "scoring_policy": "do_not_reduce_section_score",
+        "workflow_impact": "warning_only"
+      }
+    },
+    {
+      "requirement_id": "IFRS_S2_6_C09",
+      "section_name": "Governance",
+      "requirement_text": "To achieve this objective, an entity shall disclose information about — (b) management’s role in the governance processes, controls and procedures used to monitor, manage and oversee climate-related risks and opportunities, including information about: — (ii) whether management uses controls and procedures to support the oversight of climate-related risks and opportunities and, if so, how these controls and procedures are integrated with other internal functions.",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "selected_evidence_count": 5,
+      "selected_evidence_paths": [
+        "governance[0].management_committee_name",
+        "governance[1].management_committee_name",
+        "governance[2].management_committee_name",
+        "governance[0].board_size",
+        "governance[0].independent_directors_pct"
+      ],
+      "selected_evidence_candidates": [
+        {
+          "payload_path": "governance[0].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "Group Sustainability Committee",
+          "value_type": "str",
+          "match_score": 12,
+          "matched_keywords": [
+            "governance",
+            "management"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[1].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "ESG Executive Committee",
+          "value_type": "str",
+          "match_score": 12,
+          "matched_keywords": [
+            "governance",
+            "management"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[2].management_committee_name",
+          "payload_root": "governance",
+          "value_preview": "Climate Risk Management Committee",
+          "value_type": "str",
+          "match_score": 12,
+          "matched_keywords": [
+            "governance",
+            "management"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].board_size",
+          "payload_root": "governance",
+          "value_preview": "10",
+          "value_type": "int",
+          "match_score": 11,
+          "matched_keywords": [
+            "governance"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].independent_directors_pct",
+          "payload_root": "governance",
+          "value_preview": "70.0",
+          "value_type": "float",
+          "match_score": 11,
+          "matched_keywords": [
+            "governance"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        }
+      ],
+      "writing_instruction": "Use only the selected writer-safe evidence candidates. Do not mention missing evidence or data gaps in the generated report.",
+      "missing_data_policy": {
+        "report_policy": "do_not_mention_missing_data_in_generated_report",
+        "scoring_policy": "do_not_reduce_section_score",
+        "workflow_impact": "warning_only"
+      }
+    },
+    {
+      "requirement_id": "IFRS_S2_7_C01",
+      "section_name": "Governance",
+      "requirement_text": "In preparing disclosures to fulfil the requirements in paragraph 6, an entity shall avoid unnecessary duplication in accordance with IFRS S1 General Requirements for Disclosure of Sustainability-related Financial Information (IFRS S1) (see paragraph B42(b) of IFRS S1). For example, although an entity shall provide the information required by paragraph 6, if oversight of sustainability-related risks and opportunities is managed on an integrated basis, the entity would avoid duplication by providing integrated governance disclosures instead of separate disclosures for each sustainability-related risk and opportunity.",
+      "mandatory": true,
+      "has_writer_safe_evidence": true,
+      "selected_evidence_count": 5,
+      "selected_evidence_paths": [
+        "governance[0].board_size",
+        "governance[0].independent_directors_pct",
+        "governance[0].esg_committee_exists",
+        "governance[0].esg_committee_meetings_per_year",
+        "governance[0].board_climate_expertise_pct"
+      ],
+      "selected_evidence_candidates": [
+        {
+          "payload_path": "governance[0].board_size",
+          "payload_root": "governance",
+          "value_preview": "10",
+          "value_type": "int",
+          "match_score": 11,
+          "matched_keywords": [
+            "governance"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].independent_directors_pct",
+          "payload_root": "governance",
+          "value_preview": "70.0",
+          "value_type": "float",
+          "match_score": 11,
+          "matched_keywords": [
+            "governance"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].esg_committee_exists",
+          "payload_root": "governance",
+          "value_preview": "True",
+          "value_type": "bool",
+          "match_score": 11,
+          "matched_keywords": [
+            "governance"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].esg_committee_meetings_per_year",
+          "payload_root": "governance",
+          "value_preview": "5",
+          "value_type": "int",
+          "match_score": 11,
+          "matched_keywords": [
+            "governance"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        },
+        {
+          "payload_path": "governance[0].board_climate_expertise_pct",
+          "payload_root": "governance",
+          "value_preview": "30.0",
+          "value_type": "float",
+          "match_score": 11,
+          "matched_keywords": [
+            "governance"
+          ],
+          "mapping_reason": "payload_root_routing+phrase_boost+lexical",
+          "generic_context_field": false,
+          "audit_only_evidence": false,
+          "writer_safe": true,
+          "missing_like_value": false,
+          "evidence_strength": "strong"
+        }
+      ],
+      "writing_instruction": "Use only the selected writer-safe evidence candidates. Do not mention missing evidence or data gaps in the generated report.",
+      "missing_data_policy": {
+        "report_policy": "do_not_mention_missing_data_in_generated_report",
+        "scoring_policy": "do_not_reduce_section_score",
+        "workflow_impact": "warning_only"
+      }
+    }
+  ],
+  "writer_rules": {
+    "use_only_selected_evidence": true,
+    "do_not_invent_facts": true,
+    "do_not_mention_missing_data": true,
+    "do_not_penalize_missing_synthetic_data": true,
+    "maintain_ifrs_s1_s2_tone": true
+  }
+}

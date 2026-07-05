@@ -19,6 +19,40 @@ class LoaderResult:
 
 
 @dataclass
+class EvidenceMapResult:
+    evidence_maps: dict[str, Any]
+    summary: dict[str, Any] = field(default_factory=dict)
+    warnings: list[GenerationWarningData] = field(default_factory=list)
+
+
+
+@dataclass
+class CoverageResult:
+    coverage_summary: dict[str, Any]
+    warnings: list[GenerationWarningData] = field(default_factory=list)
+
+
+@dataclass
+class MissingRequirementsResult:
+    missing_register: dict[str, Any]
+    warnings: list[GenerationWarningData] = field(default_factory=list)
+
+
+@dataclass
+class DisclosurePlanResult:
+    plans: dict[str, Any]
+    summary: dict[str, Any] = field(default_factory=dict)
+    warnings: list[GenerationWarningData] = field(default_factory=list)
+
+
+@dataclass
+class WriterContextResult:
+    contexts: dict[str, Any]
+    summary: dict[str, Any] = field(default_factory=dict)
+    warnings: list[GenerationWarningData] = field(default_factory=list)
+
+
+@dataclass
 class LoadedInputs:
     payloads: dict[str, Any]
     requirements: dict[str, Any]

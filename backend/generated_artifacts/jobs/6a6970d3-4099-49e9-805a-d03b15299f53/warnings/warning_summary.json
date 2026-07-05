@@ -1,0 +1,17 @@
+{
+  "job_id": "6a6970d3-4099-49e9-805a-d03b15299f53",
+  "status": "completed_with_warnings",
+  "warning_count": 1,
+  "warnings": [
+    {
+      "stage": "connectivity_judge",
+      "warning_type": "final_connectivity_warning",
+      "message": "Fake workflow completed with a simulated connectivity warning. In the current prototype, final validation failures are treated as warnings.",
+      "details": {
+        "approved": false,
+        "score": 6,
+        "final_failures_as_warnings": true
+      }
+    }
+  ]
+}

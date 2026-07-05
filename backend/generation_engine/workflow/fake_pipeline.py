@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Any
 
-from generation_engine.schemas import LoaderResult
+from generation_engine.schemas import LoaderResult, EvidenceMapResult
 
 
 @dataclass
@@ -25,6 +25,7 @@ class FakePipelineResult:
     warnings: list[PipelineWarning]
     final_summary: dict[str, Any]
     input_summary: dict[str, Any]
+    evidence_summary: dict[str, Any]
 
 
 def get_fake_pipeline_stages() -> list[PipelineStage]:
@@ -73,6 +74,8 @@ def run_fake_pipeline(
     payload_result: LoaderResult,
     requirements_result: LoaderResult,
     style_result: LoaderResult,
+    evidence_result: EvidenceMapResult,
+
 ) -> FakePipelineResult:
     """
     Temporary fake report generator.
@@ -84,6 +87,16 @@ def run_fake_pipeline(
     loader_warnings = _convert_loader_warnings(
         [payload_result, requirements_result, style_result]
     )
+
+    evidence_warnings = [
+    PipelineWarning(
+        stage=warning.stage,
+        warning_type=warning.warning_type,
+        message=warning.message,
+        details=warning.details,
+    )
+    for warning in evidence_result.warnings
+]
 
     simulated_connectivity_warning = PipelineWarning(
         stage="connectivity_judge",
@@ -99,7 +112,7 @@ def run_fake_pipeline(
         },
     )
 
-    warnings = [*loader_warnings, simulated_connectivity_warning]
+    warnings = [*loader_warnings, *evidence_warnings, simulated_connectivity_warning]
 
     input_summary = {
         "payloads": {
@@ -156,6 +169,16 @@ Loaded style-system files: {len(style_result.loaded_files)}
 
 Missing style-system files: {len(style_result.missing_files)}
 
+## Evidence Maps
+
+## Evidence Maps
+
+Total requirements: {evidence_result.summary.get("total_requirements", 0)}
+
+Requirements with evidence candidates: {evidence_result.summary.get("total_requirements_with_candidates", 0)}
+
+Requirements without evidence candidates: {evidence_result.summary.get("total_requirements_without_candidates", 0)}
+
 ## Status
 
 Completed with warnings.
@@ -190,4 +213,5 @@ Completed with warnings.
         warnings=warnings,
         final_summary=final_summary,
         input_summary=input_summary,
+        evidence_summary=evidence_result.summary.get("total_requirements_with_candidates", 0),
     )
