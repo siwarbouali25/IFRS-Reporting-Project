@@ -5,15 +5,21 @@ import itertools
 import json
 import math
 import os
+import random
 import re
+import shutil
 import statistics
 import time
 import traceback
+import urllib.error
+import urllib.request
+import uuid
 import warnings
 from collections import Counter, OrderedDict, defaultdict
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
+from pydoc import resolve
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
 
@@ -82,26 +88,57 @@ def _get_cell_source(cell: dict[str, Any]) -> str:
 
 def _is_notebook_only_cell(source: str) -> bool:
     """
-    Skip cells that are safe in Jupyter but unsafe/useless inside Django.
-    Keep this conservative: do not skip normal Python cells.
+    Skip only real notebook/shell command cells.
+
+    Important:
+    Do NOT skip a cell just because it contains the text "pip install"
+    inside a string or error message.
+
+    The notebook CELL 1 contains:
+        "Install python-dotenv first: pip install python-dotenv"
+
+    The old bridge skipped CELL 1 because of that text, which caused:
+        CURRENT_DIR is not defined
+        GEN_DATA_DIR is not defined
+        DIRS is not defined
     """
 
     stripped = source.strip()
-    lowered = stripped.lower()
 
     if not stripped:
         return True
 
-    notebook_only_markers = [
-        "!pip",
-        "%pip",
-        "pip install",
-        "!python",
-        "%matplotlib",
-        "ipywidgets",
-    ]
+    for line in stripped.splitlines():
+        clean = line.strip().lower()
 
-    return any(marker in lowered for marker in notebook_only_markers)
+        if not clean:
+            continue
+
+        if clean.startswith("!pip"):
+            return True
+
+        if clean.startswith("%pip"):
+            return True
+
+        if clean.startswith("!python"):
+            return True
+
+        if clean.startswith("%matplotlib"):
+            return True
+
+        if clean.startswith("pip install"):
+            return True
+
+        if clean.startswith("python -m pip"):
+            return True
+
+        if clean.startswith("import ipywidgets"):
+            return True
+
+        if clean.startswith("from ipywidgets"):
+            return True
+
+    return False
 
 
 def _select_notebook_cells_until_stop_marker(
@@ -143,6 +180,37 @@ def _prefix_to_path(input_root: Path, prefix: str) -> Path:
     return (Path(input_root) / str(prefix).strip("/")).resolve()
 
 
+def _build_notebook_dirs(output_dir: Path) -> dict[str, Path]:
+    """
+    Exact DIRS structure used by CELL 1 of the notebook.
+    """
+
+    return {
+        "evidence_maps": output_dir / "01_evidence_maps",
+        "coverage": output_dir / "02_coverage",
+        "missing_requirements": output_dir / "03_missing_requirements",
+        "plans": output_dir / "04_disclosure_plans",
+        "drafts": output_dir / "05_draft_sections",
+        "claims": output_dir / "06_claims_registers",
+        "gates": output_dir / "07_deterministic_gates",
+        "judges": output_dir / "08_judge_results",
+        "revisions": output_dir / "09_revised_sections",
+        "approved": output_dir / "10_approved_sections",
+        "connectivity": output_dir / "11_connectivity",
+        "handoff": output_dir / "12_pdf_handoff",
+        "audit_logs": output_dir / "audit_logs",
+    }
+
+
+def _ensure_notebook_dirs(output_dir: Path) -> dict[str, Path]:
+    dirs = _build_notebook_dirs(output_dir)
+
+    for folder in dirs.values():
+        folder.mkdir(parents=True, exist_ok=True)
+
+    return dirs
+
+
 def _build_env_values(
     *,
     payload_dir: Path,
@@ -152,6 +220,12 @@ def _build_env_values(
 ) -> dict[str, str]:
     """
     Environment aliases for notebook cells that read os.environ.
+
+    CELL 1 reads these env vars directly:
+    - PAYLOAD_DIR
+    - IFRS_REQUIREMENTS_DIR
+    - STYLE_SYSTEM_DIR
+    - GENERATION_OUTPUT_DIR
     """
 
     return {
@@ -174,17 +248,20 @@ def _build_env_values(
         "STYLE_SYSTEM_PATH": str(style_system_dir),
 
         # Output aliases
+        "GENERATION_OUTPUT_DIR": str(output_dir),
         "GEN_DATA_DIR": str(output_dir),
         "GENERATED_REPORTS_DIR": str(output_dir),
-        "GENERATION_OUTPUT_DIR": str(output_dir),
         "OUTPUT_DIR": str(output_dir),
         "REPORT_OUTPUT_DIR": str(output_dir),
         "AGENTIC_REPORT_OUTPUT_DIR": str(output_dir),
 
-        # Behaviour flags
+        # Pipeline controls
+        "PIPELINE_MODE": "synthetic_demo",
+        "ALLOW_PARTIAL_COVERAGE": "true",
         "USE_FUZZY_EVIDENCE_MAPPER": "false",
         "ENABLE_FUZZY_EVIDENCE_MAPPER": "false",
         "RUN_FUZZY_EVIDENCE_MAPPER": "false",
+        "MAX_REVISION_LOOPS": "2",
     }
 
 
@@ -198,14 +275,14 @@ def _build_namespace_values(
     output_dir: Path,
 ) -> dict[str, Any]:
     """
-    Notebook bridge namespace.
+    Initial notebook bridge namespace.
 
-    The notebook was written for Jupyter, where previous cells leave many
-    variables/modules available globally. Since Django executes cells manually,
-    we inject the common globals here.
+    CELL 1 should define the official notebook variables. These values are only
+    safe fallbacks so cells can execute outside Jupyter.
     """
 
     notebook_dir = notebook_path.parent
+    dirs = _ensure_notebook_dirs(output_dir)
 
     return {
         "__name__": "__notebook_evidence_bridge__",
@@ -224,6 +301,10 @@ def _build_namespace_values(
         "statistics": statistics,
         "traceback": traceback,
         "warnings": warnings,
+        "uuid": uuid,
+        "shutil": shutil,
+        "random": random,
+        "urllib": urllib,
         "pd": pd,
         "np": np,
 
@@ -234,6 +315,7 @@ def _build_namespace_values(
         "OrderedDict": OrderedDict,
         "dataclass": dataclass,
         "field": field,
+        "resolve": resolve,
         "Any": Any,
         "Dict": Dict,
         "List": List,
@@ -244,7 +326,6 @@ def _build_namespace_values(
         "Sequence": Sequence,
 
         # Root aliases expected by notebook cells
-        # Root aliases expected by notebook cells
         "CURRENT_DIR": notebook_dir,
         "CURRENT_PATH": notebook_dir,
         "WORKING_DIR": notebook_dir,
@@ -254,41 +335,32 @@ def _build_namespace_values(
         "ROOT_DIR": notebook_dir,
         "INPUT_ROOT": input_root,
 
-        # Output directories expected by notebook cells
+        # Data/output paths
         "GEN_DATA_DIR": output_dir,
-        "GENERATED_REPORTS_DIR": output_dir,
-        "GENERATION_OUTPUT_DIR": output_dir,
-        "OUTPUT_DIR": output_dir,
-        "REPORT_OUTPUT_DIR": output_dir,
-        "AGENTIC_REPORT_OUTPUT_DIR": output_dir,
-
-        # Common artifact subdirectories expected by notebook cells
-        "EVIDENCE_MAPS_DIR": output_dir / "01_evidence_maps",
-        "COVERAGE_DIR": output_dir / "02_coverage",
-        "MISSING_REQUIREMENTS_DIR": output_dir / "03_missing_requirements",
-        "DISCLOSURE_PLANS_DIR": output_dir / "04_disclosure_plans",
-        "WRITER_CONTEXTS_DIR": output_dir / "05_writer_contexts",
-
-        # Payload aliases
         "PAYLOAD_DIR": payload_dir,
         "PAYLOADS_DIR": payload_dir,
         "BANK_PAYLOAD_DIR": payload_dir,
         "INPUT_PAYLOAD_DIR": payload_dir,
 
-        # IFRS requirements aliases
-        "IFRS_REQUIREMENTS_DIR": requirements_dir,
         "REQUIREMENTS_DIR": requirements_dir,
+        "IFRS_REQUIREMENTS_DIR": requirements_dir,
         "IFRS_ASSET_DIR": requirements_dir,
         "IFRS_REQUIREMENTS_PATH": requirements_dir,
 
-        # Style aliases
         "STYLE_SYSTEM_DIR": style_system_dir,
         "STYLE_ASSET_DIR": style_system_dir,
         "STYLE_ASSETS_DIR": style_system_dir,
         "STYLE_SYSTEM_PATH": style_system_dir,
 
-        # Section constants expected by notebook cells
-        # Important: SECTIONS must use notebook display names.
+        "OUTPUT_DIR": output_dir,
+        "GENERATION_OUTPUT_DIR": output_dir,
+        "GENERATED_REPORTS_DIR": output_dir,
+        "REPORT_OUTPUT_DIR": output_dir,
+        "AGENTIC_REPORT_OUTPUT_DIR": output_dir,
+
+        "DIRS": dirs,
+
+        # Section constants from CELL 1
         "SECTIONS": [
             "General Requirements",
             "Governance",
@@ -303,46 +375,16 @@ def _build_namespace_values(
             "Strategy": "strategy",
             "Risk Management": "risk_management",
             "Metrics and Targets": "metrics_and_targets",
-
-            # Extra aliases for patched cells that may use key-style names
-            "general_requirements": "general_requirements",
-            "governance": "governance",
-            "strategy": "strategy",
-            "risk_management": "risk_management",
-            "metrics_targets": "metrics_and_targets",
-            "metrics_and_targets": "metrics_and_targets",
         },
 
-        "SECTION_KEYS": {
-            "General Requirements": "general_requirements",
-            "Governance": "governance",
-            "Strategy": "strategy",
-            "Risk Management": "risk_management",
-            "Metrics and Targets": "metrics_targets",
-        },
-
-        "SECTION_TITLES": {
-            "general_requirements": "General Requirements",
-            "governance": "Governance",
-            "strategy": "Strategy",
-            "risk_management": "Risk Management",
-            "metrics_targets": "Metrics and Targets",
-            "metrics_and_targets": "Metrics and Targets",
-        },
-
-        "SECTION_NAMES": {
-            "general_requirements": "General Requirements",
-            "governance": "Governance",
-            "strategy": "Strategy",
-            "risk_management": "Risk Management",
-            "metrics_targets": "Metrics and Targets",
-            "metrics_and_targets": "Metrics and Targets",
-        },
-
-        # Behaviour flags
+        # Pipeline controls from CELL 1
+        "PIPELINE_MODE": "synthetic_demo",
+        "FORBID_INVENTION": True,
+        "ALLOW_PARTIAL_COVERAGE": True,
         "USE_FUZZY_EVIDENCE_MAPPER": False,
         "ENABLE_FUZZY_EVIDENCE_MAPPER": False,
         "RUN_FUZZY_EVIDENCE_MAPPER": False,
+        "MAX_REVISION_LOOPS": 2,
     }
 
 
@@ -356,53 +398,48 @@ def _refresh_runtime_namespace(
     output_dir: Path,
 ) -> None:
     """
-    Reapply critical paths before and after each notebook cell.
+    Reapply only critical Django-controlled paths before and after each cell.
 
-    Some notebook setup cells redefine paths. This keeps the bridge aligned
-    with Django's selected input/output folders without overriding notebook
-    section logic after it is defined.
+    We do not override SECTIONS/SECTION_SLUGS here because CELL 1 should define
+    them exactly as the notebook expects.
     """
+
+    notebook_dir = namespace.get("NOTEBOOK_DIR", Path.cwd())
+    dirs = _ensure_notebook_dirs(output_dir)
 
     namespace.update(
         {
-            "CURRENT_DIR": namespace.get("NOTEBOOK_DIR", Path.cwd()),
-            "CURRENT_PATH": namespace.get("NOTEBOOK_DIR", Path.cwd()),
-            "WORKING_DIR": namespace.get("NOTEBOOK_DIR", Path.cwd()),
+            "CURRENT_DIR": notebook_dir,
+            "CURRENT_PATH": notebook_dir,
+            "WORKING_DIR": notebook_dir,
+            "NOTEBOOK_DIR": notebook_dir,
             "INPUT_ROOT": input_root,
 
-            # Output dirs
             "GEN_DATA_DIR": output_dir,
-            "GENERATED_REPORTS_DIR": output_dir,
-            "GENERATION_OUTPUT_DIR": output_dir,
-            "OUTPUT_DIR": output_dir,
-            "REPORT_OUTPUT_DIR": output_dir,
-            "AGENTIC_REPORT_OUTPUT_DIR": output_dir,
 
-            "EVIDENCE_MAPS_DIR": output_dir / "01_evidence_maps",
-            "COVERAGE_DIR": output_dir / "02_coverage",
-            "MISSING_REQUIREMENTS_DIR": output_dir / "03_missing_requirements",
-            "DISCLOSURE_PLANS_DIR": output_dir / "04_disclosure_plans",
-            "WRITER_CONTEXTS_DIR": output_dir / "05_writer_contexts",
-
-            # Payload dirs
             "PAYLOAD_DIR": payload_dir,
             "PAYLOADS_DIR": payload_dir,
             "BANK_PAYLOAD_DIR": payload_dir,
             "INPUT_PAYLOAD_DIR": payload_dir,
 
-            # Requirements dirs
-            "IFRS_REQUIREMENTS_DIR": requirements_dir,
             "REQUIREMENTS_DIR": requirements_dir,
+            "IFRS_REQUIREMENTS_DIR": requirements_dir,
             "IFRS_ASSET_DIR": requirements_dir,
             "IFRS_REQUIREMENTS_PATH": requirements_dir,
 
-            # Style dirs
             "STYLE_SYSTEM_DIR": style_system_dir,
             "STYLE_ASSET_DIR": style_system_dir,
             "STYLE_ASSETS_DIR": style_system_dir,
             "STYLE_SYSTEM_PATH": style_system_dir,
 
-            # Behaviour flags
+            "OUTPUT_DIR": output_dir,
+            "GENERATION_OUTPUT_DIR": output_dir,
+            "GENERATED_REPORTS_DIR": output_dir,
+            "REPORT_OUTPUT_DIR": output_dir,
+            "AGENTIC_REPORT_OUTPUT_DIR": output_dir,
+
+            "DIRS": dirs,
+
             "USE_FUZZY_EVIDENCE_MAPPER": False,
             "ENABLE_FUZZY_EVIDENCE_MAPPER": False,
             "RUN_FUZZY_EVIDENCE_MAPPER": False,
@@ -465,6 +502,7 @@ def run_notebook_evidence_stage(
         )
 
     output_dir.mkdir(parents=True, exist_ok=True)
+    _ensure_notebook_dirs(output_dir)
 
     cells = _read_notebook_cells(notebook_path)
     selected_cells = _select_notebook_cells_until_stop_marker(
@@ -508,7 +546,13 @@ def run_notebook_evidence_stage(
                     mode="exec",
                 )
 
-                exec(compiled, namespace)
+                try:
+                    exec(compiled, namespace)
+                except Exception as exc:
+                    raise RuntimeError(
+                        f"Notebook evidence bridge failed while executing {cell_name}: {exc}"
+                    ) from exc
+
                 executed_cells.append(cell_name)
 
                 _refresh_runtime_namespace(
