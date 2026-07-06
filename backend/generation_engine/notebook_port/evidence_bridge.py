@@ -194,8 +194,10 @@ def _build_namespace_values(
         "time": time,
 
         # Root aliases
+        "NOTEBOOK_DIR": notebook_path.parent,
         "BASE_DIR": notebook_path.parent,
         "PROJECT_ROOT": notebook_path.parent,
+        "ROOT_DIR": notebook_path.parent,
         "INPUT_ROOT": input_root,
 
         # Payload aliases
