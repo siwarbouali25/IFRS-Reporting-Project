@@ -1,5 +1,9 @@
 import json
 import os
+import re
+import math
+import datetime
+import time
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
@@ -184,6 +188,10 @@ def _build_namespace_values(
         "os": os,
         "json": json,
         "Path": Path,
+        "re": re,
+        "math": math,
+        "datetime": datetime,
+        "time": time,
 
         # Root aliases
         "BASE_DIR": notebook_path.parent,
@@ -205,6 +213,38 @@ def _build_namespace_values(
         "STYLE_SYSTEM_DIR": style_system_dir,
         "STYLE_ASSET_DIR": style_system_dir,
         "STYLE_ASSETS_DIR": style_system_dir,
+
+        "SECTIONS": [
+            "general_requirements",
+            "governance",
+            "strategy",
+            "risk_management",
+            "metrics_targets",
+        ],
+
+        "SECTION_KEYS": [
+            "general_requirements",
+            "governance",
+            "strategy",
+            "risk_management",
+            "metrics_targets",
+        ],
+
+        "SECTION_NAMES": {
+            "general_requirements": "General Requirements",
+            "governance": "Governance",
+            "strategy": "Strategy",
+            "risk_management": "Risk Management",
+            "metrics_targets": "Metrics and Targets",
+        },
+
+        "SECTION_SLUGS": {
+            "General Requirements": "general_requirements",
+            "Governance": "governance",
+            "Strategy": "strategy",
+            "Risk Management": "risk_management",
+            "Metrics and Targets": "metrics_and_targets",
+        },
 
         # Output aliases
         "GENERATION_OUTPUT_DIR": output_dir,
