@@ -215,15 +215,7 @@ def _build_namespace_values(
         "STYLE_ASSETS_DIR": style_system_dir,
 
                 # Section constants expected by notebook cells
-        "SECTIONS": [
-            "general_requirements",
-            "governance",
-            "strategy",
-            "risk_management",
-            "metrics_targets",
-        ],
-
-
+     
         # Output aliases
         "GENERATION_OUTPUT_DIR": output_dir,
         "OUTPUT_DIR": output_dir,
