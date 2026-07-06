@@ -6,6 +6,7 @@ from generation_engine.loaders.payload_loader import load_payloads_from_prefix
 from generation_engine.loaders.requirements_loader import load_requirements_from_prefix
 from generation_engine.loaders.style_loader import load_style_assets_from_prefix
 from generation_engine.planning.disclosure_plan_builder import build_disclosure_plans
+from generation_engine.writing.llm_section_writer import build_llm_section_drafts
 from generation_engine.validation.deterministic_gates import (
     run_deterministic_validation_gates,
 )
@@ -85,9 +86,16 @@ def build_writer_contexts_node(state):
 
 
 def generate_sections_node(state):
-    section_draft_result = build_section_drafts(
-        writer_context_result=state["writer_context_result"],
-    )
+    writer_mode = state.get("writer_mode", "deterministic")
+
+    if writer_mode == "llm":
+        section_draft_result = build_llm_section_drafts(
+            writer_context_result=state["writer_context_result"],
+        )
+    else:
+        section_draft_result = build_section_drafts(
+            writer_context_result=state["writer_context_result"],
+        )
 
     return {
         "section_draft_result": section_draft_result,
