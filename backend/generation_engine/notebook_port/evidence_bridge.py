@@ -244,6 +244,10 @@ def _build_namespace_values(
         "Sequence": Sequence,
 
         # Root aliases expected by notebook cells
+        # Root aliases expected by notebook cells
+        "CURRENT_DIR": notebook_dir,
+        "CURRENT_PATH": notebook_dir,
+        "WORKING_DIR": notebook_dir,
         "NOTEBOOK_DIR": notebook_dir,
         "BASE_DIR": notebook_dir,
         "PROJECT_ROOT": notebook_dir,
@@ -361,6 +365,9 @@ def _refresh_runtime_namespace(
 
     namespace.update(
         {
+            "CURRENT_DIR": namespace.get("NOTEBOOK_DIR", Path.cwd()),
+            "CURRENT_PATH": namespace.get("NOTEBOOK_DIR", Path.cwd()),
+            "WORKING_DIR": namespace.get("NOTEBOOK_DIR", Path.cwd()),
             "INPUT_ROOT": input_root,
 
             # Output dirs
