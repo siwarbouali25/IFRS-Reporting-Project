@@ -215,7 +215,32 @@ def _build_namespace_values(
         "STYLE_ASSETS_DIR": style_system_dir,
 
                 # Section constants expected by notebook cells
-     
+                # Section constants expected by the notebook
+        # Important: these must be notebook display names, not Django slugs.
+        "SECTIONS": [
+            "General Requirements",
+            "Governance",
+            "Strategy",
+            "Risk Management",
+            "Metrics and Targets",
+        ],
+
+        "SECTION_SLUGS": {
+            "General Requirements": "general_requirements",
+            "Governance": "governance",
+            "Strategy": "strategy",
+            "Risk Management": "risk_management",
+            "Metrics and Targets": "metrics_and_targets",
+        },
+
+        "SECTION_KEYS": {
+            "General Requirements": "general_requirements",
+            "Governance": "governance",
+            "Strategy": "strategy",
+            "Risk Management": "risk_management",
+            "Metrics and Targets": "metrics_targets",
+        },
+
         # Output aliases
         "GENERATION_OUTPUT_DIR": output_dir,
         "OUTPUT_DIR": output_dir,
