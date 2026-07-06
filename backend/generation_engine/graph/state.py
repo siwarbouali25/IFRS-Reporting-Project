@@ -14,37 +14,52 @@ class IFRSReportGraphState(TypedDict, total=False):
 
     writer_mode: str
 
-    # Existing loader results
+    # Loader / notebook input outputs
     payload_result: Any
     requirements_result: Any
     style_result: Any
 
-    # Existing pipeline result fields
+    requirements_by_section: Any
+    payloads_by_section: Any
+
+    # Evidence outputs
     evidence_result: Any
     coverage_result: Any
     missing_result: Any
-    disclosure_plan_result: Any
-    writer_context_result: Any
 
-    section_draft_result: Any
-    draft_report_result: Any
-    deterministic_validation_result: Any
-
-    # Notebook evidence bridge outputs
-    requirements_by_section: Any
-    payloads_by_section: Any
     evidence_maps_by_section: Any
     evidence_map_summaries: Any
     coverage_by_section: Any
     missing_registers_by_section: Any
-    section_slugs: Any
 
-    notebook_evidence_output_dir: str
-    notebook_evidence_executed_cells: list[str]
-    notebook_evidence_executed_cells_count: int
-    evidence_stage_status: str
+    # Planning / writing outputs
+    disclosure_plan_result: Any
+    writer_context_result: Any
+    section_draft_result: Any
+    draft_report_result: Any
 
+    plans_by_section: Any
+    section_results: Any
+
+    # QA / validation outputs
+    deterministic_validation_result: Any
+    quality_refinement_result: Any
+    final_quality_result: Any
+    final_editorial_result: Any
+    connectivity_result: Any
+
+    # Final report outputs
     final_markdown: str
+    final_markdown_path: str
+    handoff_manifest: Any
+    audit_summary: Any
+
+    # Final API-compatible fields
     final_summary: dict[str, Any]
     warnings: list[Any]
     artifacts: dict[str, Any]
+
+    # Debug metadata
+    notebook_full_output_dir: str
+    notebook_full_executed_cells: list[str]
+    notebook_full_executed_cells_count: int

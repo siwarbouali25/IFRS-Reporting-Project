@@ -11,6 +11,7 @@ import shutil
 import statistics
 import time
 import traceback
+import urllib
 import urllib.error
 import urllib.request
 import uuid
@@ -35,7 +36,12 @@ except Exception:
     np = None
 
 
-STOP_MARKER = "CELL 9B — STRICT EVIDENCE"
+EVIDENCE_STOP_MARKER = "CELL 9B — STRICT EVIDENCE"
+FULL_REPORT_STOP_MARKER = "CELL 22 — AUDIT SUMMARY"
+
+
+def _noop_display(*args, **kwargs):
+    return None
 
 
 @contextmanager
@@ -91,16 +97,10 @@ def _is_notebook_only_cell(source: str) -> bool:
     Skip only real notebook/shell command cells.
 
     Important:
-    Do NOT skip a cell just because it contains the text "pip install"
-    inside a string or error message.
-
-    The notebook CELL 1 contains:
-        "Install python-dotenv first: pip install python-dotenv"
-
-    The old bridge skipped CELL 1 because of that text, which caused:
-        CURRENT_DIR is not defined
-        GEN_DATA_DIR is not defined
-        DIRS is not defined
+    do not skip a cell just because it contains the text "pip install"
+    inside a Python string/error message. CELL 1 contains:
+    "Install python-dotenv first: pip install python-dotenv"
+    and must execute.
     """
 
     stripped = source.strip()
@@ -145,11 +145,6 @@ def _select_notebook_cells_until_stop_marker(
     cells: list[dict[str, Any]],
     stop_marker: str,
 ) -> list[tuple[str, str]]:
-    """
-    Execute notebook code cells in order from the beginning up to and including
-    the strict evidence stage.
-    """
-
     selected: list[tuple[str, str]] = []
     stop_found = False
 
@@ -182,7 +177,8 @@ def _prefix_to_path(input_root: Path, prefix: str) -> Path:
 
 def _build_notebook_dirs(output_dir: Path) -> dict[str, Path]:
     """
-    Exact DIRS structure used by CELL 1 of the notebook.
+    Exact notebook output directory structure.
+    Includes later directories introduced by patch cells.
     """
 
     return {
@@ -198,6 +194,9 @@ def _build_notebook_dirs(output_dir: Path) -> dict[str, Path]:
         "approved": output_dir / "10_approved_sections",
         "connectivity": output_dir / "11_connectivity",
         "handoff": output_dir / "12_pdf_handoff",
+        "final_quality": output_dir / "13_final_quality",
+        "quality_refinement": output_dir / "14_quality_refinement",
+        "final_editorial": output_dir / "15_final_editorial",
         "audit_logs": output_dir / "audit_logs",
     }
 
@@ -213,6 +212,7 @@ def _ensure_notebook_dirs(output_dir: Path) -> dict[str, Path]:
 
 def _build_env_values(
     *,
+    input_root: Path,
     payload_dir: Path,
     requirements_dir: Path,
     style_system_dir: Path,
@@ -220,15 +220,12 @@ def _build_env_values(
 ) -> dict[str, str]:
     """
     Environment aliases for notebook cells that read os.environ.
-
-    CELL 1 reads these env vars directly:
-    - PAYLOAD_DIR
-    - IFRS_REQUIREMENTS_DIR
-    - STYLE_SYSTEM_DIR
-    - GENERATION_OUTPUT_DIR
     """
 
     return {
+        # Data root
+        "GEN_DATA_DIR": str(input_root),
+
         # Payload aliases
         "PAYLOAD_DIR": str(payload_dir),
         "PAYLOADS_DIR": str(payload_dir),
@@ -249,7 +246,6 @@ def _build_env_values(
 
         # Output aliases
         "GENERATION_OUTPUT_DIR": str(output_dir),
-        "GEN_DATA_DIR": str(output_dir),
         "GENERATED_REPORTS_DIR": str(output_dir),
         "OUTPUT_DIR": str(output_dir),
         "REPORT_OUTPUT_DIR": str(output_dir),
@@ -275,20 +271,23 @@ def _build_namespace_values(
     output_dir: Path,
 ) -> dict[str, Any]:
     """
-    Initial notebook bridge namespace.
+    Initial namespace used when executing notebook cells outside Jupyter.
 
-    CELL 1 should define the official notebook variables. These values are only
-    safe fallbacks so cells can execute outside Jupyter.
+    CELL 1 defines the official notebook variables. These values are safe
+    fallbacks and Django-controlled path overrides.
     """
 
     notebook_dir = notebook_path.parent
     dirs = _ensure_notebook_dirs(output_dir)
 
     return {
-        "__name__": "__notebook_evidence_bridge__",
+        "__name__": "__notebook_bridge__",
         "__file__": str(notebook_path),
 
-        # Common modules expected by notebook cells
+        # Display fallback for non-Jupyter execution
+        "display": _noop_display,
+
+        # Common modules
         "os": os,
         "json": json,
         "re": re,
@@ -308,7 +307,7 @@ def _build_namespace_values(
         "pd": pd,
         "np": np,
 
-        # Common classes/functions expected by notebook cells
+        # Common classes/functions
         "Path": Path,
         "Counter": Counter,
         "defaultdict": defaultdict,
@@ -325,7 +324,7 @@ def _build_namespace_values(
         "Iterable": Iterable,
         "Sequence": Sequence,
 
-        # Root aliases expected by notebook cells
+        # Root aliases
         "CURRENT_DIR": notebook_dir,
         "CURRENT_PATH": notebook_dir,
         "WORKING_DIR": notebook_dir,
@@ -333,10 +332,12 @@ def _build_namespace_values(
         "BASE_DIR": notebook_dir,
         "PROJECT_ROOT": notebook_dir,
         "ROOT_DIR": notebook_dir,
-        "INPUT_ROOT": input_root,
 
-        # Data/output paths
-        "GEN_DATA_DIR": output_dir,
+        # Data root
+        "INPUT_ROOT": input_root,
+        "GEN_DATA_DIR": input_root,
+
+        # Input paths
         "PAYLOAD_DIR": payload_dir,
         "PAYLOADS_DIR": payload_dir,
         "BANK_PAYLOAD_DIR": payload_dir,
@@ -352,6 +353,7 @@ def _build_namespace_values(
         "STYLE_ASSETS_DIR": style_system_dir,
         "STYLE_SYSTEM_PATH": style_system_dir,
 
+        # Output paths
         "OUTPUT_DIR": output_dir,
         "GENERATION_OUTPUT_DIR": output_dir,
         "GENERATED_REPORTS_DIR": output_dir,
@@ -360,7 +362,7 @@ def _build_namespace_values(
 
         "DIRS": dirs,
 
-        # Section constants from CELL 1
+        # Notebook section constants
         "SECTIONS": [
             "General Requirements",
             "Governance",
@@ -377,7 +379,7 @@ def _build_namespace_values(
             "Metrics and Targets": "metrics_and_targets",
         },
 
-        # Pipeline controls from CELL 1
+        # Pipeline controls
         "PIPELINE_MODE": "synthetic_demo",
         "FORBID_INVENTION": True,
         "ALLOW_PARTIAL_COVERAGE": True,
@@ -398,10 +400,10 @@ def _refresh_runtime_namespace(
     output_dir: Path,
 ) -> None:
     """
-    Reapply only critical Django-controlled paths before and after each cell.
+    Reapply Django-controlled paths before and after each notebook cell.
 
-    We do not override SECTIONS/SECTION_SLUGS here because CELL 1 should define
-    them exactly as the notebook expects.
+    Do not override SECTIONS here. CELL 1 should define the exact notebook
+    section names.
     """
 
     notebook_dir = namespace.get("NOTEBOOK_DIR", Path.cwd())
@@ -409,13 +411,15 @@ def _refresh_runtime_namespace(
 
     namespace.update(
         {
+            "display": _noop_display,
+
             "CURRENT_DIR": notebook_dir,
             "CURRENT_PATH": notebook_dir,
             "WORKING_DIR": notebook_dir,
             "NOTEBOOK_DIR": notebook_dir,
-            "INPUT_ROOT": input_root,
 
-            "GEN_DATA_DIR": output_dir,
+            "INPUT_ROOT": input_root,
+            "GEN_DATA_DIR": input_root,
 
             "PAYLOAD_DIR": payload_dir,
             "PAYLOADS_DIR": payload_dir,
@@ -448,10 +452,6 @@ def _refresh_runtime_namespace(
 
 
 def _serialise_warning_safe(value: Any) -> Any:
-    """
-    Keep return object JSON-safe enough for Django commands/artifact saving.
-    """
-
     try:
         json.dumps(value, default=str)
         return value
@@ -459,7 +459,7 @@ def _serialise_warning_safe(value: Any) -> Any:
         return str(value)
 
 
-def run_notebook_evidence_stage(
+def _execute_notebook_until_marker(
     *,
     notebook_path: Path,
     input_root: Path,
@@ -467,19 +467,8 @@ def run_notebook_evidence_stage(
     ifrs_asset_prefix: str,
     style_asset_prefix: str,
     output_dir: Path,
-) -> dict[str, Any]:
-    """
-    Runs the notebook evidence-mapping stage by executing notebook code cells
-    in order from the beginning until CELL 9B — STRICT EVIDENCE.
-
-    This is intentionally a bridge step.
-
-    Goal:
-    - match notebook outputs first
-    - then refactor the exact notebook logic into clean production modules
-    - later LangGraph nodes call those modules instead of executing notebook cells
-    """
-
+    stop_marker: str,
+) -> tuple[dict[str, Any], list[str]]:
     notebook_path = Path(notebook_path).resolve()
     input_root = Path(input_root).resolve()
     output_dir = Path(output_dir).resolve()
@@ -507,10 +496,10 @@ def run_notebook_evidence_stage(
     cells = _read_notebook_cells(notebook_path)
     selected_cells = _select_notebook_cells_until_stop_marker(
         cells=cells,
-        stop_marker=STOP_MARKER,
+        stop_marker=stop_marker,
     )
 
-    namespace: dict[str, Any] = _build_namespace_values(
+    namespace = _build_namespace_values(
         notebook_path=notebook_path,
         input_root=input_root,
         payload_dir=payload_dir,
@@ -520,6 +509,7 @@ def run_notebook_evidence_stage(
     )
 
     env_values = _build_env_values(
+        input_root=input_root,
         payload_dir=payload_dir,
         requirements_dir=requirements_dir,
         style_system_dir=style_system_dir,
@@ -550,7 +540,7 @@ def run_notebook_evidence_stage(
                     exec(compiled, namespace)
                 except Exception as exc:
                     raise RuntimeError(
-                        f"Notebook evidence bridge failed while executing {cell_name}: {exc}"
+                        f"Notebook bridge failed while executing {cell_name}: {exc}"
                     ) from exc
 
                 executed_cells.append(cell_name)
@@ -564,6 +554,33 @@ def run_notebook_evidence_stage(
                     output_dir=output_dir,
                 )
 
+    return namespace, executed_cells
+
+
+def run_notebook_evidence_stage(
+    *,
+    notebook_path: Path,
+    input_root: Path,
+    payload_prefix: str,
+    ifrs_asset_prefix: str,
+    style_asset_prefix: str,
+    output_dir: Path,
+) -> dict[str, Any]:
+    """
+    Runs notebook cells from the start until strict evidence.
+    Kept for evidence parity testing.
+    """
+
+    namespace, executed_cells = _execute_notebook_until_marker(
+        notebook_path=notebook_path,
+        input_root=input_root,
+        payload_prefix=payload_prefix,
+        ifrs_asset_prefix=ifrs_asset_prefix,
+        style_asset_prefix=style_asset_prefix,
+        output_dir=output_dir,
+        stop_marker=EVIDENCE_STOP_MARKER,
+    )
+
     required_outputs = [
         "requirements_by_section",
         "payloads_by_section",
@@ -574,11 +591,7 @@ def run_notebook_evidence_stage(
         "SECTION_SLUGS",
     ]
 
-    missing_outputs = [
-        key
-        for key in required_outputs
-        if key not in namespace
-    ]
+    missing_outputs = [key for key in required_outputs if key not in namespace]
 
     if missing_outputs:
         available_keys = sorted(
@@ -590,7 +603,7 @@ def run_notebook_evidence_stage(
             "Notebook evidence bridge did not produce expected outputs: "
             + ", ".join(missing_outputs)
             + "\n\nAvailable notebook variables:\n"
-            + "\n".join(available_keys[:300])
+            + "\n".join(available_keys[:400])
         )
 
     return {
@@ -612,11 +625,117 @@ def run_notebook_evidence_stage(
         "missing_registers_by_section": _serialise_warning_safe(
             namespace["missing_registers_by_section"]
         ),
-        "section_slugs": _serialise_warning_safe(
-            namespace["SECTION_SLUGS"]
-        ),
-        "output_dir": str(output_dir),
+        "section_slugs": _serialise_warning_safe(namespace["SECTION_SLUGS"]),
+        "output_dir": str(namespace.get("OUTPUT_DIR", "")),
         "executed_cells": executed_cells,
         "executed_cells_count": len(executed_cells),
-        "stop_marker": STOP_MARKER,
+        "stop_marker": EVIDENCE_STOP_MARKER,
+    }
+
+
+def run_notebook_full_generation_stage(
+    *,
+    notebook_path: Path,
+    input_root: Path,
+    payload_prefix: str,
+    ifrs_asset_prefix: str,
+    style_asset_prefix: str,
+    output_dir: Path,
+) -> dict[str, Any]:
+    """
+    Runs the full notebook report-generation pipeline.
+
+    Temporary bridge mode:
+    - exact notebook logic
+    - exact notebook outputs
+    - no placeholder Django generation logic
+    """
+
+    namespace, executed_cells = _execute_notebook_until_marker(
+        notebook_path=notebook_path,
+        input_root=input_root,
+        payload_prefix=payload_prefix,
+        ifrs_asset_prefix=ifrs_asset_prefix,
+        style_asset_prefix=style_asset_prefix,
+        output_dir=output_dir,
+        stop_marker=FULL_REPORT_STOP_MARKER,
+    )
+
+    required_outputs = [
+        "requirements_by_section",
+        "payloads_by_section",
+        "evidence_maps_by_section",
+        "coverage_by_section",
+        "missing_registers_by_section",
+        "plans_by_section",
+        "section_results",
+        "final_markdown",
+        "handoff_manifest",
+        "summary",
+    ]
+
+    missing_outputs = [key for key in required_outputs if key not in namespace]
+
+    if missing_outputs:
+        available_keys = sorted(
+            key for key in namespace.keys()
+            if not key.startswith("__")
+        )
+
+        raise RuntimeError(
+            "Full notebook bridge did not produce expected outputs: "
+            + ", ".join(missing_outputs)
+            + "\n\nAvailable notebook variables:\n"
+            + "\n".join(available_keys[:500])
+        )
+
+    return {
+        "requirements_by_section": _serialise_warning_safe(
+            namespace.get("requirements_by_section")
+        ),
+        "payloads_by_section": _serialise_warning_safe(
+            namespace.get("payloads_by_section")
+        ),
+        "evidence_maps_by_section": _serialise_warning_safe(
+            namespace.get("evidence_maps_by_section")
+        ),
+        "evidence_map_summaries": _serialise_warning_safe(
+            namespace.get("evidence_map_summaries")
+        ),
+        "coverage_by_section": _serialise_warning_safe(
+            namespace.get("coverage_by_section")
+        ),
+        "missing_registers_by_section": _serialise_warning_safe(
+            namespace.get("missing_registers_by_section")
+        ),
+        "plans_by_section": _serialise_warning_safe(
+            namespace.get("plans_by_section")
+        ),
+        "section_results": _serialise_warning_safe(
+            namespace.get("section_results")
+        ),
+        "quality_refinement_result": _serialise_warning_safe(
+            namespace.get("quality_refinement_result")
+        ),
+        "final_quality_result": _serialise_warning_safe(
+            namespace.get("final_quality_result")
+        ),
+        "final_editorial_result": _serialise_warning_safe(
+            namespace.get("final_editorial_result")
+        ),
+        "connectivity_result": _serialise_warning_safe(
+            namespace.get("connectivity_result")
+        ),
+        "final_markdown": namespace.get("final_markdown", ""),
+        "final_markdown_path": str(namespace.get("final_markdown_path", "")),
+        "handoff_manifest": _serialise_warning_safe(
+            namespace.get("handoff_manifest")
+        ),
+        "audit_summary": _serialise_warning_safe(namespace.get("summary")),
+        "section_slugs": _serialise_warning_safe(namespace.get("SECTION_SLUGS")),
+        "dirs": _serialise_warning_safe(namespace.get("DIRS")),
+        "output_dir": str(namespace.get("OUTPUT_DIR", "")),
+        "executed_cells": executed_cells,
+        "executed_cells_count": len(executed_cells),
+        "stop_marker": FULL_REPORT_STOP_MARKER,
     }
