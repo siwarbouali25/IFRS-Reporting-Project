@@ -223,68 +223,6 @@ def _build_namespace_values(
             "metrics_targets",
         ],
 
-        "SECTION_KEYS": [
-            "general_requirements",
-            "governance",
-            "strategy",
-            "risk_management",
-            "metrics_targets",
-        ],
-
-        "SECTION_NAMES": {
-            "general_requirements": "General Requirements",
-            "governance": "Governance",
-            "strategy": "Strategy",
-            "risk_management": "Risk Management",
-            "metrics_targets": "Metrics and Targets",
-            "metrics_and_targets": "Metrics and Targets",
-        },
-
-        "SECTION_TITLES": {
-            "general_requirements": "General Requirements",
-            "governance": "Governance",
-            "strategy": "Strategy",
-            "risk_management": "Risk Management",
-            "metrics_targets": "Metrics and Targets",
-            "metrics_and_targets": "Metrics and Targets",
-        },
-
-        # Important: include BOTH key-style and title-style aliases
-        "SECTION_SLUGS": {
-            "general_requirements": "general_requirements",
-            "General Requirements": "general_requirements",
-
-            "governance": "governance",
-            "Governance": "governance",
-
-            "strategy": "strategy",
-            "Strategy": "strategy",
-
-            "risk_management": "risk_management",
-            "Risk Management": "risk_management",
-
-            "metrics_targets": "metrics_and_targets",
-            "metrics_and_targets": "metrics_and_targets",
-            "Metrics and Targets": "metrics_and_targets",
-        },
-
-        "SECTION_FILE_SLUGS": {
-            "general_requirements": "general_requirements",
-            "governance": "governance",
-            "strategy": "strategy",
-            "risk_management": "risk_management",
-            "metrics_targets": "metrics_and_targets",
-            "metrics_and_targets": "metrics_and_targets",
-        },
-
-        "FILE_SLUGS": {
-            "general_requirements": "general_requirements",
-            "governance": "governance",
-            "strategy": "strategy",
-            "risk_management": "risk_management",
-            "metrics_targets": "metrics_and_targets",
-            "metrics_and_targets": "metrics_and_targets",
-        },
 
         # Output aliases
         "GENERATION_OUTPUT_DIR": output_dir,
