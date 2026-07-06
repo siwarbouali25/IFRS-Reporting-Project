@@ -1,0 +1,79 @@
+{
+  "overall": {
+    "requirements_total": 361,
+    "requirements_with_any_candidates": 344,
+    "requirements_with_writer_safe_candidates": 341,
+    "requirements_without_writer_safe_candidates": 20,
+    "any_candidate_coverage_ratio": 0.9529,
+    "writer_safe_coverage_ratio": 0.9446,
+    "scoring_policy": "warning_only_missing_data_does_not_reduce_score",
+    "report_policy": "do_not_mention_missing_data_in_generated_report"
+  },
+  "sections": {
+    "general_requirements": {
+      "requirements_total": 108,
+      "requirements_with_any_candidates": 103,
+      "requirements_with_writer_safe_candidates": 100,
+      "requirements_without_writer_safe_candidates": 8,
+      "requirements_with_strong_evidence": 40,
+      "requirements_with_medium_evidence_only": 60,
+      "audit_only_candidate_count": 210,
+      "missing_like_candidate_count": 0,
+      "any_candidate_coverage_ratio": 0.9537,
+      "writer_safe_coverage_ratio": 0.9259,
+      "scoring_policy": "warning_only_missing_data_does_not_reduce_score"
+    },
+    "governance": {
+      "requirements_total": 15,
+      "requirements_with_any_candidates": 15,
+      "requirements_with_writer_safe_candidates": 15,
+      "requirements_without_writer_safe_candidates": 0,
+      "requirements_with_strong_evidence": 15,
+      "requirements_with_medium_evidence_only": 0,
+      "audit_only_candidate_count": 0,
+      "missing_like_candidate_count": 0,
+      "any_candidate_coverage_ratio": 1.0,
+      "writer_safe_coverage_ratio": 1.0,
+      "scoring_policy": "warning_only_missing_data_does_not_reduce_score"
+    },
+    "strategy": {
+      "requirements_total": 70,
+      "requirements_with_any_candidates": 70,
+      "requirements_with_writer_safe_candidates": 70,
+      "requirements_without_writer_safe_candidates": 0,
+      "requirements_with_strong_evidence": 64,
+      "requirements_with_medium_evidence_only": 6,
+      "audit_only_candidate_count": 0,
+      "missing_like_candidate_count": 0,
+      "any_candidate_coverage_ratio": 1.0,
+      "writer_safe_coverage_ratio": 1.0,
+      "scoring_policy": "warning_only_missing_data_does_not_reduce_score"
+    },
+    "risk_management": {
+      "requirements_total": 17,
+      "requirements_with_any_candidates": 17,
+      "requirements_with_writer_safe_candidates": 17,
+      "requirements_without_writer_safe_candidates": 0,
+      "requirements_with_strong_evidence": 10,
+      "requirements_with_medium_evidence_only": 7,
+      "audit_only_candidate_count": 0,
+      "missing_like_candidate_count": 0,
+      "any_candidate_coverage_ratio": 1.0,
+      "writer_safe_coverage_ratio": 1.0,
+      "scoring_policy": "warning_only_missing_data_does_not_reduce_score"
+    },
+    "metrics_targets": {
+      "requirements_total": 151,
+      "requirements_with_any_candidates": 139,
+      "requirements_with_writer_safe_candidates": 139,
+      "requirements_without_writer_safe_candidates": 12,
+      "requirements_with_strong_evidence": 127,
+      "requirements_with_medium_evidence_only": 12,
+      "audit_only_candidate_count": 17,
+      "missing_like_candidate_count": 0,
+      "any_candidate_coverage_ratio": 0.9205,
+      "writer_safe_coverage_ratio": 0.9205,
+      "scoring_policy": "warning_only_missing_data_does_not_reduce_score"
+    }
+  }
+}

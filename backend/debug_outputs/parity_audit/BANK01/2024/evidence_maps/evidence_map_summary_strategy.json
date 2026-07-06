@@ -1,0 +1,23 @@
+{
+  "section_name": "Strategy",
+  "requirements_total": 70,
+  "requirements_with_candidates": 70,
+  "requirements_without_candidates": 0,
+  "candidate_root_distribution": {
+    "climate_risk_register": 172,
+    "climate_financial_effects": 127,
+    "climate_scenarios": 86,
+    "value_chain_map": 71,
+    "climate_opportunities": 43,
+    "transition_plan": 22,
+    "targets": 10,
+    "reporting_kpis": 8,
+    "resilience_assessment": 6,
+    "financial_summary": 4,
+    "metadata": 3
+  },
+  "evidence_strength_distribution": {
+    "strong": 504,
+    "medium": 48
+  }
+}

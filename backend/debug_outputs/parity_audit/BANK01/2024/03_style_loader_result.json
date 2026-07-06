@@ -1,0 +1,1559 @@
+{
+  "loaded_files": [
+    "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\generation_inputs\\style-assets\\BANK01\\style-v1\\global_style_guide.json",
+    "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\generation_inputs\\style-assets\\BANK01\\style-v1\\no_copying_rules.md",
+    "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\generation_inputs\\style-assets\\BANK01\\style-v1\\forbidden_reference_terms.json",
+    "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\generation_inputs\\style-assets\\BANK01\\style-v1\\table_patterns.json",
+    "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\generation_inputs\\style-assets\\BANK01\\style-v1\\style_compliance_rubric.json",
+    "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\generation_inputs\\style-assets\\BANK01\\style-v1\\layout_style_guide.json",
+    "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\generation_inputs\\style-assets\\BANK01\\style-v1\\general_requirements_style.json",
+    "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\generation_inputs\\style-assets\\BANK01\\style-v1\\general_requirements_blueprint.json",
+    "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\generation_inputs\\style-assets\\BANK01\\style-v1\\governance_style.json",
+    "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\generation_inputs\\style-assets\\BANK01\\style-v1\\governance_blueprint.json",
+    "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\generation_inputs\\style-assets\\BANK01\\style-v1\\strategy_style.json",
+    "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\generation_inputs\\style-assets\\BANK01\\style-v1\\strategy_blueprint.json",
+    "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\generation_inputs\\style-assets\\BANK01\\style-v1\\risk_management_style.json",
+    "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\generation_inputs\\style-assets\\BANK01\\style-v1\\risk_management_blueprint.json",
+    "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\generation_inputs\\style-assets\\BANK01\\style-v1\\metrics_and_targets_style.json",
+    "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\generation_inputs\\style-assets\\BANK01\\style-v1\\metrics_and_targets_blueprint.json"
+  ],
+  "missing_files": [],
+  "warnings": [],
+  "style_keys": [
+    "global_style",
+    "no_copying_rules",
+    "forbidden_terms",
+    "table_patterns",
+    "style_rubric",
+    "layout_style_guide",
+    "section_styles",
+    "section_blueprints"
+  ],
+  "style_assets": {
+    "global_style": {
+      "report_voice": "Standards-aligned, audit-ready disclosure voice that prioritizes decision-usefulness, neutrality, and traceability over narrative flourish.",
+      "tone": "Formal, precise, neutral, and risk-aware. Analytical and process-focused; avoids promotional, celebratory, or advocacy language.",
+      "point_of_view": "Third-person or first-person plural used consistently (choose one for the full report). Prefer first-person plural for accountability statements (e.g., 'we disclose', 'we assess') and third-person for externally defined requirements (e.g., 'is required', 'is defined').",
+      "paragraph_rules": [
+        "Use a layered structure: overview paragraph → structured bullets/tables → brief interpretation and cross-references.",
+        "Keep paragraphs single-idea and topic-led; avoid multi-topic blocks.",
+        "Introduce each subsection with a one-sentence purpose statement before details.",
+        "Use lead-in sentences before bullets/tables/figures explaining what follows and why it matters.",
+        "Separate 'principles/what' from 'mechanics/how' using headings and short paragraphs.",
+        "Use explicit subheadings for IFRS pillars (Governance, Strategy, Risk Management, Metrics and Targets) and keep ordering consistent across the report.",
+        "Close major subsections with a short 'connectivity' sentence linking to related sections and/or financial statements (via generic cross-reference placeholders).",
+        "Use whitespace to separate narrative blocks from tables/figures and to improve scanability.",
+        "For PDF readability, alternate narrative blocks with tables, diagrams, or callouts in long sections such as Strategy and Metrics and Targets.",
+        "Avoid pages made entirely of dense text; introduce visual anchors such as section subtitles, summary boxes, or compact tables where appropriate."
+      ],
+      "sentence_rules": [
+        "Prefer declarative, unambiguous sentences with clear subject–verb–object structure.",
+        "Use active voice when responsibility is clear; use passive voice sparingly for externally defined requirements.",
+        "Keep sentences short-to-medium length; split long sentences into two when they contain multiple conditions.",
+        "Define key terms before first use; avoid acronyms unless necessary and defined once.",
+        "Use parallel grammar in lists (same tense and structure across bullets).",
+        "Use cautious modality for forward-looking statements and estimates (e.g., 'may', 'could', 'is expected to', 'is intended to').",
+        "Avoid absolute assurances (e.g., 'guarantees', 'ensures outcomes'); describe controls and processes instead."
+      ],
+      "disclosure_language_rules": [
+        "Use standards-oriented verbs (e.g., disclose, describe, explain, identify, assess, measure, calculate, monitor, review, approve, report, reconcile, cross-reference).",
+        "Distinguish clearly between: (a) current-period facts, (b) estimates/judgements, and (c) forward-looking intentions.",
+        "Use controlled vocabulary consistently: 'sustainability-related risks and opportunities', 'climate-related risks and opportunities', 'impact materiality' vs 'financial materiality' (as applicable), 'actual' vs 'potential', and standardized time-horizon buckets defined once.",
+        "When describing effects on financial position/performance/cash flows, use pathway language (cause → mechanism → potential financial statement area) and avoid unsupported quantification.",
+        "Use explicit status labels for applicability and availability: 'not applicable', 'not material', 'not reported for the period', 'under development'.",
+        "Avoid persuasive framing; keep commentary minimal and evidence-led."
+      ],
+      "evidence_and_traceability_rules": [
+        "Support major claims with process evidence (governance mechanics, lifecycle steps, controls, methodologies) rather than outcomes.",
+        "Use consistent cross-reference placeholders (e.g., 'Refer to [Section: X]' or 'See [Appendix: Y]') and avoid hard-coded numbering in templates.",
+        "Number and caption all tables and figures with descriptive titles; reference them in the narrative.",
+        "For metrics/targets, provide traceability metadata per row: definition, boundary, value/status, source type, internal source location descriptor, and mapping to report pillar/section.",
+        "Use footnotes for methodological conventions and edge-case rules; do not hide core definitions in footnotes.",
+        "Where assurance is referenced, separate assurance scope notes from descriptive reporting and use a consolidated legend for any markers."
+      ],
+      "missing_data_language_rules": [
+        "Never leave blanks; use standardized status labels for missing/inapplicable items.",
+        "For missing or incomplete data, state: (1) what is missing, (2) why (reason category), (3) interim approach (estimate/proxy/partial coverage), (4) limitations and potential materiality considerations, and (5) planned enhancement direction (qualitative, non-committal).",
+        "Differentiate 'not currently available' from 'not applicable' and 'not material'.",
+        "Avoid implying certainty where estimates are used; describe key assumptions at a high level."
+      ],
+      "formatting_rules": [
+        "Use a consistent two-level heading hierarchy with numbered subsections (e.g., 1, 1.1, 1.2) aligned to IFRS S1/S2 pillars and general requirements.",
+        "Use bullets for principles, steps, controls, and criteria; use numbered lists for sequential processes.",
+        "Maintain consistent terminology, capitalization, and unit presentation across the report.",
+        "Tables: repeat header rows on multi-page tables; left-align labels and right-align numeric values; allow multi-line cells and bullets within cells.",
+        "Figures: keep conceptual and explanatory; avoid decorative visuals; ensure captions explain purpose and scope.",
+        "Use consistent callout styling for: cross-references, limitations, and methodology notes (same placement and typography throughout).",
+        "Avoid embedding URLs in core narrative; if needed, place as generic source references in footnotes or appendices.",
+        "Ensure accessibility-friendly layout: adequate whitespace, clear hierarchy, and predictable placement of captions and footnotes.",
+        "For PDF production, plan each major section as a report spread: section divider page, section overview, detailed narrative, tables/figures, and a short synthesis or cross-reference.",
+        "Use section opener pages with section number, section title, and optional thematic image placeholder; avoid putting dense disclosure text on section divider pages.",
+        "Use two-column or modular layouts for long narrative sections only when readability is preserved; keep compliance-critical text in a clear single-column flow when needed.",
+        "Use callout boxes sparingly for key definitions, boundary notes, data limitations, or methodology notes.",
+        "For large tables, design for PDF readability: concise cells, wrapped text, repeated headers, clear units, and explicit table captions."
+      ],
+      "do_not_do": [
+        "Do not include reference-company-specific facts, names, achievements, targets, people, locations, committee names, tools, vendors, images, or claims.",
+        "Do not use promotional adjectives, awards language, rankings, or leadership claims.",
+        "Do not present definitive predictions or guarantees about future outcomes or financial impacts.",
+        "Do not hard-code reporting years, dates, currencies, or numeric placeholders into reusable template text.",
+        "Do not cite jurisdiction-specific regulators, scenario names, or external guidance as universally applicable template content; keep references configurable.",
+        "Do not disclose personal data or individual identifiers in governance capability discussions.",
+        "Do not duplicate detailed disclosures across sections; use cross-references to maintain connectivity and avoid inconsistency.",
+        "Do not disclose operationally sensitive thresholds, proprietary model logic, or detailed control testing procedures.",
+        "Reference-company-specific names, facts and design elements are forbidden; target-company-specific names, committees, tools, policies, frameworks, metrics and governance roles are allowed only when supported by the target payload."
+      ]
+    },
+    "no_copying_rules": "# No-copying and style-source rules for report generation\n\nThe reference report is used only to extract reusable style, structure, formatting and PDF layout patterns.\n\n## Allowed\n\n- Use abstract writing style rules.\n- Use abstract section structures.\n- Use generic table and figure patterns.\n- Use PDF layout principles such as section divider pages, numbered sections, captions and scannable tables.\n- Use the target company's own committee names, policies, systems, frameworks, people, tools, locations, targets and metrics only when explicitly supported by the target company payload or approved source data.\n\n## Forbidden\n\n- Do not copy sentences from the reference report.\n- Do not reuse the reference company's facts, names, amounts, awards, targets, people, committees, locations, tools, vendors, images or claims.\n- Do not paste large portions of the reference report into generation prompts.\n- Do not reuse reference report numbers as examples in generated disclosure.\n- Do not imitate distinctive brand design, imagery or exact page compositions.\n- Do not use unsupported marketing or leadership claims.\n\n## Required behavior\n\n- Style guides control tone, structure and formatting only.\n- IFRS requirements control disclosure coverage.\n- Company payloads control factual content.\n- Unsupported disclosure requirements must be marked as data gaps rather than invented.\n",
+    "forbidden_terms": [
+      "Emirates NBD",
+      "Emirates NBD Group",
+      "DenizBank",
+      "Emirates Islamic",
+      "Emirates NBD Capital",
+      "Emirates NBD Asset Management",
+      "Vijay Bains",
+      "Manoj Chawla",
+      "Patrick Sullivan",
+      "BNRESGC",
+      "Board Nomination, Remuneration and Environmental Social Governance Committee",
+      "BRC",
+      "Board Risk Committee",
+      "GRC",
+      "Group Risk Committee",
+      "EXCO",
+      "Group Executive Committee",
+      "Sustainable Finance Forum",
+      "Group Model Oversight Committee",
+      "Management Credit Committee",
+      "Responsible Investment Committee",
+      "AED",
+      "USD",
+      "Dubai",
+      "UAE",
+      "MENA",
+      "MENAT",
+      "CBUAE",
+      "KPMG",
+      "Sustainalytics",
+      "Microsoft Sustainability Manager"
+    ],
+    "table_patterns": {
+      "general_table_rules": [
+        "Use descriptive table titles placed directly above the table; titles state purpose, not just topic.",
+        "Repeat header rows on each page for multi-page tables; keep column widths stable across the report.",
+        "Use concise cell text: label + colon + one-sentence explanation; use bullets within cells for multiple items.",
+        "Right-align numeric values; left-align text labels; keep units consistent and explicit.",
+        "Include explicit status entries for missing/inapplicable data; do not leave blanks.",
+        "Use footnotes for methodology nuances; reference footnotes consistently using a single style.",
+        "Avoid implying completeness; use qualifiers such as 'examples include' where appropriate.",
+        "Where totals are presented, include an explicit total row and define reconciliation logic."
+      ],
+      "governance_tables": [
+        "Prefer role-to-responsibility mapping tables with generic role labels and qualitative cadence descriptors.",
+        "Include columns for mandate, decision rights, reporting/escalation, and key governance artifacts (generic descriptors).",
+        "Avoid personal identifiers; present competence at collective/role level.",
+        "Use consistent governance verbs across rows (oversees, reviews, approves, monitors, reports, escalates)."
+      ],
+      "strategy_tables": [
+        "Use a consistent theme/topic template across the section to enable comparability.",
+        "Separate impact materiality and financial materiality into distinct tables or clearly separated blocks.",
+        "Include standardized time-horizon buckets as discrete fields (not embedded in prose).",
+        "Use value-chain mapping tables with consistent segment definitions (upstream / own operations / downstream).",
+        "Include a financial statement linkage table using generic line-item placeholders and cross-reference placeholders."
+      ],
+      "risk_management_tables": [
+        "Use lifecycle mapping tables (identify → assess → manage → monitor) with owners, controls, outputs, and escalation points.",
+        "Keep controls high-level; avoid detailed risk-control matrices that imply completeness or disclose sensitive detail.",
+        "Use value-chain segmentation tables with generalized risk theme categories and generic input/control descriptions.",
+        "If climate methodology is tabulated, describe inputs/outputs as categories and avoid named scenarios/tools/providers."
+      ],
+      "metrics_and_targets_tables": [
+        "Use a fixed-column metrics register as the primary disclosure vehicle; keep column order consistent across pages.",
+        "Ensure each metric row includes: definition (scope/inclusions/exclusions), value/status, target (if applicable), source type, internal source location descriptor, and mapping to report pillar/section.",
+        "Use nested disaggregation mini-tables within cells where needed; include totals and define category taxonomy.",
+        "Apply assurance markers consistently (if used) and explain them once in a consolidated legend with scope/limitations.",
+        "Separate IFRS S1-aligned metrics from IFRS S2-aligned climate metrics in distinct table blocks."
+      ],
+      "recommended_columns_by_table_type": {
+        "General requirements topic locator (cross-reference map)": [
+          "General requirement topic",
+          "Where addressed in this report package",
+          "Notes on scope/limitations (optional)"
+        ],
+        "Reporting boundary summary": [
+          "Boundary element",
+          "Approach applied",
+          "Alignment to financial reporting (yes/no/partial)",
+          "Key limitations or exclusions (optional)"
+        ],
+        "Materiality process overview (stepwise)": [
+          "Step",
+          "Description",
+          "Inputs considered",
+          "Outputs"
+        ],
+        "Stakeholder categories (grouped listing)": [
+          "Internal stakeholder categories",
+          "External stakeholder categories"
+        ],
+        "Governance bodies and roles — mandate and decision rights": [
+          "Governance body/role (generic label)",
+          "Primary mandate (scope statement)",
+          "Key responsibilities (narrative snippets)",
+          "Decision rights (approve/recommend/monitor)",
+          "Reporting line / escalation pathway",
+          "Key governance artifacts (generic descriptors)"
+        ],
+        "Lines of defence — responsibilities": [
+          "Operational execution (first line)",
+          "Oversight and risk/compliance support (second line)",
+          "Independent assurance (third line)"
+        ],
+        "Capability and competence overview (governance roles)": [
+          "Governance layer",
+          "Competence areas relevant to oversight",
+          "How competence is maintained",
+          "How competence is assessed"
+        ],
+        "Strategy themes matrix (at-a-glance)": [
+          "Theme/Pillar",
+          "Progress/Actions (current period)",
+          "Objectives/Intent (forward-looking)",
+          "Focus/Next steps",
+          "Primary value-chain segment(s) impacted"
+        ],
+        "Impact materiality table (topic-by-topic)": [
+          "Positive impacts",
+          "Actual/Potential (positive)",
+          "Negative impacts",
+          "Actual/Potential (negative)"
+        ],
+        "Financial materiality table (topic-by-topic)": [
+          "Risks",
+          "Time horizon",
+          "Opportunities",
+          "Time horizon"
+        ],
+        "Value-chain mapping table": [
+          "Material topic",
+          "Upstream relevance",
+          "Internal operations relevance",
+          "Downstream relevance",
+          "Key stakeholder groups (generic categories)",
+          "Management implications (high-level)"
+        ],
+        "Financial statement linkage and traceability table": [
+          "Material topic",
+          "Financial statement area (Assets/Liabilities/Income/Expenses/Cash flows)",
+          "Potentially affected line items (generic placeholders)",
+          "Nature of effect (qualitative)",
+          "Note/section reference (placeholder)"
+        ],
+        "Risk management lifecycle mapping": [
+          "Lifecycle stage",
+          "Key activities",
+          "Primary owner (generic function)",
+          "Key controls (high-level)",
+          "Key outputs/artifacts (generic)",
+          "Escalation/approval points"
+        ],
+        "Value chain risk segmentation overview": [
+          "Value chain segment",
+          "Representative sustainability risk themes (general categories)",
+          "Typical assessment inputs (generic)",
+          "Representative controls/mitigations (generic)",
+          "Monitoring approach (generic)"
+        ],
+        "Climate risk methodology summary": [
+          "Component",
+          "Purpose",
+          "Inputs (categories)",
+          "Outputs (categories)",
+          "How results inform decisions (generic)"
+        ],
+        "Metrics and Targets Register (Core Template)": [
+          "Metric",
+          "Metric definition (scope, inclusions/exclusions)",
+          "Reporting-period value (numeric or qualitative status)",
+          "Target (if applicable) and target definition",
+          "External framework/source type (if applicable)",
+          "Internal source location (generic descriptor)",
+          "Mapping to report section/pillar"
+        ],
+        "Boundary and Reconciliation Summary": [
+          "Reconciliation step",
+          "Description (inclusion/exclusion rule)",
+          "Resulting perimeter/status (qualitative or quantitative, as applicable)"
+        ],
+        "Assurance Marker Legend and Scope Summary": [
+          "Marker/symbol",
+          "Meaning (assurance status)",
+          "Scope description (what is covered)",
+          "Limitations (what is not covered)",
+          "Where to find the full assurance statement (generic reference)"
+        ]
+      }
+    },
+    "style_rubric": {
+      "purpose": "Stable numeric rubric for judging whether generated IFRS S1/S2 report sections follow the approved authoring style.",
+      "scoring_scale": {
+        "5": "Excellent / fully aligned",
+        "4": "Good / minor issues",
+        "3": "Acceptable but needs revision",
+        "2": "Weak / major revision required",
+        "1": "Fail / not suitable for report generation"
+      },
+      "checks": {
+        "voice_consistency": {
+          "score_5": "Consistent report voice throughout. First-person plural used only for target-company actions; passive or third-person used for externally defined IFRS requirements.",
+          "score_3": "Mostly consistent voice with occasional shifts between 'we', 'the Group', and passive constructions.",
+          "score_1": "Frequent uncontrolled switching of voice that makes the section inconsistent."
+        },
+        "paragraph_length": {
+          "ideal": "2-5 sentences per paragraph",
+          "warning": "6-7 sentences",
+          "fail": "8 or more sentences",
+          "score_5": "Most paragraphs are 2-5 sentences and single-idea.",
+          "score_3": "Several paragraphs are long or multi-topic.",
+          "score_1": "Paragraphs are dense, long, and difficult to scan."
+        },
+        "sentence_length": {
+          "ideal": "18-34 words",
+          "warning": "35-45 words",
+          "fail": "46 or more words",
+          "score_5": "Sentences are mostly short-to-medium and clear.",
+          "score_3": "Several sentences are long but still understandable.",
+          "score_1": "Many sentences are overloaded or unclear."
+        },
+        "bullet_and_list_usage": {
+          "score_5": "Bullets are used for lists of three or more items, process steps, principles, criteria, and controls.",
+          "score_3": "Some lists are placed inside long paragraphs.",
+          "score_1": "Lists are hard to read or inconsistently formatted."
+        },
+        "table_and_figure_captioning": {
+          "score_5": "Every table and figure has a number, clear caption, and is referenced in nearby narrative.",
+          "score_3": "Most tables/figures have captions, but some are weak or not referenced.",
+          "score_1": "Tables/figures are uncaptained or disconnected from the text."
+        },
+        "ifrs_style_alignment": {
+          "score_5": "Uses standards-oriented verbs and distinguishes current facts, estimates, judgements, and forward-looking intentions.",
+          "score_3": "Mostly IFRS-aligned but some vague or generic language remains.",
+          "score_1": "Reads like a generic ESG marketing text rather than IFRS S1/S2 disclosure."
+        },
+        "missing_data_protocol": {
+          "score_5": "Missing data is clearly labelled with what is missing, why, interim approach, limitation, and improvement direction.",
+          "score_3": "Missing data is mentioned but lacks one or more required elements.",
+          "score_1": "Missing data is hidden, ignored, or replaced by unsupported assumptions."
+        },
+        "no_reference_content": {
+          "score_5": "No reference-company names, facts, claims, numbers, committees, images, tools, vendors, or copied phrasing.",
+          "score_3": "No obvious copying, but some phrasing or structure feels too close.",
+          "score_1": "Reference-company content or near-copying is present."
+        },
+        "evidence_discipline": {
+          "score_5": "Every material claim is supported by target payload data, IFRS requirement, or an explicit data-gap statement.",
+          "score_3": "Most claims are supported, but some broad claims need evidence.",
+          "score_1": "Unsupported claims or invented maturity statements are present."
+        }
+      },
+      "approval_thresholds": {
+        "approve": {
+          "minimum_average_score": 4.2,
+          "required": [
+            "no_reference_content score must be 5",
+            "evidence_discipline score must be at least 4",
+            "missing_data_protocol score must be at least 4"
+          ]
+        },
+        "revise": {
+          "average_score_range": "3.0-4.19"
+        },
+        "reject": {
+          "average_score_below": 3.0
+        }
+      }
+    },
+    "layout_style_guide": {
+      "purpose": "PDF layout guidance derived from the reference report style, expressed as reusable design rules for a different IFRS S1/S2 report.",
+      "core_principle": "Use the reference report as inspiration for professional PDF structure and visual hierarchy, not as a content or visual asset source.",
+      "major_section_structure": {
+        "section_divider_page": {
+          "use": "Start every major section with a divider page.",
+          "elements": [
+            "large section number",
+            "section title",
+            "optional full-page or partial-page thematic image placeholder",
+            "minimal text"
+          ],
+          "avoid": [
+            "dense disclosure paragraphs",
+            "tables",
+            "company-specific imagery copied from the reference report"
+          ]
+        },
+        "section_opening_page": {
+          "use": "Follow the divider with a section opening page containing the section title and a short overview.",
+          "elements": [
+            "section title",
+            "short purpose paragraph",
+            "subsection navigation or key disclosure themes",
+            "optional figure/table lead-in"
+          ]
+        },
+        "detail_pages": {
+          "use": "Use detail pages for narrative, processes, tables, figures and evidence-backed disclosure.",
+          "elements": [
+            "numbered subsections",
+            "short paragraphs",
+            "bullets for principles and process steps",
+            "tables for metrics, risks, governance responsibilities and mappings",
+            "figures for governance flow, value chain, risk lifecycle and financed-emissions scope"
+          ]
+        }
+      },
+      "visual_hierarchy": [
+        "Use clear hierarchical numbering for major sections and subsections.",
+        "Use section labels consistently in page headers or footers.",
+        "Use captions for every figure and table.",
+        "Separate overview, methodology, data limitations and results visually.",
+        "Keep compliance-critical text readable before decorative design."
+      ],
+      "section_layout_rules": {
+        "General Requirements": [
+          "Use concise basis-of-preparation layout.",
+          "Prefer short subsections for reporting period, boundaries, fair presentation, connected information, sources of guidance, compliance and materiality.",
+          "Use a compact summary table only if it improves traceability."
+        ],
+        "Governance": [
+          "Use diagrams or responsibility matrices to show oversight structure.",
+          "Use role-based blocks: body/role, mandate, responsibility, reporting or escalation path.",
+          "Use tables for board/committee responsibilities, skills, frequency and oversight topics when supported by payload."
+        ],
+        "Strategy": [
+          "Use a more visual and narrative layout than other sections.",
+          "Use value-chain diagrams, risk/opportunity matrices and time-horizon tables.",
+          "Break long strategy narratives into thematic blocks with clear labels."
+        ],
+        "Risk Management": [
+          "Use process-flow layouts for identify, assess, prioritise, monitor and integrate.",
+          "Use tables for risk type, process, owner, control, monitoring mechanism and escalation.",
+          "Separate general sustainability risk management from climate-specific risk management where applicable."
+        ],
+        "Metrics and Targets": [
+          "Use table-first layout.",
+          "Include metric name, definition, value, unit, source, boundary, target, status and related report section when available.",
+          "Use methodology and limitation callouts for emissions, financed emissions and estimated metrics.",
+          "Keep narrative commentary brief and directly linked to table content."
+        ]
+      },
+      "pdf_readability_rules": [
+        "Avoid long paragraphs wider than a normal report column.",
+        "Use bullets for lists longer than three items.",
+        "Avoid tables with paragraph-length cells unless no alternative exists.",
+        "Use page breaks before major sections and before very large tables.",
+        "Do not use figures as decoration only; every figure must support disclosure understanding.",
+        "Use consistent formatting for data gaps, estimates and externally assured metrics."
+      ],
+      "no_copying_rules_for_layout": [
+        "Do not reuse reference report images, icons, page compositions or distinctive brand design.",
+        "Do not copy exact figure structure if it includes reference-company-specific governance or value-chain entities.",
+        "Recreate only abstract layout patterns such as divider pages, numbered sections, responsibility matrices and metric tables."
+      ]
+    },
+    "section_styles": {
+      "general_requirements": {
+        "purpose": "Provide the basis of preparation and “how to read this report” guidance for IFRS S1/S2 sustainability-related financial disclosures. Establish scope, reporting boundary, connectivity to financial statements, key qualitative characteristics, and the approach to comparatives, estimates, judgements, and cross-referencing.",
+        "tone": "Formal, standards-aligned, precise, and neutral. Use assurance-like phrasing that emphasizes completeness, neutrality, accuracy, and freedom from material error. Use cautious, risk-aware language for sensitive matters and forward-looking judgements. Avoid promotional or celebratory language; keep emphasis on methodology and governance of reporting.",
+        "level_of_detail": "High-level principles plus practical mechanics. Provide enough detail to explain how disclosures were prepared, scoped, and connected to financial reporting, without duplicating detailed topic disclosures. Use short subsections to cover each general requirement topic explicitly.",
+        "paragraph_style": "Start with a short scope and basis-of-preparation statement. Follow with a bulleted list of qualitative characteristics and preparation principles. Then explain standards alignment and how disclosures map to the core pillars (governance, strategy, risk management, metrics and targets). Use short, numbered subsections for specific general requirements (e.g., connected information, comparatives, timing/location, reporting entity/value chain, sources of guidance). Include clear cross-references to where details are located elsewhere in the report set.",
+        "sentence_style": "Declarative, unambiguous sentences. Prefer active voice where responsibility is clear; use passive voice sparingly for standard-setting or externally defined requirements. Define terms before use. Keep sentences short-to-medium length; use parallel structure in lists. Use conditional language for estimates and forward-looking information (e.g., “may,” “could,” “is expected to,” “is subject to”).",
+        "preferred_disclosure_verbs": [
+          "prepare",
+          "present",
+          "disclose",
+          "align",
+          "apply",
+          "adopt",
+          "comply",
+          "follow",
+          "describe",
+          "define",
+          "determine",
+          "assess",
+          "identify",
+          "consider",
+          "estimate",
+          "measure",
+          "calculate",
+          "consolidate",
+          "include",
+          "exclude",
+          "reference",
+          "cross-reference",
+          "reconcile",
+          "compare",
+          "update",
+          "refresh",
+          "enhance",
+          "improve"
+        ],
+        "preferred_evidence_style": "Ground statements in references to applicable standards and internal reporting constructs (e.g., alignment with financial reporting boundary, policies, methods, and estimates). Use traceability via internal cross-references to other sections/appendices rather than embedding extensive evidence artifacts. Clearly flag when contextual information extends beyond the reporting period and why it is included.",
+        "table_usage": "Use tables sparingly. Prefer bullets for principles and mechanics. Use compact tables only when they improve scanability (e.g., mapping of general requirements topics to where disclosures appear; summary of applicable standard components; grouped stakeholder categories; stepwise methodology overview). Keep tables simple, with short labels and line breaks for narrow layouts.",
+        "figure_usage": "Optional. Use simple diagrams or tile/grid layouts only to summarize scoping elements, stakeholder groupings, or priority themes at a high level. Avoid complex visuals in this section; prioritize clarity and navigability.",
+        "pdf_layout_usage": "Use a chapter opener block with a prominent section marker and title. Repeat the section title as a running header on subsequent pages. Maintain consistent margins and line spacing. Use whitespace to separate narrative from list blocks. Format cross-references inline (e.g., “Refer to …”) and keep them consistent. Ensure subsection headings are visually distinct and support scanning.",
+        "how_to_discuss_missing_data": "State transparently when information is not available, incomplete, or still under development. Explain the reason (e.g., data limitations, boundary constraints, methodology maturity), the interim approach used (e.g., estimates, proxies, partial coverage), and the plan to improve (e.g., controls, systems, scope expansion). Clarify whether omissions could be material and how materiality was assessed. Avoid implying certainty where estimates are used.",
+        "what_to_avoid": [
+          "Any organization-specific names, brands, report titles, or proprietary program names",
+          "Any specific dates, reporting years, edition labels, or publication timing statements",
+          "Any amounts, percentages, performance claims, achievements, awards, or comparative boasting",
+          "Any jurisdiction-specific legal commentary, incorporation history, or regulatory endorsement narratives",
+          "Any specific currencies, geographic footprint details, entity counts, or segment/product descriptions",
+          "Any committee names, role titles, or stakeholder labels that are unique to a particular organization",
+          "Any fixed list of external frameworks or tools presented as universally applicable; keep configurable",
+          "Any specific note/appendix numbering or identifiers; use generic cross-reference placeholders",
+          "Exact copied wording from any reference report"
+        ]
+      },
+      "governance": {
+        "purpose": "Explain how sustainability- and climate-related matters are governed, including oversight, decision rights, accountability, reporting lines, and integration with enterprise risk management and core business decision-making, in a manner consistent with IFRS S1/S2 governance disclosure expectations.",
+        "tone": "Formal, institutional, assurance-oriented and compliance-aligned. Objective and descriptive; emphasizes oversight, accountability, control, and decision-making authority. Avoids promotional language and outcome-claiming.",
+        "level_of_detail": "Moderate-to-high. Provide enough specificity to evidence governance effectiveness through structure and process (who does what, how often in qualitative terms, how escalation works), while avoiding unnecessary operational minutiae or performance claims.",
+        "paragraph_style": "Start with a high-level framing paragraph linking sustainability/climate governance to the business model and operations. Progress from principles/ethos to governance mechanics. Use short, topic-led paragraphs; each paragraph covers one governance dimension (mandate, scope, cadence, coordination, capability-building, evaluation). Use role blocks (label + compact responsibility description) for scanability. Introduce visuals/tables with a lead-in sentence and return to narrative that clarifies responsibilities and review processes.",
+        "sentence_style": "Use precise governance verbs and clear subject-verb-object construction. Prefer multi-clause sentences to enumerate responsibilities in a logical sequence (e.g., propose → validate → approve; monitor → review → report). Use cautious qualifiers for maturity statements (e.g., evolving, in progress, planned) without overcommitting. Use parentheticals sparingly to define generic terms (avoid acronyms unless necessary and defined).",
+        "preferred_disclosure_verbs": [
+          "oversees",
+          "guides",
+          "reviews",
+          "recommends",
+          "approves",
+          "authorises",
+          "monitors",
+          "assesses",
+          "ensures alignment",
+          "reports",
+          "escalates",
+          "validates",
+          "proposes",
+          "implements",
+          "coordinates",
+          "maintains",
+          "updates"
+        ],
+        "preferred_evidence_style": "Evidence through governance mechanics rather than outcomes: (1) governance architecture (diagram/model), (2) formal mandates and delegated authorities, (3) role-to-responsibility mapping and escalation pathways, (4) capability and suitability evidence via structured profiles (genericized), (5) references to documented artifacts (policies, terms of reference, periodic reports) described generically. Use figure/table numbering and descriptive titles for audit-friendly traceability.",
+        "table_usage": "Use tables as structured evidence artifacts. Preferred tables include: (a) governance body/role-to-responsibility mapping, (b) competency/capability overview for governing bodies (genericized; no personal data), (c) lines-of-defence role comparison. Table titles sit directly above tables and describe purpose (not repeating headings). Cells should contain short narrative snippets (mini-paragraphs) rather than single-word entries.",
+        "figure_usage": "Use a governance structure diagram to map oversight and decision-making across levels (board-level, executive/management, operational teams, subsidiaries/regions). Show information flow and accountability with directional connectors and relationship labels (e.g., informs, reports to, approves). Optionally incorporate a lines-of-defence concept as an organizing device. Provide a descriptive caption explaining scope and why the figure matters.",
+        "pdf_layout_usage": "Use a section divider page to signal the chapter. Prefer a two-page rhythm: narrative overview followed by a full-width governance structure figure. Maintain consistent running header/footer with section label and page navigation. Use whitespace to separate narrative blocks from visuals. Place captions adjacent to or below visuals. Where tables and narrative share a page, include a small anchor label/subheading to orient the reader.",
+        "how_to_discuss_missing_data": "State what information is not available or not disclosed, why (e.g., confidentiality, governance in transition, data not yet centrally captured), and what process exists to improve (e.g., planned formalisation, periodic review of terms of reference, capability-building). Avoid implying completeness where gaps exist; describe interim controls and timelines only in qualitative terms.",
+        "what_to_avoid": [
+          "Company-specific names, acronyms, internal body titles, or branded governance forums",
+          "Person names, biographies, career histories, independence classifications tied to individuals, or credential details that identify individuals",
+          "Numeric values (including meeting frequencies, years of experience, KPI weights, targets, dates, baselines) and quantified commitments",
+          "Jurisdiction-specific regulator names or references that would not generalize",
+          "Named tools, vendors, proprietary methodologies, scorecards, or policy/framework titles",
+          "Awards, achievements, or qualitative impact claims presented as outcomes",
+          "Exact ordering or wording of risk-category lists that could mirror a source document too closely",
+          "Overpromising language (e.g., guarantees, ensures outcomes) or promotional adjectives"
+        ]
+      },
+      "strategy": {
+        "purpose": "Explain how sustainability-related risks and opportunities are integrated into the entity’s strategy and business model, including where they arise across the value chain, how they influence decision-making and resource allocation, and how they may affect financial position, performance and cash flows over different time horizons. Provide a clear bridge from materiality assessment outputs to strategic priorities, actions and monitoring.",
+        "tone": "Formal, institutional and decision-useful. Analytical rather than promotional. Balanced risk-and-opportunity framing. Forward-looking language is cautious and clearly distinguished from current-state statements. Uses standards-aligned terminology and controlled vocabulary.",
+        "level_of_detail": "Layered: start with a concise overview, then provide structured artifacts (matrix/diagram/tables) that anchor the analysis, followed by theme-by-theme expansion. Keep narrative high-level but specific about mechanisms, governance linkages, and assessment approach; avoid excessive technical detail unless necessary to understand the strategy.",
+        "paragraph_style": "Short paragraphs with one main idea each. Use a consistent progression: context/integration statement → framework/value-chain framing → materiality linkage → strategic themes/pillars → operationalisation mechanisms → monitoring and review. Use lead-in sentences followed by bullets for criteria, actions, controls, or examples. Close subsections with reinforcement tying back to materiality, stakeholder priorities, or decision-usefulness.",
+        "sentence_style": "Clear topic sentences; measured cadence. Prefer active voice where responsibilities are described; use cautious modality for forward-looking statements (e.g., may, could, aims to, plans to). Use definitional sentences before applying key terms. Use cause–effect phrasing to connect issues to business and stakeholder outcomes.",
+        "preferred_disclosure_verbs": [
+          "describe",
+          "explain",
+          "outline",
+          "identify",
+          "define",
+          "map",
+          "link",
+          "integrate",
+          "assess",
+          "prioritise",
+          "manage",
+          "monitor",
+          "review",
+          "govern",
+          "classify",
+          "differentiate",
+          "disclose",
+          "align",
+          "evaluate",
+          "track",
+          "report",
+          "strengthen",
+          "enhance"
+        ],
+        "preferred_evidence_style": "Use structured, process-based evidence and traceability artifacts rather than promotional claims. Present evidence in tiers: (1) strategic framing and alignment statements (with placeholders for applicable frameworks), (2) governance/process evidence (policies, review cadence, registers, controls), (3) implementation evidence (illustrative initiatives/categories), and (4) linkage evidence (tables mapping topics to value-chain segments, time horizons, and financial statement areas). Separate past actions from future intentions using explicit labels.",
+        "table_usage": "Use tables as primary organizing devices for comparability and decision-usefulness. Preferred formats include: (a) strategy-at-a-glance themes matrix with consistent row labels (e.g., progress/actions, objectives/intent, focus/next steps); (b) topic-by-topic materiality tables separating impact materiality (positive/negative with actual/potential flags) and financial materiality (risks/opportunities with time horizons); (c) mapping tables linking material topics to value-chain segments and to financial statement areas/line items with note-reference placeholders. Keep cell text compact using label + colon + one-sentence explanation; use bullets within cells for multiple sub-items.",
+        "figure_usage": "Use lightweight conceptual visuals to anchor the narrative: a value-chain diagram (upstream/internal operations/downstream) with stakeholder nodes; a pillars/themes lineup used as a recurring legend; optional process callouts summarising management approach steps. Figures should be referenced explicitly in the narrative as the basis for analysis and should have consistent captions.",
+        "pdf_layout_usage": "Design for multi-page readability and navigation: include a section opener page; consistent running header/footer with section name and page number; two-stage flow (overview narrative → central matrix/diagram → expanded theme pages). Use whitespace, short line lengths, and frequent paragraph breaks. Bullets should be left-aligned with hanging indents; sub-bullets indented with dash markers. Place large tables on dedicated pages where possible.",
+        "how_to_discuss_missing_data": "State limitations explicitly and neutrally (e.g., data granularity, methodological maturity, early-stage programmes). Clarify what is disclosed qualitatively versus quantitatively and why (reliability/materiality). Describe actions underway to improve data and analysis (e.g., governance, systems, methodologies), and indicate expected future enhancements without committing to specific outcomes. Clearly distinguish ‘not currently available’ from ‘not applicable’ and ‘not material’.",
+        "what_to_avoid": [
+          "Any entity-specific names, branded programme titles, proprietary framework names, or unique organisational labels",
+          "Any person names, committee names, vendor/tool names, or implementation partner references",
+          "Any numbers, amounts, percentages, rankings, awards, ratings outcomes, or superlative/leadership claims",
+          "Any jurisdiction- or location-specific policy references presented as universally applicable",
+          "Any exact copied wording from a reference report; avoid mirroring unique phrasing or ordering of examples",
+          "Overly technical methodology detail that is not necessary for understanding strategy",
+          "Definitive predictions or guarantees about future performance, outcomes, or financial impacts",
+          "Mixing past performance with forward-looking intent without clear labels"
+        ]
+      },
+      "risk_management": {
+        "purpose": "Explain how sustainability-related and climate-related risks are identified, assessed, managed, monitored, and integrated into the entity’s overall risk management system in a manner that is decision-useful for general-purpose financial reporting users and aligned to IFRS S1/S2 expectations.",
+        "tone": "Formal, assurance-oriented, and governance-led. Use cautious, risk-aware language that emphasizes systematic processes, oversight, accountability, and continuous improvement. Avoid promotional or celebratory phrasing.",
+        "level_of_detail": "Process- and control-level detail sufficient to understand how the risk management system operates end-to-end (identification through monitoring), including roles, key controls, inputs/outputs, and integration points with enterprise risk management. Prefer structured narrative and lists over extensive quantitative results in this section; reserve metrics for cross-referenced metrics/targets sections where applicable.",
+        "paragraph_style": "Use a layered structure: (1) high-level integration into enterprise risk management, (2) sustainability-related risks as a subset, (3) climate-related risks as a dedicated subset with additional methodological detail. Start each major topic with a short framing paragraph, then use short lead-in sentences followed by bullets/numbered lists for components, controls, and workflow steps. Keep paragraphs dense but scannable with clear signposting and consistent sequencing.",
+        "sentence_style": "Use clear, declarative sentences with action-and-control verbs. Define concepts before describing controls. Prefer parallel structure for repeated process steps (e.g., identify → assess → approve → monitor). Use conditional language where appropriate (e.g., 'may', 'could', 'is intended to') and explicitly state scope boundaries.",
+        "preferred_disclosure_verbs": [
+          "identify",
+          "assess",
+          "evaluate",
+          "prioritise",
+          "classify",
+          "screen",
+          "monitor",
+          "review",
+          "approve",
+          "escalate",
+          "oversee",
+          "align",
+          "integrate",
+          "implement",
+          "update",
+          "validate",
+          "stress test",
+          "document",
+          "report",
+          "train",
+          "audit"
+        ],
+        "preferred_evidence_style": "Substantiate claims through process transparency and control descriptions: reference internal policies/frameworks (by generic type), governance oversight mechanisms, separation of duties, independent review, audit/assurance activities, monitoring routines, training/awareness, and third-party due diligence. Use structured lists of inputs, variables, and outputs to evidence methodological rigor without disclosing proprietary models.",
+        "table_usage": "Use tables sparingly. Prefer narrative and enumerated lists for control descriptions. If a table is used, keep it high-level (e.g., mapping risk lifecycle stages to activities/owners/outputs) and avoid detailed risk-control matrices that imply completeness or disclose sensitive operational detail.",
+        "figure_usage": "Optional. If included, use simple diagrams to show integration into enterprise risk management and/or a climate risk workflow (inputs → analysis → outputs → decisions → monitoring). Keep visuals generic and consistent with the narrative steps.",
+        "pdf_layout_usage": "Use a chapter-style opener and clear hierarchical numbering. Provide a mini table-of-contents for subsections at the start of the section. Use standalone micro-headings and whitespace to improve scanability. Maintain running headers/footers with section label and page numbering for continuity. Use narrow text measure-friendly formatting (short lead-ins, bullets, and stepwise lists).",
+        "how_to_discuss_missing_data": "Be explicit about current scope limitations and data gaps, explain why they exist (e.g., data availability, methodological maturity, boundary constraints), describe interim controls used to manage risk despite gaps, and outline planned enhancements in general terms (actions and sequencing) without time-bound commitments unless required elsewhere in the report.",
+        "what_to_avoid": [
+          "Company-specific names, branding, report titles, or proprietary framework names/acronyms",
+          "Names of people, committees, teams, offices, or role titles unique to a specific organization",
+          "Named vendors, tools, data providers, rating agencies, or proprietary datasets",
+          "Named external standards, certificates, regulators, jurisdictions, or supervisory guidance cited verbatim; instead reference 'relevant standards/guidance' generically",
+          "Exact scenario names, temperature pathways, time horizons, or portfolio scope definitions that could be identifying",
+          "Quantified achievements, awards, or claims of superiority/effectiveness without balanced context",
+          "Overly detailed factor lists that resemble a proprietary scoring model; use generalized factor categories",
+          "Duplicating content that belongs in governance, strategy, metrics/targets, or financial statements; use cross-references instead"
+        ]
+      },
+      "metrics_targets": {
+        "purpose": "Provide decision-useful, IFRS-aligned disclosure of sustainability- and climate-related metrics and targets, including definitions, reporting-period values, methodologies, boundaries, limitations, and traceability to sources and related narrative elsewhere in the report.",
+        "tone": "Formal, standards-led, neutral and audit-ready. Emphasize clarity, completeness, transparency, and accountability. Use forward-looking language cautiously for planned enhancements (state intent and progress, avoid guarantees). Keep performance commentary minimal; prioritize definitional and methodological precision.",
+        "level_of_detail": "High detail in structured tables (definitions, values, sources, mappings). Brief narrative lead-in to set scope and governance expectations. Provide sufficient methodological detail to enable comparability and assurance readiness, using footnotes and structured bullets rather than long prose.",
+        "paragraph_style": "Start with a short contextual overview explaining why metrics/targets are disclosed and what they enable users to assess. Clearly separate general sustainability metrics (IFRS S1) from climate-specific metrics (IFRS S2). Include an approach paragraph on metric selection (relevance/materiality lens) and target-setting principles. Add a methodology/transparency paragraph covering boundaries, data collection, estimation, and changes over time. End the narrative lead-in with a data currency statement and update cadence/location statement before presenting tables. Where complex metrics require explanation, use a structured sequence: boundary → inputs/sources → calculation steps → outputs/uses → limitations → governance/controls.",
+        "sentence_style": "Short, precise, technical sentences. Prefer definitional constructions (e.g., “Metric is defined as…”, “Includes…/Excludes…”, “Calculated using…”). Use parallel phrasing in lists. Use explicit status statements for unavailable items (do not leave blanks). Avoid promotional adjectives and unqualified claims.",
+        "preferred_disclosure_verbs": [
+          "disclose",
+          "define",
+          "measure",
+          "calculate",
+          "report",
+          "present",
+          "classify",
+          "map",
+          "align",
+          "reference",
+          "reconcile",
+          "include",
+          "exclude",
+          "estimate",
+          "validate",
+          "review",
+          "approve",
+          "assure",
+          "update",
+          "enhance"
+        ],
+        "preferred_evidence_style": "Traceability-first. For each metric/target, provide (a) external framework/source type reference where applicable, (b) internal source location/document reference (generic descriptor), and (c) mapping to related report section/pillar. Use structured definitions and boundary statements to reduce ambiguity. Indicate assurance coverage at the data-point level via a symbol/marker with a consolidated legend and assurance scope note.",
+        "table_usage": "Primary disclosure vehicle is a multi-page metrics register with a fixed, repeated column structure. Support mixed data types (numeric, qualitative, zero values, and ‘not reported/not applicable’ statements). Allow multi-line cells, bullets, and sub-parts within definitions and values. Use nested mini-tables inside cells for disaggregation breakdowns and include an explicit total row. Repeat table headers on each page; maintain consistent column widths and alignment (labels left, numbers right).",
+        "figure_usage": "Optional and secondary to tables. Use figures only to clarify distribution or boundary reconciliation when helpful (e.g., category distribution; reconciliation/step-down of reporting perimeter). Keep figure titles and terminology consistent with tables and narrative. Avoid decorative charts; prioritize explanatory visuals.",
+        "pdf_layout_usage": "Use a clear chapter/section opener and consistent running headers/footers with section label and page numbering (generic report identifier only). Separate narrative lead-in from table blocks with whitespace. Tables should span full width with controlled wrapping. Place footnotes and assurance legend consistently near the relevant content or as a consolidated note at the end of the table segment. Visually separate results, boundary/reconciliation, assurance note, and methodology blocks.",
+        "how_to_discuss_missing_data": "State availability explicitly (e.g., not reported for the period, not applicable, under development). Provide a brief reason category (data availability, methodological maturity, boundary constraints) and describe the planned improvement direction without committing to outcomes or timelines. Use consistent placeholders and avoid leaving cells blank.",
+        "what_to_avoid": [
+          "Any organization-specific names, branded footers, report identifiers, or unique labels",
+          "Any person names, role titles that could identify a specific organization, or committee names",
+          "Any numeric values, targets, dates, time horizons, currencies, percentages, totals, or thresholds in reusable templates",
+          "Any exact metric lists, metric wording, or topic mappings that reflect a specific entity’s material topics",
+          "Any vendor/tool/provider names or proprietary methodologies presented as fixed requirements",
+          "Any jurisdiction-specific regulatory program references tied to a particular regulator or country",
+          "Any unqualified claims of compliance, leadership, ambition, or stakeholder outcomes",
+          "Any assurance provider identity or verbatim assurance standard citations as fixed text",
+          "Overly persuasive storytelling; keep commentary minimal and evidence-led"
+        ]
+      }
+    },
+    "section_blueprints": {
+      "general_requirements": {
+        "recommended_subsections": [
+          "Basis of preparation and scope",
+          "Statement of alignment with IFRS Sustainability Disclosure Standards",
+          "Qualitative characteristics and preparation principles",
+          "Connectivity with general-purpose financial statements",
+          "Reporting boundary and value chain considerations",
+          "Materiality approach (financial materiality and impacts, as applicable)",
+          "Estimates, assumptions, and judgements (including forward-looking information)",
+          "Commercial sensitivity and confidentiality considerations",
+          "Comparatives and changes in methodology",
+          "Connected information and cross-referencing approach",
+          "Timing, location, and accessibility of disclosures",
+          "Use of guidance and other frameworks (configurable references)",
+          "Continuous improvement and future enhancements (non-promotional)"
+        ],
+        "recommended_order": [
+          "Basis of preparation and scope",
+          "Statement of alignment with IFRS Sustainability Disclosure Standards",
+          "Qualitative characteristics and preparation principles",
+          "Connectivity with general-purpose financial statements",
+          "Reporting boundary and value chain considerations",
+          "Materiality approach",
+          "Estimates, assumptions, and judgements",
+          "Commercial sensitivity and confidentiality considerations",
+          "Comparatives and changes in methodology",
+          "Connected information and cross-referencing approach",
+          "Timing, location, and accessibility of disclosures",
+          "Use of guidance and other frameworks",
+          "Continuous improvement and future enhancements"
+        ],
+        "recommended_tables": [
+          {
+            "table_name": "General requirements topic locator (cross-reference map)",
+            "purpose": "Provide a navigational index mapping each general requirement topic to the section(s) where it is addressed.",
+            "suggested_columns": [
+              "General requirement topic",
+              "Where addressed in this report package",
+              "Notes on scope/limitations (optional)"
+            ],
+            "format_notes": "Keep to one page where possible; use concise section references (no specific numbering required)."
+          },
+          {
+            "table_name": "Reporting boundary summary",
+            "purpose": "Summarize the reporting entity boundary and how it aligns with financial reporting, including value chain coverage approach.",
+            "suggested_columns": [
+              "Boundary element",
+              "Approach applied",
+              "Alignment to financial reporting (yes/no/partial)",
+              "Key limitations or exclusions (optional)"
+            ],
+            "format_notes": "Avoid entity counts or location details; describe boundary conceptually."
+          },
+          {
+            "table_name": "Materiality process overview (stepwise)",
+            "purpose": "Describe the materiality assessment/refresh process in a structured, auditable format.",
+            "suggested_columns": [
+              "Step",
+              "Description",
+              "Inputs considered",
+              "Outputs"
+            ],
+            "format_notes": "Use generic inputs (e.g., internal analysis, stakeholder engagement, external context) without naming specific tools or parties."
+          },
+          {
+            "table_name": "Stakeholder categories (grouped listing)",
+            "purpose": "Show stakeholder categories considered in the materiality process in a simple, scannable layout.",
+            "suggested_columns": [
+              "Internal stakeholder categories",
+              "External stakeholder categories"
+            ],
+            "format_notes": "Use generic category labels; avoid organization-specific role titles."
+          }
+        ],
+        "recommended_figures_or_diagrams": [
+          {
+            "figure_name": "IFRS S1/S2 disclosure pillars map",
+            "purpose": "Visually show how the report content is organized across governance, strategy, risk management, and metrics/targets.",
+            "format_notes": "Simple four-quadrant or flow layout; include generic pointers to where each pillar is covered."
+          },
+          {
+            "figure_name": "Materiality lens schematic (optional)",
+            "purpose": "Illustrate how financial materiality and impact considerations inform topic prioritization and risk/opportunity management.",
+            "format_notes": "Use a simple two-axis or layered diagram; avoid listing company-specific topics."
+          },
+          {
+            "figure_name": "Priority themes tile/grid (optional)",
+            "purpose": "Provide a high-level, non-exhaustive visual summary of priority themes identified through materiality.",
+            "format_notes": "Use generic placeholders or theme categories; avoid copying any specific topic set."
+          }
+        ],
+        "recommended_pdf_blocks": [
+          {
+            "block_name": "Chapter opener",
+            "content": "Section marker + section title + one-sentence purpose statement.",
+            "layout_notes": "Minimal text; strong hierarchy; ample whitespace."
+          },
+          {
+            "block_name": "Running header",
+            "content": "Section title repeated on content pages.",
+            "layout_notes": "Consistent placement for navigation."
+          },
+          {
+            "block_name": "Principles bullet block",
+            "content": "Bulleted list of qualitative characteristics and preparation principles.",
+            "layout_notes": "Hanging indents; consistent bullet style; wrap long bullets cleanly."
+          },
+          {
+            "block_name": "Cross-reference callouts",
+            "content": "Inline “Refer to …” statements directing readers to detailed disclosures elsewhere.",
+            "layout_notes": "Use consistent phrasing and formatting; avoid specific appendix numbering."
+          }
+        ],
+        "required_narrative_blocks": [
+          "Scope and basis of preparation (what the section covers and how to use it)",
+          "Statement of alignment/adoption with IFRS S1/S2 (and scope of applicability)",
+          "Qualitative characteristics and preparation principles (completeness, neutrality, accuracy, clarity, comparability, verifiability, timeliness)",
+          "Connectivity to general-purpose financial statements (how boundaries, policies, methods, and estimates are aligned or reconciled)",
+          "Reporting boundary and value chain coverage approach (what is included/excluded and why)",
+          "Comparatives and consistency (how prior-period information is treated and how changes are explained)",
+          "Estimates, assumptions, and judgements (including treatment of forward-looking information)",
+          "Connected information and cross-referencing approach (how information is linked across the report package)"
+        ],
+        "optional_narrative_blocks": [
+          "Materiality approach overview and refresh cadence (process-focused, non-promotional)",
+          "Commercial sensitivity/confidentiality approach (principle-based explanation)",
+          "Use of additional guidance/frameworks (configurable, non-exhaustive)",
+          "Continuous improvement statement (future enhancements framed as planned methodology maturation)"
+        ],
+        "output_structure_rules": [
+          "Use hierarchical numbering for subsections (e.g., 1.1, 1.2) aligned to IFRS general requirement topics.",
+          "Begin with scope/basis of preparation before any methodology detail.",
+          "Separate principle statements (what) from mechanics (how) using headings and short paragraphs.",
+          "Use bullets for lists of principles, steps, and scoping decisions; avoid dense multi-clause paragraphs.",
+          "Include cross-references where detail is located; do not duplicate detailed disclosures in this section.",
+          "Explicitly flag contextual information that falls outside the reporting period and explain its purpose.",
+          "When describing alignment with financial reporting, state the nature of alignment and note any exceptions.",
+          "Avoid fixed external framework lists; present as “may include” or “as applicable” configurable references."
+        ]
+      },
+      "governance": {
+        "recommended_subsections": [
+          "Overview and governance approach",
+          "Governance structure and decision-making model",
+          "Board oversight and delegated authorities",
+          "Management-level governance and operational execution",
+          "Integration with enterprise risk management and internal control",
+          "Reporting lines, escalation pathways, and information flows",
+          "Capability, competence, and training for governance roles",
+          "Performance evaluation and governance effectiveness mechanisms",
+          "Subsidiary/region/business-line governance and cascade model",
+          "Governance evolution and continuous improvement",
+          "Cross-references to broader corporate governance disclosures"
+        ],
+        "recommended_order": [
+          "Overview and governance approach",
+          "Governance structure and decision-making model",
+          "Board oversight and delegated authorities",
+          "Management-level governance and operational execution",
+          "Integration with enterprise risk management and internal control",
+          "Reporting lines, escalation pathways, and information flows",
+          "Capability, competence, and training for governance roles",
+          "Performance evaluation and governance effectiveness mechanisms",
+          "Subsidiary/region/business-line governance and cascade model",
+          "Governance evolution and continuous improvement",
+          "Cross-references to broader corporate governance disclosures"
+        ],
+        "recommended_tables": [
+          {
+            "table_name": "Governance bodies and roles — mandate and decision rights",
+            "purpose": "Provide a structured mapping of governance bodies/roles to mandates, key responsibilities, delegated authorities, and escalation points.",
+            "suggested_columns": [
+              "Governance body/role (generic label)",
+              "Primary mandate (scope statement)",
+              "Key responsibilities (narrative snippets)",
+              "Decision rights (approve/recommend/monitor)",
+              "Reporting line / escalation pathway",
+              "Key governance artifacts (generic: policies, frameworks, reports)"
+            ],
+            "population_rules": [
+              "Use generic role labels (e.g., board, board committee, executive committee, management forum, working group, internal assurance).",
+              "Avoid naming internal committees or using acronyms unless defined generically.",
+              "Do not include numeric cadence; describe cadence qualitatively (e.g., regular, periodic, ad hoc)."
+            ]
+          },
+          {
+            "table_name": "Lines of defence — sustainability/climate governance responsibilities",
+            "purpose": "Show separation of duties and control environment across operational execution, oversight functions, and independent assurance.",
+            "suggested_columns": [
+              "Operational execution (first line)",
+              "Oversight and risk/compliance support (second line)",
+              "Independent assurance (third line)"
+            ],
+            "population_rules": [
+              "Write paragraph-style role narratives in each column.",
+              "Use consistent verbs across columns (define, implement, monitor, validate, review, report).",
+              "Avoid proprietary framework names; describe the model generically."
+            ]
+          },
+          {
+            "table_name": "Capability and competence overview (governance roles)",
+            "purpose": "Evidence that governance roles have appropriate competence and access to expertise without disclosing personal data.",
+            "suggested_columns": [
+              "Governance layer (board/committee/management)",
+              "Competence areas relevant to sustainability/climate oversight",
+              "How competence is maintained (training, briefings, external advice)",
+              "How competence is assessed (evaluation mechanisms)"
+            ],
+            "population_rules": [
+              "Do not include individual names or credentials.",
+              "Describe competence at group/role level (collective capability).",
+              "Avoid claims of superiority; keep factual and process-based."
+            ]
+          }
+        ],
+        "recommended_figures_or_diagrams": [
+          {
+            "figure_name": "Governance structure and information flow diagram",
+            "purpose": "Visually map oversight, decision-making authority, and reporting lines across governance layers.",
+            "design_rules": [
+              "Layered hierarchy with clear vertical grouping (board → management → operational teams → subsidiaries/regions).",
+              "Directional connectors with relationship labels (e.g., reports to, informs, approves, escalates).",
+              "Optionally overlay a lines-of-defence framing as a visual organizing device.",
+              "Caption includes figure number and descriptive title; avoid company-specific labels."
+            ]
+          },
+          {
+            "figure_name": "Decision pathway schematic (propose → validate → approve → monitor)",
+            "purpose": "Clarify how sustainability/climate-related decisions move through governance and control checkpoints.",
+            "design_rules": [
+              "Use generic role boxes (e.g., business owner, risk/compliance, executive sponsor, board/committee).",
+              "Show escalation triggers qualitatively (e.g., materiality threshold) without numeric thresholds.",
+              "Keep the schematic simple; details remain in narrative."
+            ]
+          }
+        ],
+        "recommended_pdf_blocks": [
+          {
+            "block_name": "Section divider page",
+            "content": "Large section title and number; minimal supporting text.",
+            "layout_rules": [
+              "High whitespace; no dense narrative.",
+              "Consistent typography with the rest of the report."
+            ]
+          },
+          {
+            "block_name": "Narrative overview page",
+            "content": "Framing paragraph(s) + brief preview of what the Governance section covers.",
+            "layout_rules": [
+              "Short paragraphs; clear subheading hierarchy.",
+              "Optional callout box for key governance principles (non-promotional)."
+            ]
+          },
+          {
+            "block_name": "Full-width governance diagram page",
+            "content": "Primary governance structure figure with caption.",
+            "layout_rules": [
+              "Figure occupies substantial page area.",
+              "Caption adjacent/below; consistent margins."
+            ]
+          },
+          {
+            "block_name": "Role blocks page",
+            "content": "Repeated mini-headings for each governance role/body with compact responsibility paragraphs.",
+            "layout_rules": [
+              "Whitespace between role blocks for scanability.",
+              "Avoid long uninterrupted text."
+            ]
+          },
+          {
+            "block_name": "Compliance alignment note (optional)",
+            "content": "A short concluding statement linking governance disclosures to IFRS S1/S2 governance requirements and internal governance documentation.",
+            "layout_rules": [
+              "Visually separated from main narrative (e.g., rule line or spacing).",
+              "No jurisdiction-specific regulator references."
+            ]
+          }
+        ],
+        "required_narrative_blocks": [
+          "Framing: how sustainability/climate governance supports the business model, strategy, and risk management",
+          "Who oversees: description of governance layers and delegated authorities (board-level and management-level)",
+          "How oversight operates: agenda integration, review/approval processes, and escalation pathways",
+          "Integration: how sustainability/climate governance connects to enterprise risk management and internal control",
+          "Information flows: what is reported upward, by whom, and how governance bodies receive decision-useful information",
+          "Capability: how competence is ensured (training/briefings/access to expertise) and how effectiveness is evaluated",
+          "Cross-references: where readers can find broader corporate governance information (generic references only)"
+        ],
+        "optional_narrative_blocks": [
+          "Illustrative example of how governance applies to a representative decision/process (kept generic and non-exhaustive)",
+          "Subsidiary/region/business-line cascade example (generic structure only)",
+          "Forward-looking governance enhancements (qualitative, cautious, and tied to periodic review of mandates/terms of reference)"
+        ],
+        "output_structure_rules": [
+          "Use a two-level heading hierarchy: main section title followed by sequentially numbered subsections.",
+          "Keep subsection headings short, functional, and role-focused (e.g., 'Role of the board', 'Management oversight').",
+          "Introduce each table/figure with a lead-in sentence explaining what it shows and why it matters.",
+          "After each visual, include narrative that interprets the governance implications (responsibilities, decision rights, escalation).",
+          "Use consistent governance verbs and avoid outcome claims; focus on mechanisms and controls.",
+          "Ensure traceability: number figures/tables and use descriptive titles; reference them in text.",
+          "Avoid personal data; present capability evidence at collective/role level.",
+          "Use qualitative cadence descriptors (e.g., regular, periodic, ad hoc) rather than numeric frequencies."
+        ]
+      },
+      "strategy": {
+        "recommended_subsections": [
+          "Strategy overview and integration with business model",
+          "Strategic themes/pillars and how they were prioritised",
+          "Value chain scope and where risks/opportunities arise",
+          "Time horizons and linkage to planning horizons",
+          "Materiality-to-strategy mapping (impact and financial materiality)",
+          "Theme-by-theme strategy narrative (mechanisms, actions, monitoring)",
+          "Trade-offs and decision-making considerations",
+          "Financial effects linkage (qualitative and, where available, quantitative) and traceability to financial statements",
+          "Resilience and scenario/forward-looking analysis approach (where applicable)",
+          "Data, assumptions, limitations and planned enhancements"
+        ],
+        "recommended_order": [
+          "Section opener (title + short positioning statement)",
+          "Strategy overview and integration with business model",
+          "Strategic themes/pillars (visual legend) + strategy-at-a-glance matrix",
+          "Value chain diagram + segment definitions and stakeholder touchpoints",
+          "Time horizons block (standardised buckets) and linkage to planning",
+          "Materiality-to-strategy mapping tables (impact materiality then financial materiality), topic-by-topic",
+          "Expanded narrative by theme/topic (repeatable template per theme)",
+          "Trade-offs disclosure (explicit statement even if none identified)",
+          "Financial effects linkage table (topics → financial statement areas/line items → note-reference placeholders)",
+          "Resilience/scenario approach (if used) + summarising figure/table",
+          "Limitations and next steps (data/method enhancements and future disclosure intentions)"
+        ],
+        "recommended_tables": [
+          {
+            "table_name": "Strategy themes matrix (at-a-glance)",
+            "purpose": "Provide a comparable summary of strategic themes/pillars before deeper narrative.",
+            "suggested_columns": [
+              "Theme/Pillar",
+              "Progress/Actions (current period)",
+              "Objectives/Intent (forward-looking)",
+              "Focus/Next steps",
+              "Primary value-chain segment(s) impacted"
+            ],
+            "format_rules": [
+              "Use consistent row labels across themes.",
+              "Use short bullet fragments within cells; allow sub-bullets for hierarchy.",
+              "Separate ‘what we did’ from ‘what we aim to do’ using explicit labels."
+            ]
+          },
+          {
+            "table_name": "Impact materiality table (topic-by-topic)",
+            "purpose": "Disclose positive and negative impacts with status clarity.",
+            "suggested_columns": [
+              "Positive impacts",
+              "Actual/Potential (positive)",
+              "Negative impacts",
+              "Actual/Potential (negative)"
+            ],
+            "format_rules": [
+              "Each entry begins with a lead label followed by a colon and brief mechanism/outcome text.",
+              "Keep entries balanced across positive and negative where applicable.",
+              "Use cautious language for potential impacts."
+            ]
+          },
+          {
+            "table_name": "Financial materiality table (topic-by-topic)",
+            "purpose": "Disclose sustainability-related risks and opportunities with time horizons.",
+            "suggested_columns": [
+              "Risks",
+              "Time horizon",
+              "Opportunities",
+              "Time horizon"
+            ],
+            "format_rules": [
+              "Use standardised time-horizon buckets and combinations consistently.",
+              "Keep risk/opportunity statements concise and pathway-based (cause → effect).",
+              "Avoid embedding time horizon in prose; keep it as a discrete field."
+            ]
+          },
+          {
+            "table_name": "Value-chain mapping table",
+            "purpose": "Show where each material topic arises and how it propagates across the value chain.",
+            "suggested_columns": [
+              "Material topic",
+              "Upstream relevance",
+              "Internal operations relevance",
+              "Downstream relevance",
+              "Key stakeholder groups (generic categories)",
+              "Management implications (high-level)"
+            ],
+            "format_rules": [
+              "Use checkmarks or short phrases rather than long narrative.",
+              "Ensure consistent definitions of value-chain segments."
+            ]
+          },
+          {
+            "table_name": "Financial statement linkage and traceability table",
+            "purpose": "Link sustainability-related topics to financial statement areas and note-reference placeholders.",
+            "suggested_columns": [
+              "Material topic",
+              "Financial statement area (Assets/Liabilities/Income/Expenses/Cash flows)",
+              "Potentially affected line items (generic placeholders)",
+              "Nature of effect (qualitative)",
+              "Note/section reference (placeholder)"
+            ],
+            "format_rules": [
+              "Use grouped rows by statement area with indented bullet sub-items.",
+              "Keep references as placeholders to be populated by the reporting entity.",
+              "Position after narrative explaining linkage approach."
+            ]
+          }
+        ],
+        "recommended_figures_or_diagrams": [
+          {
+            "figure_name": "Value chain conceptual diagram",
+            "purpose": "Provide the foundational framework for organising risks and opportunities by where they arise.",
+            "design_notes": [
+              "Segment into upstream, internal operations, downstream.",
+              "Include generic stakeholder nodes (e.g., suppliers, workforce, customers, investors, communities).",
+              "Add short callouts defining each segment and typical risk/opportunity concentration."
+            ],
+            "caption_rule": "Use consistent figure labeling and a descriptive caption stating the figure’s purpose."
+          },
+          {
+            "figure_name": "Strategic themes/pillars lineup (legend)",
+            "purpose": "Create a reusable visual index that anchors the section and recurs across pages.",
+            "design_notes": [
+              "Use short theme labels only; avoid long text.",
+              "Repeat later as a recap device to reinforce structure."
+            ]
+          },
+          {
+            "figure_name": "Management approach callouts (process steps)",
+            "purpose": "Summarise how the entity assesses, manages, and monitors sustainability-related risks and opportunities.",
+            "design_notes": [
+              "Use a small numbered callout list with short action statements.",
+              "Place as a sidebar or near the end of a theme narrative."
+            ]
+          },
+          {
+            "figure_name": "Resilience/scenario summary visual (optional)",
+            "purpose": "Consolidate scenario inputs, time horizons, and key impact pathways at a high level.",
+            "design_notes": [
+              "Cite sources using a generic ‘source’ pattern; avoid direct URLs in the template.",
+              "Ensure the narrative distinguishes current use vs planned future integration."
+            ]
+          }
+        ],
+        "recommended_pdf_blocks": [
+          {
+            "block_name": "Section opener page",
+            "contents": [
+              "Large section title",
+              "One-paragraph positioning statement",
+              "Mini list of what the section covers (bullets)"
+            ]
+          },
+          {
+            "block_name": "Overview narrative block",
+            "contents": [
+              "Integration with business model",
+              "Link to materiality assessment outputs",
+              "High-level risk/opportunity framing"
+            ]
+          },
+          {
+            "block_name": "Time horizons block",
+            "contents": [
+              "Definition of time-horizon buckets",
+              "Linkage to planning and decision cycles"
+            ]
+          },
+          {
+            "block_name": "Theme/topic page template",
+            "contents": [
+              "Theme heading",
+              "Short rationale paragraph (why it matters)",
+              "Impact materiality table",
+              "Financial materiality table",
+              "Management approach bullets (controls/actions/monitoring)",
+              "Cross-references to other sections (placeholders)"
+            ]
+          },
+          {
+            "block_name": "Limitations and next steps block",
+            "contents": [
+              "Data/method constraints",
+              "Current-period disclosure posture (qualitative vs quantitative)",
+              "Planned enhancements (non-committal, no quantified promises)"
+            ]
+          }
+        ],
+        "required_narrative_blocks": [
+          "Strategy integration statement: how sustainability-related risks and opportunities are embedded in strategy and business model.",
+          "Prioritisation basis: how material topics/themes were identified and used to shape strategic focus (link to materiality assessment without naming proprietary methods).",
+          "Value-chain scope definitions: what is included in upstream/internal operations/downstream for this report.",
+          "Time horizons: how short/medium/long term are defined and how they align with planning horizons.",
+          "Balanced impacts/risks/opportunities narrative: explain pathways from topic → operational/financial implications using cautious language.",
+          "Monitoring and review: how strategy execution is monitored (cadence, governance linkages, escalation pathways described generically).",
+          "Trade-offs disclosure: explicit statement describing trade-offs considered, or stating none identified, with scope and rationale.",
+          "Financial effects linkage narrative: explain how sustainability-related matters may affect financial statements and how traceability is provided."
+        ],
+        "optional_narrative_blocks": [
+          "Framework alignment statement (placeholder-based): how the strategy is guided by relevant external standards/principles applicable to the entity.",
+          "Product/service or initiative ‘spotlights’: short definitional blocks explaining strategic levers (kept generic and non-identifying).",
+          "Eligibility/exclusion criteria narrative (policy-like): how boundaries are set for strategic instruments or activities (generic pattern).",
+          "Resilience/scenario analysis approach: scope, scenarios/inputs at a high level, and how outputs inform planning now vs later.",
+          "Cross-references to other publications/sections (placeholders) to keep Strategy concise while signalling depth elsewhere."
+        ],
+        "output_structure_rules": [
+          "Use numbered headings and consistent subsection hierarchy; headings should be short nouns/phrases or action-oriented gerunds.",
+          "Introduce each major artifact (figure/table) with a lead-in sentence stating its purpose; reference it explicitly in the narrative.",
+          "Maintain strict separation between current-period actions and forward-looking intent using labels (e.g., ‘current approach’, ‘planned enhancements’).",
+          "For each theme/topic, use a repeatable micro-structure: definition/scope → why it matters → impacts (positive/negative) → risks/opportunities + time horizons → management approach → monitoring.",
+          "Use controlled vocabulary consistently: impact materiality vs financial materiality; actual vs potential; risks vs opportunities; time-horizon buckets.",
+          "Prefer bullets for criteria, controls, and examples; keep bullets parallel in grammar and length.",
+          "Avoid embedding quantitative claims in Strategy unless supported elsewhere; if included, ensure traceability and clear basis.",
+          "Include explicit statements for ‘not applicable’, ‘not material’, or ‘not currently available’ items to prevent ambiguity."
+        ]
+      },
+      "risk_management": {
+        "recommended_subsections": [
+          "Section overview and integration with enterprise risk management",
+          "Scope, boundaries, and relationship to other disclosures",
+          "Risk management lifecycle (identify, assess, manage, monitor)",
+          "Roles, responsibilities, and lines of defence",
+          "Sustainability-related risks within the broader risk universe",
+          "Value chain segmentation (upstream, own operations, downstream) and key risk themes",
+          "Climate-related risk management (transition and physical)",
+          "Climate risk methodology (scenario analysis, data sources, modelling/stress testing, outputs)",
+          "Prioritisation, escalation, and risk appetite integration",
+          "Monitoring, reporting, and continuous improvement (including limitations and planned enhancements)"
+        ],
+        "recommended_order": [
+          "Section overview and integration with enterprise risk management",
+          "Scope, boundaries, and relationship to other disclosures",
+          "Roles, responsibilities, and lines of defence",
+          "Risk management lifecycle (identify, assess, manage, monitor)",
+          "Sustainability-related risks within the broader risk universe",
+          "Value chain segmentation (upstream, own operations, downstream) and key risk themes",
+          "Climate-related risk management (transition and physical)",
+          "Climate risk methodology (scenario analysis, data sources, modelling/stress testing, outputs)",
+          "Prioritisation, escalation, and risk appetite integration",
+          "Monitoring, reporting, and continuous improvement (including limitations and planned enhancements)"
+        ],
+        "recommended_tables": [
+          {
+            "table_name": "Risk management lifecycle mapping",
+            "purpose": "Summarise the end-to-end lifecycle stages and show how sustainability/climate risks are embedded in existing risk processes.",
+            "suggested_columns": [
+              "Lifecycle stage",
+              "Key activities",
+              "Primary owner (generic function)",
+              "Key controls (high-level)",
+              "Key outputs/artifacts (generic)",
+              "Escalation/approval points"
+            ],
+            "content_rules": [
+              "Keep descriptions high-level and non-proprietary.",
+              "Avoid implying completeness; use phrasing such as 'examples include'."
+            ]
+          },
+          {
+            "table_name": "Value chain risk segmentation overview",
+            "purpose": "Provide a structured view of how sustainability-related risks are considered across upstream, own operations, and downstream segments.",
+            "suggested_columns": [
+              "Value chain segment",
+              "Representative sustainability risk themes (general categories)",
+              "Typical assessment inputs (generic)",
+              "Representative controls/mitigations (generic)",
+              "Monitoring approach (generic)"
+            ],
+            "content_rules": [
+              "Use generalized risk themes (e.g., supplier practices, workforce, data/privacy, operational resilience).",
+              "Do not include proprietary scoring factors or vendor references."
+            ]
+          },
+          {
+            "table_name": "Climate risk methodology summary (optional pseudo-table)",
+            "purpose": "Summarise climate risk analytical components in a consistent, decision-useful format.",
+            "suggested_columns": [
+              "Component",
+              "Purpose",
+              "Inputs (categories)",
+              "Outputs (categories)",
+              "How results inform decisions (generic)"
+            ],
+            "content_rules": [
+              "Avoid naming specific scenarios, regulators, or external providers.",
+              "Describe inputs/outputs as categories (e.g., macro variables, asset/portfolio data, sector data)."
+            ]
+          }
+        ],
+        "recommended_figures_or_diagrams": [
+          {
+            "figure_name": "Integration of sustainability and climate risks into enterprise risk management",
+            "purpose": "Show where sustainability/climate risks enter existing risk processes and governance checkpoints.",
+            "format": "Simple flow diagram with boxes/arrows",
+            "content_rules": [
+              "Use generic labels for governance bodies and functions.",
+              "Align diagram steps to the narrative lifecycle."
+            ]
+          },
+          {
+            "figure_name": "Climate risk workflow (inputs to decisions)",
+            "purpose": "Visualise the climate risk process from data inputs through scenario analysis/modelling to outputs and monitoring.",
+            "format": "Linear process flow or swimlane diagram",
+            "content_rules": [
+              "Keep steps generic (e.g., data collection → scenario selection → modelling → interpretation → decision integration → monitoring).",
+              "Do not include proprietary tools, datasets, or named scenarios."
+            ]
+          }
+        ],
+        "recommended_pdf_blocks": [
+          {
+            "block_name": "Chapter/section opener",
+            "purpose": "Provide a visual reset and clearly introduce the Risk Management section.",
+            "layout_notes": [
+              "Prominent section title with optional chapter marker.",
+              "Brief one-paragraph summary of what the section covers."
+            ]
+          },
+          {
+            "block_name": "Local navigation (mini table-of-contents)",
+            "purpose": "Help readers scan the section structure quickly.",
+            "layout_notes": [
+              "List numbered subsections with concise noun-phrase titles.",
+              "Place immediately after the opener."
+            ]
+          },
+          {
+            "block_name": "Process-in-practice callout",
+            "purpose": "Translate policy language into operational steps using a structured text box.",
+            "layout_notes": [
+              "Use a short intro sentence followed by numbered steps and a short list of assessment factor categories.",
+              "Keep factor categories high-level."
+            ]
+          },
+          {
+            "block_name": "Limitations and enhancement roadmap callout",
+            "purpose": "Disclose scope gaps and planned improvements transparently.",
+            "layout_notes": [
+              "Two-part structure: 'Current limitations' and 'Planned enhancements'.",
+              "Avoid time-bound commitments unless required elsewhere."
+            ]
+          }
+        ],
+        "required_narrative_blocks": [
+          "Integration statement: explain that sustainability-related and climate-related risks are embedded within the overall risk management framework and decision-making processes.",
+          "Scope and boundary statement: clarify what risk subsets are covered here, what is covered elsewhere, and how value chain boundaries are considered.",
+          "Lifecycle description: describe how risks are identified, assessed, managed/mitigated, monitored, and reported, including escalation and approval points.",
+          "Roles and responsibilities: describe ownership and oversight using a lines-of-defence concept (business ownership, independent risk oversight, independent review/assurance as applicable).",
+          "Control environment description: describe key control types (policies/standards, due diligence, monitoring, audits/assurance, training, third-party management) and how they work together.",
+          "Climate risk coverage: describe how transition and physical risks are addressed, including how climate considerations are integrated into existing processes.",
+          "Methodology transparency: describe scenario analysis/modelling at a level that explains inputs, steps, outputs, and decision-use without disclosing proprietary details.",
+          "Monitoring and continuous improvement: describe periodic review, reporting routines, and how the approach evolves with emerging risks and regulatory expectations.",
+          "Limitations disclosure: acknowledge material gaps or areas not yet covered and describe planned enhancements in general terms."
+        ],
+        "optional_narrative_blocks": [
+          "Value chain deep-dive: separate narratives for upstream, own operations, and downstream risk management practices.",
+          "Business model/segment variation: explain how the approach differs across business lines or operating segments using a repeatable template (mandate → governance → inputs → controls → monitoring).",
+          "Illustrative assessment factors: provide generalized categories of environmental and social factors considered in screening/due diligence.",
+          "Linkage to financial reporting: explain how sustainability/climate risks are considered for potential financial statement impacts and decision-making (without duplicating accounting disclosures).",
+          "Third-party considerations: describe supplier/customer/partner risk management and due diligence at a high level."
+        ],
+        "output_structure_rules": [
+          "Use hierarchical numbering for subsections and keep headings as concise noun phrases.",
+          "Begin with a mini table-of-contents listing the subsections in order.",
+          "For each major risk topic, follow a consistent sequence: definition/scope → governance/ownership → process steps → controls → monitoring/reporting → limitations (if any).",
+          "Prefer bullets/numbered lists for: workflow steps, input categories, output categories, and control layers.",
+          "Use cross-references to governance, strategy, and metrics/targets sections rather than repeating content.",
+          "Avoid naming external standards, regulators, scenarios, tools, or vendors; describe them generically as 'relevant standards/guidance' or 'external scenarios/data sources'.",
+          "Do not include quantitative achievements or performance claims in this section; keep it focused on processes and controls.",
+          "Ensure climate risk content clearly distinguishes transition vs physical risk and explains how each is addressed."
+        ]
+      },
+      "metrics_targets": {
+        "recommended_subsections": [
+          "Overview and IFRS basis",
+          "Scope and boundary of metrics and targets",
+          "Approach to metric selection and target setting",
+          "Methodologies, assumptions, and estimation uncertainty",
+          "Data governance, controls, and change management",
+          "Metrics and targets register (IFRS S1-aligned)",
+          "Climate-related metrics and targets register (IFRS S2-aligned)",
+          "Disaggregation and reconciliations (where applicable)",
+          "Assurance status and assurance scope note",
+          "Cross-references and index mapping"
+        ],
+        "recommended_order": [
+          "Overview and IFRS basis",
+          "Scope and boundary of metrics and targets",
+          "Approach to metric selection and target setting",
+          "Methodologies, assumptions, and estimation uncertainty",
+          "Data governance, controls, and change management",
+          "Metrics and targets register (IFRS S1-aligned)",
+          "Climate-related metrics and targets register (IFRS S2-aligned)",
+          "Disaggregation and reconciliations (where applicable)",
+          "Assurance status and assurance scope note",
+          "Cross-references and index mapping"
+        ],
+        "recommended_tables": [
+          {
+            "table_name": "Metrics and Targets Register (Core Template)",
+            "purpose": "Serve as the primary disclosure index/register with definitions, values, and traceability metadata.",
+            "suggested_columns": [
+              "Metric",
+              "Metric definition (scope, inclusions/exclusions)",
+              "Reporting-period value (numeric or qualitative status)",
+              "Target (if applicable) and target definition",
+              "External framework/source type (if applicable)",
+              "Internal source location (generic descriptor)",
+              "Mapping to report section/pillar (governance/strategy/risk management/metrics and targets)"
+            ],
+            "formatting_rules": [
+              "Repeat header row on each page",
+              "Allow multi-line cells and bullets",
+              "Right-align numeric values; left-align labels",
+              "Use explicit placeholders for not applicable/not reported",
+              "Use consistent unit notation in headers or value cells (do not mix styles)"
+            ]
+          },
+          {
+            "table_name": "Disaggregation Breakdown (Embedded/Nested)",
+            "purpose": "Provide category-by-category breakdowns for selected metrics within the register or as a standalone table.",
+            "suggested_columns": [
+              "Category label",
+              "Metric value",
+              "Optional: share/percentage (if used)",
+              "Optional: data quality/coverage indicator"
+            ],
+            "formatting_rules": [
+              "Include an explicit total row",
+              "Keep category taxonomy generic and entity-defined",
+              "Use consistent ordering and definitions across periods"
+            ]
+          },
+          {
+            "table_name": "Boundary and Reconciliation Summary",
+            "purpose": "Explain reporting perimeter using a reconciliation structure (starting population → exclusions → final scope).",
+            "suggested_columns": [
+              "Reconciliation step",
+              "Description (inclusion/exclusion rule)",
+              "Resulting perimeter/status (qualitative or quantitative, as applicable)"
+            ],
+            "formatting_rules": [
+              "Use stepwise, parallel phrasing",
+              "Cross-reference to methodology notes/footnotes for detailed rules"
+            ]
+          },
+          {
+            "table_name": "Assurance Marker Legend and Scope Summary",
+            "purpose": "Explain assurance markers used in tables and summarize assurance scope at a high level.",
+            "suggested_columns": [
+              "Marker/symbol",
+              "Meaning (assurance status)",
+              "Scope description (what is covered)",
+              "Limitations (what is not covered)",
+              "Where to find the full assurance statement (generic reference)"
+            ],
+            "formatting_rules": [
+              "Use one consolidated legend per section",
+              "Do not embed provider names in the template"
+            ]
+          }
+        ],
+        "recommended_figures_or_diagrams": [
+          {
+            "figure_name": "Reporting Perimeter Reconciliation Flow",
+            "purpose": "Visualize the step-down from starting population to final reporting scope and optional breakdown.",
+            "design_notes": [
+              "Flow/step-down structure: start → exclusions → final scope → optional category split",
+              "Use terminology consistent with the reconciliation table",
+              "Keep labels generic and entity-defined"
+            ]
+          },
+          {
+            "figure_name": "Metric Distribution by Category (Optional)",
+            "purpose": "Show distribution of a selected metric across categories when it improves interpretability.",
+            "design_notes": [
+              "Use simple, readable chart type",
+              "Mirror category labels used in the disaggregation table",
+              "Avoid clutter; prioritize clarity over aesthetics"
+            ]
+          }
+        ],
+        "recommended_pdf_blocks": [
+          {
+            "block_name": "Section opener block",
+            "contents": [
+              "Section title",
+              "One-paragraph purpose and IFRS basis statement",
+              "Short scope statement"
+            ]
+          },
+          {
+            "block_name": "Narrative lead-in block",
+            "contents": [
+              "Approach to metric selection and target setting",
+              "Methodology and boundary overview",
+              "Data currency and update cadence statement"
+            ]
+          },
+          {
+            "block_name": "Full-width multi-page table block",
+            "contents": [
+              "Metrics register with repeated headers",
+              "Embedded disaggregation where needed"
+            ]
+          },
+          {
+            "block_name": "Footnotes and assumptions block",
+            "contents": [
+              "Methodological assumptions",
+              "Boundary conditions",
+              "Comparability notes and change log references"
+            ]
+          },
+          {
+            "block_name": "Assurance legend and scope note block",
+            "contents": [
+              "Marker legend",
+              "High-level assurance scope and limitations"
+            ]
+          },
+          {
+            "block_name": "Methodology appendix-style block (within section or cross-referenced)",
+            "contents": [
+              "Stepwise calculation approach",
+              "Formula lines (where relevant)",
+              "Edge-case handling rules"
+            ]
+          }
+        ],
+        "required_narrative_blocks": [
+          "Purpose and IFRS basis: explain that metrics and targets are disclosed to support user assessment and align with IFRS S1/S2 requirements.",
+          "Scope separation: clearly distinguish general sustainability metrics from climate-related metrics and targets.",
+          "Selection and target-setting approach: describe how metrics are chosen (relevance/materiality) and how targets are set and monitored (measurable, time-bound where applicable).",
+          "Boundary and methodology overview: define reporting boundary, inclusions/exclusions, key assumptions, estimation methods, and uncertainty considerations.",
+          "Data governance and controls: describe ownership, review/approval controls, and change management for methodologies and metrics.",
+          "Data currency and update cadence: state the snapshot timing conceptually and where/when updates are provided (without specific dates in the template).",
+          "Missing data protocol: explain how unavailable metrics are labeled and how improvement plans are communicated cautiously."
+        ],
+        "optional_narrative_blocks": [
+          "Alignment bridge: brief note on alignment/mapping to other commonly used frameworks (generic reference only).",
+          "Comparability and restatements: explain changes in definitions, boundaries, or methodologies and how comparatives are treated.",
+          "Decision-usefulness note: short explanation of how management uses key metrics/targets in decision-making (without performance claims).",
+          "Granularity pathway: principle-based statement on potential future disaggregation as data quality improves."
+        ],
+        "output_structure_rules": [
+          "Keep narrative concise; place most disclosure content in structured tables.",
+          "Use consistent subsection numbering and short functional headings.",
+          "Present IFRS S1-aligned and IFRS S2-aligned disclosures in clearly separated blocks (adjacent but distinct).",
+          "Ensure every metric row includes: definition, value/status, source type, internal source location, and mapping to report section/pillar.",
+          "Do not leave blanks in value fields; use standardized status labels for missing/not applicable items.",
+          "Use footnotes for methodological conventions and edge-case rules; avoid burying critical definitions in footnotes.",
+          "If assurance markers are used, apply them consistently and explain them once in a consolidated legend with scope/limitations.",
+          "For disaggregations, include totals and define category taxonomy; keep taxonomy stable across periods or explain changes.",
+          "Maintain consistent units and formatting across tables; avoid mixing unit presentation styles.",
+          "Include a brief change-management note when definitions/methodologies change (what changed, why, and comparability impact)."
+        ]
+      }
+    }
+  }
+}

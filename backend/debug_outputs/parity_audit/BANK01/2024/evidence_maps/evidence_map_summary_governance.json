@@ -1,0 +1,15 @@
+{
+  "section_name": "Governance",
+  "requirements_total": 15,
+  "requirements_with_candidates": 15,
+  "requirements_without_candidates": 0,
+  "candidate_root_distribution": {
+    "governance": 78,
+    "climate_risk_register": 28,
+    "board_minutes": 10,
+    "reporting_kpis": 4
+  },
+  "evidence_strength_distribution": {
+    "strong": 120
+  }
+}

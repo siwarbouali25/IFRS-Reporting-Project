@@ -1,0 +1,16 @@
+{
+  "section_name": "General Requirements",
+  "requirements_total": 108,
+  "requirements_with_candidates": 102,
+  "requirements_without_candidates": 6,
+  "candidate_root_distribution": {
+    "general_requirements_context": 358,
+    "metadata": 169,
+    "financial_summary": 74,
+    "reporting_kpis": 46,
+    "targets": 17,
+    "bank": 11,
+    "scope1": 5,
+    "scope2": 1
+  }
+}

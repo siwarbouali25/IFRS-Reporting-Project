@@ -193,3 +193,5 @@ ARTIFACT_LOCAL_ROOT = BASE_DIR / "generated_artifacts"
 ARTIFACT_BUCKET_NAME = "esg-risk-intelligence"
 
 GENERATION_INPUT_ROOT = BASE_DIR / "generation_inputs"
+
+IFRS_NOTEBOOK_PATH = BASE_DIR / "notebooks" / "05_final_report.ipynb"

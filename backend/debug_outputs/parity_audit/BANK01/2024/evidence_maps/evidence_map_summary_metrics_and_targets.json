@@ -1,0 +1,26 @@
+{
+  "section_name": "Metrics and Targets",
+  "requirements_total": 151,
+  "requirements_with_candidates": 139,
+  "requirements_without_candidates": 12,
+  "candidate_root_distribution": {
+    "targets": 480,
+    "scope3_categories": 162,
+    "ghg_methodology": 105,
+    "reporting_kpis": 67,
+    "financed_emissions_equity": 63,
+    "financed_emissions_sovereign": 56,
+    "financial_summary": 32,
+    "financed_emissions": 31,
+    "metadata": 27,
+    "scope12_consolidation": 19,
+    "internal_carbon_price": 17,
+    "scope1": 16,
+    "scope2": 13,
+    "bank": 7
+  },
+  "evidence_strength_distribution": {
+    "medium": 186,
+    "strong": 909
+  }
+}

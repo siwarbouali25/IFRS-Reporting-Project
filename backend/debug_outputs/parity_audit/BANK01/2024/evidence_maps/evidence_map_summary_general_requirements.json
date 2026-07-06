@@ -1,0 +1,20 @@
+{
+  "section_name": "General Requirements",
+  "requirements_total": 108,
+  "requirements_with_candidates": 103,
+  "requirements_without_candidates": 5,
+  "candidate_root_distribution": {
+    "general_requirements_context": 369,
+    "metadata": 178,
+    "financial_summary": 73,
+    "reporting_kpis": 42,
+    "targets": 17,
+    "bank": 11,
+    "scope1": 5,
+    "scope2": 1
+  },
+  "evidence_strength_distribution": {
+    "medium": 545,
+    "strong": 151
+  }
+}

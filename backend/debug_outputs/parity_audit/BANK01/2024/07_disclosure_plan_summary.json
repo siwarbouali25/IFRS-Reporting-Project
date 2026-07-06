@@ -1,0 +1,49 @@
+{
+  "plan_type": "disclosure_plan_summary",
+  "sections_total": 5,
+  "requirements_total": 361,
+  "requirements_with_writer_safe_evidence": 341,
+  "requirements_without_writer_safe_evidence": 20,
+  "sections": {
+    "general_requirements": {
+      "section_title": "General Requirements",
+      "requirements_total": 108,
+      "requirements_with_writer_safe_evidence": 100,
+      "requirements_without_writer_safe_evidence": 8,
+      "unique_selected_evidence_paths_count": 79
+    },
+    "governance": {
+      "section_title": "Governance",
+      "requirements_total": 15,
+      "requirements_with_writer_safe_evidence": 15,
+      "requirements_without_writer_safe_evidence": 0,
+      "unique_selected_evidence_paths_count": 31
+    },
+    "strategy": {
+      "section_title": "Strategy",
+      "requirements_total": 70,
+      "requirements_with_writer_safe_evidence": 70,
+      "requirements_without_writer_safe_evidence": 0,
+      "unique_selected_evidence_paths_count": 103
+    },
+    "risk_management": {
+      "section_title": "Risk Management",
+      "requirements_total": 17,
+      "requirements_with_writer_safe_evidence": 17,
+      "requirements_without_writer_safe_evidence": 0,
+      "unique_selected_evidence_paths_count": 33
+    },
+    "metrics_targets": {
+      "section_title": "Metrics and Targets",
+      "requirements_total": 151,
+      "requirements_with_writer_safe_evidence": 139,
+      "requirements_without_writer_safe_evidence": 12,
+      "unique_selected_evidence_paths_count": 173
+    }
+  },
+  "policy": {
+    "report_policy": "do_not_mention_missing_data_in_generated_report",
+    "scoring_policy": "do_not_reduce_section_score",
+    "workflow_impact": "warning_only"
+  }
+}
