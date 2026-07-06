@@ -214,6 +214,7 @@ def _build_namespace_values(
         "STYLE_ASSET_DIR": style_system_dir,
         "STYLE_ASSETS_DIR": style_system_dir,
 
+                # Section constants expected by notebook cells
         "SECTIONS": [
             "general_requirements",
             "governance",
@@ -236,14 +237,53 @@ def _build_namespace_values(
             "strategy": "Strategy",
             "risk_management": "Risk Management",
             "metrics_targets": "Metrics and Targets",
+            "metrics_and_targets": "Metrics and Targets",
         },
 
+        "SECTION_TITLES": {
+            "general_requirements": "General Requirements",
+            "governance": "Governance",
+            "strategy": "Strategy",
+            "risk_management": "Risk Management",
+            "metrics_targets": "Metrics and Targets",
+            "metrics_and_targets": "Metrics and Targets",
+        },
+
+        # Important: include BOTH key-style and title-style aliases
         "SECTION_SLUGS": {
+            "general_requirements": "general_requirements",
             "General Requirements": "general_requirements",
+
+            "governance": "governance",
             "Governance": "governance",
+
+            "strategy": "strategy",
             "Strategy": "strategy",
+
+            "risk_management": "risk_management",
             "Risk Management": "risk_management",
+
+            "metrics_targets": "metrics_and_targets",
+            "metrics_and_targets": "metrics_and_targets",
             "Metrics and Targets": "metrics_and_targets",
+        },
+
+        "SECTION_FILE_SLUGS": {
+            "general_requirements": "general_requirements",
+            "governance": "governance",
+            "strategy": "strategy",
+            "risk_management": "risk_management",
+            "metrics_targets": "metrics_and_targets",
+            "metrics_and_targets": "metrics_and_targets",
+        },
+
+        "FILE_SLUGS": {
+            "general_requirements": "general_requirements",
+            "governance": "governance",
+            "strategy": "strategy",
+            "risk_management": "risk_management",
+            "metrics_targets": "metrics_and_targets",
+            "metrics_and_targets": "metrics_and_targets",
         },
 
         # Output aliases
