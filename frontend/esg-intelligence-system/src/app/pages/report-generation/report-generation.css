@@ -598,3 +598,28 @@ h3 {
     align-items: flex-start;
   }
 }
+
+
+.progress-track.indeterminate {
+  position: relative;
+}
+
+.progress-track.indeterminate .progress-fill {
+  width: 35% !important;
+  position: absolute;
+  animation: indeterminateMove 1.4s infinite ease-in-out;
+}
+
+@keyframes indeterminateMove {
+  0% {
+    left: -35%;
+  }
+
+  50% {
+    left: 45%;
+  }
+
+  100% {
+    left: 100%;
+  }
+}

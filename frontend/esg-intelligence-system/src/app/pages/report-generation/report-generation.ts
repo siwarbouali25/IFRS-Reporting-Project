@@ -506,11 +506,68 @@ export class ReportGeneration implements OnInit, OnDestroy {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   }
 
+
+
+  get displayProgressPercent(): number {
+  if (!this.currentJob) {
+    return 0;
+  }
+
+  if (
+    this.currentJob.status === 'completed' ||
+    this.currentJob.status === 'completed_with_warnings'
+  ) {
+    return 100;
+  }
+
+  if (this.currentJob.status === 'failed') {
+    return 100;
+  }
+
+  return this.currentJob.progress_percent || 0;
+}
+
+get shouldShowIndeterminateProgress(): boolean {
+  return (
+    this.currentJob?.status === 'queued' ||
+    this.currentJob?.status === 'running'
+  ) && !this.currentJob.progress_percent;
+}
+
+get userFriendlyStage(): string {
+  if (!this.currentJob) {
+    return 'Not started';
+  }
+
+  if (this.currentJob.status === 'queued') {
+    return 'Preparing your report request';
+  }
+
+  if (this.currentJob.status === 'running') {
+    return 'Generating the IFRS S1/S2 report';
+  }
+
+  if (this.currentJob.status === 'completed') {
+    return 'Report ready for review';
+  }
+
+  if (this.currentJob.status === 'completed_with_warnings') {
+    return 'Report ready with review notes';
+  }
+
+  if (this.currentJob.status === 'failed') {
+    return 'Report generation failed';
+  }
+
+  return this.formatStatus(this.currentJob.status);
+}
+
   private extractErrorMessage(error: any, fallback: string): string {
     if (typeof error?.error === 'string') {
       return error.error;
     }
 
+    
     return (
       error?.error?.detail ||
       error?.error?.non_field_errors?.[0] ||
