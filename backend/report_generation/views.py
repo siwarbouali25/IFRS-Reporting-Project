@@ -5,8 +5,6 @@ from rest_framework.response import Response
 
 from report_artifacts.models import ReportArtifact
 from report_artifacts.serializers import ReportArtifactSerializer
-from .tasks import run_fake_report_generation_job
-
 
 from .models import GenerationWarning, ReportGenerationJob, ReportVersion
 from .serializers import (
@@ -15,6 +13,7 @@ from .serializers import (
     ReportVersionSerializer,
     StartReportGenerationJobSerializer,
 )
+from .tasks import run_real_report_generation_job
 
 
 class ReportGenerationJobViewSet(viewsets.ModelViewSet):
@@ -38,6 +37,7 @@ class ReportGenerationJobViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == "create":
             return StartReportGenerationJobSerializer
+
         return ReportGenerationJobSerializer
 
     def create(self, request, *args, **kwargs):
@@ -49,28 +49,47 @@ class ReportGenerationJobViewSet(viewsets.ModelViewSet):
 
         job = serializer.save()
 
-
-        task = run_fake_report_generation_job.delay(str(job.id))
+        # Real generation task:
+        # Django API creates the job, Celery runs LangGraph,
+        # LangGraph runs the full notebook bridge.
+        task = run_real_report_generation_job.delay(str(job.id))
 
         job.celery_task_id = task.id
         job.save(update_fields=["celery_task_id"])
 
         response_serializer = ReportGenerationJobSerializer(job)
 
-        return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(
+            response_serializer.data,
+            status=status.HTTP_201_CREATED,
+        )
 
     @action(detail=True, methods=["get"], url_path="warnings")
     def warnings(self, request, pk=None):
         job = self.get_object()
-        warnings = GenerationWarning.objects.filter(job=job).order_by("created_at")
+
+        warnings = (
+            GenerationWarning.objects
+            .filter(job=job)
+            .order_by("created_at")
+        )
+
         serializer = GenerationWarningSerializer(warnings, many=True)
+
         return Response(serializer.data)
 
     @action(detail=True, methods=["get"], url_path="artifacts")
     def artifacts(self, request, pk=None):
         job = self.get_object()
-        artifacts = ReportArtifact.objects.filter(job=job).order_by("created_at")
+
+        artifacts = (
+            ReportArtifact.objects
+            .filter(job=job)
+            .order_by("created_at")
+        )
+
         serializer = ReportArtifactSerializer(artifacts, many=True)
+
         return Response(serializer.data)
 
 
@@ -81,7 +100,11 @@ class ReportVersionViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         queryset = (
             ReportVersion.objects
-            .select_related("job", "bank")
+            .select_related(
+                "job",
+                "job__bank",
+                "markdown_artifact",
+            )
             .all()
             .order_by("-created_at")
         )
@@ -90,9 +113,9 @@ class ReportVersionViewSet(viewsets.ReadOnlyModelViewSet):
         reporting_year = self.request.query_params.get("reporting_year")
 
         if bank_code:
-            queryset = queryset.filter(bank__code=bank_code)
+            queryset = queryset.filter(job__bank__code=bank_code)
 
         if reporting_year:
-            queryset = queryset.filter(reporting_year=reporting_year)
+            queryset = queryset.filter(job__reporting_year=reporting_year)
 
         return queryset
