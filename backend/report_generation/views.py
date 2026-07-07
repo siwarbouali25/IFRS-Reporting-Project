@@ -49,9 +49,6 @@ class ReportGenerationJobViewSet(viewsets.ModelViewSet):
 
         job = serializer.save()
 
-        # Real generation task:
-        # Django API creates the job, Celery runs LangGraph,
-        # LangGraph runs the full notebook bridge.
         task = run_real_report_generation_job.delay(str(job.id))
 
         job.celery_task_id = task.id
@@ -102,8 +99,8 @@ class ReportVersionViewSet(viewsets.ReadOnlyModelViewSet):
             ReportVersion.objects
             .select_related(
                 "job",
-                "job__bank",
-                "markdown_artifact",
+                "bank",
+                "created_by",
             )
             .all()
             .order_by("-created_at")
@@ -113,9 +110,9 @@ class ReportVersionViewSet(viewsets.ReadOnlyModelViewSet):
         reporting_year = self.request.query_params.get("reporting_year")
 
         if bank_code:
-            queryset = queryset.filter(job__bank__code=bank_code)
+            queryset = queryset.filter(bank__code=bank_code)
 
         if reporting_year:
-            queryset = queryset.filter(job__reporting_year=reporting_year)
+            queryset = queryset.filter(reporting_year=reporting_year)
 
         return queryset

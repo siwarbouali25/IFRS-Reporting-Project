@@ -1,9 +1,6 @@
 # Python
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
+*.py[cod]
 .venv/
 venv/
 env/
@@ -11,10 +8,11 @@ env/
 # Django
 *.log
 db.sqlite3
+*.sqlite3
 media/
 staticfiles/
 
-# Environment files
+# Environment
 .env
 .env.local
 .env.production
@@ -22,15 +20,19 @@ staticfiles/
 # Node / Angular
 node_modules/
 dist/
-.angular/cache/
+.angular/
 
-# IDE
+# Generated project artifacts
+backend/generated_artifacts/
+backend/debug_outputs/
+backend/generation_inputs/
+backend/notebooks/
+generated_artifacts/
+debug_outputs/
+generation_inputs/
+
+# IDE / OS
 .vscode/
 .idea/
-
-# OS
 .DS_Store
 Thumbs.db
-
-generated_artifacts/
-generation_inputs/

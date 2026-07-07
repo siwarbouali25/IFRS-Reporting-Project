@@ -1,35 +1,54 @@
-import json
-from pathlib import Path
-
 from celery import shared_task
-from django.conf import settings
 
 from generation_engine.graph.workflow import run_ifrs_report_graph
-from ifrs_assets.models import IFRSAssetBundle, StyleAssetBundle
-from payloads.models import PayloadManifest
 from report_artifacts.models import ReportArtifact
 from report_artifacts.storage import save_json_artifact, save_text_artifact
-from report_generation.models import ReportGenerationJob, ReportVersion
+from report_generation.models import GenerationWarning, ReportGenerationJob, ReportVersion
+
+
+def _next_report_version_number(job: ReportGenerationJob) -> int:
+    latest_version = (
+        ReportVersion.objects
+        .filter(bank=job.bank, reporting_year=job.reporting_year)
+        .order_by("-version_number")
+        .first()
+    )
+
+    if latest_version is None:
+        return 1
+
+    return latest_version.version_number + 1
 
 
 @shared_task
 def run_real_report_generation_job(job_id: str):
-    job = ReportGenerationJob.objects.select_related(
-        "bank",
-        "payload_manifest",
-        "ifrs_asset_bundle",
-        "style_asset_bundle",
-    ).get(id=job_id)
+    job = (
+        ReportGenerationJob.objects
+        .select_related(
+            "bank",
+            "payload_manifest",
+            "ifrs_asset_bundle",
+            "style_asset_bundle",
+            "created_by",
+        )
+        .get(id=job_id)
+    )
 
     job.mark_running()
 
     try:
+        if job.ifrs_asset_bundle is None:
+            raise ValueError("This report job has no IFRS asset bundle.")
+
+        if job.style_asset_bundle is None:
+            raise ValueError("This report job has no style asset bundle.")
+
         initial_state = {
             "job_id": str(job.id),
             "bank_code": job.bank.code,
             "bank_name": job.bank.name,
             "reporting_year": job.reporting_year,
-            "input_root": str(settings.GENERATION_INPUT_ROOT),
+            "input_root": "",
             "payload_prefix": job.payload_manifest.minio_prefix,
             "ifrs_asset_prefix": job.ifrs_asset_bundle.minio_prefix,
             "style_asset_prefix": job.style_asset_bundle.minio_prefix,
@@ -42,75 +61,70 @@ def run_real_report_generation_job(job_id: str):
         final_summary = final_state.get("final_summary", {})
         audit_summary = final_state.get("audit_summary", {})
         handoff_manifest = final_state.get("handoff_manifest", {})
+        warnings = final_state.get("warnings", [])
 
-        # Save final markdown
-        markdown_storage_path = save_text_artifact(
-            relative_path=f"reports/{job.bank.code}/{job.reporting_year}/{job.id}/approved_report_markdown.md",
-            content=final_markdown,
+        version = ReportVersion.objects.create(
+            job=job,
+            bank=job.bank,
+            reporting_year=job.reporting_year,
+            version_number=_next_report_version_number(job),
+            status=ReportVersion.Status.APPROVED,
+            created_by=job.created_by,
         )
 
-        markdown_artifact = ReportArtifact.objects.create(
+        base_key = f"reports/{job.bank.code}/{job.reporting_year}/{job.id}"
+
+        markdown_artifact = save_text_artifact(
             job=job,
+            report_version=version,
             artifact_type=ReportArtifact.ArtifactType.FINAL_MARKDOWN,
-            name="Approved report markdown",
-            storage_path=markdown_storage_path,
-            mime_type="text/markdown",
+            object_key=f"{base_key}/approved_report_markdown.md",
+            text=final_markdown,
+            content_type="text/markdown",
         )
 
-        # Save audit summary
-        audit_storage_path = save_json_artifact(
-            relative_path=f"reports/{job.bank.code}/{job.reporting_year}/{job.id}/audit_summary.json",
-            content=audit_summary,
-        )
-
-        ReportArtifact.objects.create(
+        save_json_artifact(
             job=job,
+            report_version=version,
             artifact_type=ReportArtifact.ArtifactType.AUDIT_SUMMARY,
-            name="Audit summary",
-            storage_path=audit_storage_path,
-            mime_type="application/json",
+            object_key=f"{base_key}/audit_summary.json",
+            data=audit_summary,
         )
 
-        # Save handoff manifest
-        manifest_storage_path = save_json_artifact(
-            relative_path=f"reports/{job.bank.code}/{job.reporting_year}/{job.id}/handoff_manifest.json",
-            content=handoff_manifest,
-        )
-
-        ReportArtifact.objects.create(
+        save_json_artifact(
             job=job,
+            report_version=version,
             artifact_type=ReportArtifact.ArtifactType.LOG,
-            name="PDF handoff manifest",
-            storage_path=manifest_storage_path,
-            mime_type="application/json",
+            object_key=f"{base_key}/handoff_manifest.json",
+            data=handoff_manifest,
         )
 
-        # Save final summary
-        summary_storage_path = save_json_artifact(
-            relative_path=f"reports/{job.bank.code}/{job.reporting_year}/{job.id}/final_summary.json",
-            content=final_summary,
-        )
-
-        ReportArtifact.objects.create(
+        save_json_artifact(
             job=job,
+            report_version=version,
             artifact_type=ReportArtifact.ArtifactType.WARNING_SUMMARY,
-            name="Final generation summary",
-            storage_path=summary_storage_path,
-            mime_type="application/json",
+            object_key=f"{base_key}/final_summary.json",
+            data=final_summary,
         )
 
-        ReportVersion.objects.create(
-            job=job,
-            version_number=1,
-            markdown_artifact=markdown_artifact,
-            status="approved",
-        )
+        for warning in warnings:
+            GenerationWarning.objects.create(
+                job=job,
+                stage=warning.get("stage", "generation") if isinstance(warning, dict) else "generation",
+                warning_type=warning.get("warning_type", "warning") if isinstance(warning, dict) else "warning",
+                message=warning.get("message", str(warning)) if isinstance(warning, dict) else str(warning),
+                details=warning.get("details", {}) if isinstance(warning, dict) else {},
+            )
 
-        job.mark_completed(warning_count=0)
+        job.final_summary = final_summary
+        job.save(update_fields=["final_summary"])
+
+        job.mark_completed(warning_count=len(warnings))
 
         return {
             "status": "completed",
             "job_id": str(job.id),
+            "report_version_id": str(version.id),
             "final_markdown_artifact_id": str(markdown_artifact.id),
             "final_summary": final_summary,
         }
