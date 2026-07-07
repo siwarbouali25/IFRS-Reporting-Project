@@ -51,6 +51,7 @@ export class ReportGeneration implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.stopPolling();
+    this.stopProgressTimer();
   }
 
   generateDraft(): void {
@@ -112,6 +113,11 @@ export class ReportGeneration implements OnInit, OnDestroy {
     });
   }
 
+private progressTimer?: ReturnType<typeof setInterval>;
+uiNow = Date.now();
+estimatedGenerationDurationMs = 35 * 60 * 1000;
+
+
   selectJob(job: GenerationJob): void {
     this.stopPolling();
     this.currentJob = job;
@@ -163,8 +169,11 @@ export class ReportGeneration implements OnInit, OnDestroy {
 
     this.isPolling = true;
     this.pollingStartedAt = Date.now();
+
+    this.startProgressTimer();
+
     this.pollJob(jobId);
-  }
+  } 
 
   private pollJob(jobId: string): void {
     this.reportService.getGenerationJob(jobId).subscribe({
@@ -206,14 +215,16 @@ export class ReportGeneration implements OnInit, OnDestroy {
     return 60000;
   }
 
-  private stopPolling(): void {
-    if (this.pollingTimeout) {
-      clearTimeout(this.pollingTimeout);
-      this.pollingTimeout = undefined;
-    }
-
-    this.isPolling = false;
+ private stopPolling(): void {
+  if (this.pollingTimeout) {
+    clearTimeout(this.pollingTimeout);
+    this.pollingTimeout = undefined;
   }
+
+  this.stopProgressTimer();
+
+  this.isPolling = false;
+}
 
    loadJobOutputs(jobId: string): void {
     this.loadWarnings(jobId);
@@ -508,7 +519,7 @@ export class ReportGeneration implements OnInit, OnDestroy {
 
 
 
-  get displayProgressPercent(): number {
+ get displayProgressPercent(): number {
   if (!this.currentJob) {
     return 0;
   }
@@ -524,15 +535,49 @@ export class ReportGeneration implements OnInit, OnDestroy {
     return 100;
   }
 
-  return this.currentJob.progress_percent || 0;
+  if (this.currentJob.progress_percent && this.currentJob.progress_percent > 0) {
+    return this.currentJob.progress_percent;
+  }
+
+  if (this.currentJob.status === 'queued') {
+    return 6;
+  }
+
+  if (this.currentJob.status === 'running') {
+    const startTime = this.currentJob.started_at
+      ? new Date(this.currentJob.started_at).getTime()
+      : new Date(this.currentJob.created_at).getTime();
+
+    const elapsed = Math.max(0, this.uiNow - startTime);
+
+    const estimated = Math.round(
+      10 + (elapsed / this.estimatedGenerationDurationMs) * 82
+    );
+
+    return Math.min(92, Math.max(10, estimated));
+  }
+
+  return 0;
 }
 
-get shouldShowIndeterminateProgress(): boolean {
-  return (
-    this.currentJob?.status === 'queued' ||
-    this.currentJob?.status === 'running'
-  ) && !this.currentJob.progress_percent;
+
+private startProgressTimer(): void {
+  this.stopProgressTimer();
+
+  this.uiNow = Date.now();
+
+  this.progressTimer = setInterval(() => {
+    this.uiNow = Date.now();
+  }, 1000);
 }
+
+private stopProgressTimer(): void {
+  if (this.progressTimer) {
+    clearInterval(this.progressTimer);
+    this.progressTimer = undefined;
+  }
+}
+
 
 get userFriendlyStage(): string {
   if (!this.currentJob) {

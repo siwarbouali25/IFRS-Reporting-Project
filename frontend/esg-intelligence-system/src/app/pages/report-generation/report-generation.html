@@ -4,9 +4,9 @@
       <p class="eyebrow">Report Generation</p>
       <h1>Generate IFRS <em>S1/S2 report</em></h1>
       <p class="subtitle">
-        Start a real asynchronous generation job. Django creates the job, Celery
-        runs LangGraph, and the final report artifacts become available for
-        preview, download, and approval.
+        Generate a structured IFRS S1/S2-aligned sustainability report from the
+        prepared disclosure data. Once ready, the report can be previewed,
+        downloaded, and submitted for approval.
       </p>
     </div>
 
@@ -18,7 +18,7 @@
         [disabled]="isLoadingJobs"
       >
         <i class="pi pi-refresh"></i>
-        {{ isLoadingJobs ? 'Refreshing...' : 'Refresh Jobs' }}
+        {{ isLoadingJobs ? 'Refreshing...' : 'Refresh Reports' }}
       </button>
 
       <button
@@ -28,12 +28,16 @@
         [disabled]="isStarting || isRunningJob"
       >
         <i class="pi pi-sparkles"></i>
-        {{ isStarting ? 'Starting...' : isRunningJob ? 'Generation Running' : 'Generate Report' }}
+        {{
+          isStarting
+            ? 'Starting...'
+            : isRunningJob
+              ? 'Generation Running'
+              : 'Generate Report'
+        }}
       </button>
     </div>
   </section>
-
-  
 
   <div class="error-box" *ngIf="errorMessage">
     {{ errorMessage }}
@@ -42,53 +46,67 @@
   <div class="section-label">Current Generation</div>
 
   <section class="summary-grid">
-  <div class="summary-card">
-    <p>Report Type</p>
-    <h2>IFRS S1/S2</h2>
-  </div>
+    <div class="summary-card">
+      <p>Report Type</p>
+      <h2>IFRS S1/S2</h2>
+    </div>
 
-  <div class="summary-card">
-    <p>Status</p>
-    <h2>
-      <span
-        class="status-pill"
-        [ngClass]="getStatusClass(currentJob?.status)"
-      >
-        {{ statusLabel }}
-      </span>
-    </h2>
-  </div>
+    <div class="summary-card">
+      <p>Status</p>
+      <h2>
+        <span
+          class="status-pill"
+          [ngClass]="getStatusClass(currentJob?.status)"
+        >
+          {{ statusLabel }}
+        </span>
+      </h2>
+    </div>
 
-  <div class="summary-card">
-    <p>Current Step</p>
-    <h2>{{ userFriendlyStage }}</h2>
-  </div>
+    <div class="summary-card">
+      <p>Current Step</p>
+      <h2>{{ userFriendlyStage }}</h2>
+    </div>
 
-  <div class="summary-card">
-    <p>Elapsed Time</p>
-    <h2>{{ generationDuration }}</h2>
-  </div>
-</section>
+    <div class="summary-card">
+      <p>Elapsed Time</p>
+      <h2>{{ generationDuration }}</h2>
+    </div>
+  </section>
 
   <section class="progress-card" *ngIf="currentJob">
     <div class="progress-header">
-      <span>Selected Job</span>
-      <strong>{{ currentJob.job_id }}</strong>
+      <span>Current report request</span>
+      <strong>IFRS S1/S2 Report</strong>
     </div>
 
-    <div class="progress-track" [class.indeterminate]="shouldShowIndeterminateProgress">
-      <div class="progress-fill" [style.width.%]="displayProgressPercent"></div>
+    <div class="progress-track">
+      <div
+        class="progress-fill"
+        [style.width.%]="displayProgressPercent"
+      ></div>
     </div>
 
     <div class="progress-meta">
+      <span>
+        Progress:
+        <strong>{{ displayProgressPercent }}%</strong>
+      </span>
+
       <span>
         Current step:
         <strong>{{ userFriendlyStage }}</strong>
       </span>
 
       <span>
-        Created:
-        <strong>{{ currentJob.created_at | date:'short' }}</strong>
+        Started:
+        <strong>
+          {{
+            currentJob.started_at
+              ? (currentJob.started_at | date:'short')
+              : (currentJob.created_at | date:'short')
+          }}
+        </strong>
       </span>
 
       <span *ngIf="currentJob.completed_at">
@@ -99,9 +117,9 @@
 
     <div class="running-note" *ngIf="isRunningJob">
       <i class="pi pi-spin pi-spinner"></i>
-      The report is being generated. This can take several minutes because the
-      system reviews the data, drafts the report, checks quality, and prepares the
-      final version.
+      The report is being generated. This can take several minutes while the
+      system reviews the available information, drafts the report, performs
+      quality checks, and prepares the final version.
     </div>
 
     <div class="progress-actions">
@@ -119,113 +137,125 @@
         (click)="loadJobOutputs(currentJob.job_id)"
         *ngIf="canSubmitForApproval"
       >
-        Reload Artifacts
+        Reload Report Files
       </button>
     </div>
   </section>
 
-  <div class="section-label">Generation Pipeline</div>
+  <div class="section-label">Generation Progress</div>
 
   <section class="pipeline-grid">
-  <div
-    class="pipeline-step"
-    [class.completed]="currentJob"
-  >
-    <span>1</span>
-    <div>
-      <strong>Request received</strong>
-      <p>The report request has been submitted successfully.</p>
+    <div
+      class="pipeline-step"
+      [class.completed]="currentJob"
+    >
+      <span>1</span>
+      <div>
+        <strong>Request received</strong>
+        <p>The report request has been submitted successfully.</p>
+      </div>
     </div>
-  </div>
 
-  <div
-    class="pipeline-step"
-    [ngClass]="{
-      active: currentJob?.status === 'queued',
-      completed: currentJob?.status === 'running' || canSubmitForApproval
-    }"
-  >
-    <span>2</span>
-    <div>
-      <strong>Information review</strong>
-      <p>The system reviews the available sustainability information.</p>
+    <div
+      class="pipeline-step"
+      [ngClass]="{
+        active: currentJob?.status === 'queued',
+        completed: currentJob?.status === 'running' || canSubmitForApproval
+      }"
+    >
+      <span>2</span>
+      <div>
+        <strong>Information review</strong>
+        <p>The system reviews the available sustainability information.</p>
+      </div>
     </div>
-  </div>
 
-  <div
-    class="pipeline-step"
-    [ngClass]="{
-      active: currentJob?.status === 'running',
-      completed: canSubmitForApproval
-    }"
-  >
-    <span>3</span>
-    <div>
-      <strong>Report drafting</strong>
-      <p>The IFRS S1/S2 report is drafted section by section.</p>
+    <div
+      class="pipeline-step"
+      [ngClass]="{
+        active: currentJob?.status === 'running',
+        completed: canSubmitForApproval
+      }"
+    >
+      <span>3</span>
+      <div>
+        <strong>Report drafting</strong>
+        <p>The IFRS S1/S2 report is drafted section by section.</p>
+      </div>
     </div>
-  </div>
 
-  <div
-    class="pipeline-step"
-    [ngClass]="{
-      active: currentJob?.status === 'running',
-      completed: canSubmitForApproval
-    }"
-  >
-    <span>4</span>
-    <div>
-      <strong>Quality review</strong>
-      <p>The report is checked for consistency, evidence, and structure.</p>
+    <div
+      class="pipeline-step"
+      [ngClass]="{
+        active: currentJob?.status === 'running',
+        completed: canSubmitForApproval
+      }"
+    >
+      <span>4</span>
+      <div>
+        <strong>Quality review</strong>
+        <p>The report is checked for consistency, evidence, and structure.</p>
+      </div>
     </div>
-  </div>
 
-  <div
-    class="pipeline-step"
-    [ngClass]="{
-      completed: canSubmitForApproval,
-      danger: currentJob?.status === 'failed'
-    }"
-  >
-    <span>5</span>
-    <div>
-      <strong>Report ready</strong>
-      <p>The final report is ready to preview, download, or send for approval.</p>
+    <div
+      class="pipeline-step"
+      [ngClass]="{
+        completed: canSubmitForApproval,
+        danger: currentJob?.status === 'failed'
+      }"
+    >
+      <span>5</span>
+      <div>
+        <strong>Report ready</strong>
+        <p>The final report is ready to preview, download, or send for approval.</p>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
-  <div class="section-label">Job History</div>
+  <div class="section-label">Report History</div>
 
   <section class="jobs-card">
     <div class="empty-state" *ngIf="jobs.length === 0">
-      No report generation jobs found yet.
+      No report requests found yet.
     </div>
 
     <div
       class="job-row"
-      *ngFor="let job of jobs"
+      *ngFor="let job of jobs; let i = index"
       [class.selected]="currentJob?.job_id === job.job_id"
       (click)="selectJob(job)"
     >
       <div>
-        <strong>{{ job.bank_code }} · {{ job.reporting_year }}</strong>
-        <p>{{ job.job_id }}</p>
+        <strong>IFRS S1/S2 Report</strong>
+        <p>Created {{ job.created_at | date:'medium' }}</p>
       </div>
 
       <div>
-        <small>Payload</small>
-        <strong>{{ job.payload_manifest_version || job.payload_manifest }}</strong>
+        <small>Status</small>
+        <strong>{{ formatStatus(job.status) }}</strong>
       </div>
 
       <div>
-        <small>Created</small>
-        <strong>{{ job.created_at | date:'short' }}</strong>
+        <small>Started</small>
+        <strong>
+          {{
+            job.started_at
+              ? (job.started_at | date:'short')
+              : 'Not started'
+          }}
+        </strong>
       </div>
 
       <div>
-        <small>Progress</small>
-        <strong>{{ job.progress_percent || 0 }}%</strong>
+        <small>Completed</small>
+        <strong>
+          {{
+            job.completed_at
+              ? (job.completed_at | date:'short')
+              : 'Pending'
+          }}
+        </strong>
       </div>
 
       <span
@@ -238,7 +268,7 @@
   </section>
 
   <div class="section-label" *ngIf="warnings.length > 0">
-    Warnings
+    Review Notes
   </div>
 
   <section class="warnings-card" *ngIf="warnings.length > 0">
@@ -252,9 +282,9 @@
     </div>
   </section>
 
-    <div class="section-label" *ngIf="artifacts.length > 0">
-      Report Files
-    </div>
+  <div class="section-label" *ngIf="artifacts.length > 0">
+    Report Files
+  </div>
 
   <section class="artifacts-layout" *ngIf="artifacts.length > 0">
     <div class="artifacts-card">
@@ -303,7 +333,7 @@
             {{
               selectedPreviewArtifact
                 ? getArtifactLabel(selectedPreviewArtifact)
-                : 'No artifact selected'
+                : 'No file selected'
             }}
           </h3>
         </div>
@@ -331,7 +361,7 @@
         class="preview-body empty-state"
         *ngIf="!isPreviewLoading && !previewText"
       >
-        Select a markdown or JSON artifact to preview it here.
+        Select a report file to preview it here.
       </div>
     </div>
   </section>
@@ -343,7 +373,7 @@
       <p class="eyebrow">Final Report Status</p>
 
       <h3 *ngIf="!currentJob">
-        No report generation job selected yet
+        No report request selected yet
       </h3>
 
       <h3 *ngIf="isRunningJob">
@@ -355,7 +385,7 @@
       </h3>
 
       <h3 *ngIf="currentJob?.status === 'completed_with_warnings'">
-        Report generated with warnings
+        Report generated with review notes
       </h3>
 
       <h3 *ngIf="currentJob?.status === 'failed'">
@@ -365,17 +395,17 @@
       <div class="check-list">
         <div class="check">
           <i class="pi pi-check-circle"></i>
-          <span>Job created through Django API</span>
+          <span>Report request submitted successfully</span>
         </div>
 
         <div class="check">
           <i class="pi pi-check-circle"></i>
-          <span>Background generation handled by Celery</span>
+          <span>Generation runs in the background</span>
         </div>
 
         <div class="check">
           <i class="pi pi-check-circle"></i>
-          <span>LangGraph runs the full notebook generation bridge</span>
+          <span>Report quality checks are applied before final delivery</span>
         </div>
 
         <div class="check">
@@ -397,7 +427,7 @@
         class="pending warning"
         *ngIf="currentJob?.status === 'completed_with_warnings'"
       >
-        Warnings Found
+        Review Notes
       </span>
 
       <span
