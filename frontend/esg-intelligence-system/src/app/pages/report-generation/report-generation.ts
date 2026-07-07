@@ -215,7 +215,7 @@ export class ReportGeneration implements OnInit, OnDestroy {
     this.isPolling = false;
   }
 
-  private loadJobOutputs(jobId: string): void {
+   loadJobOutputs(jobId: string): void {
     this.loadWarnings(jobId);
     this.loadArtifacts(jobId);
   }
