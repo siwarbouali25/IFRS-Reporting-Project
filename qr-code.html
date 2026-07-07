@@ -1,6 +1,41 @@
-<!DOCTYPE html>
-<html>
-  <body style="background:#111; display:flex; justify-content:center; align-items:center; height:100vh;">
-    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAeoAAAHqAQAAAADjFjCXAAAE5ElEQVR4nO1dS27jMAylGANdOsAcoEdxbjBHKnqkuYF9lBygQLIs4IADkvpldqU9sB3xLVz/HuzID6RIUWogWIAJl7ABnG4G2qkMp5uBdirD6WagncpwuhlopzKcbgbaqQynt9x0IaIDgHvcB4CHbvTCdObDdDVcdvPyZqCdynD60qYbiHHjAOF84t2Z9fdG4XLv+Op3CB9XPgS5SikG8ZY3Axumd/Hv/Qww/AEI0cKdKAzjdyCAuaMpABAAH97lltO8i5dHp79K0/UzEN3Em76ROle2hDAFsXX/+ek/Av7sdqcX7MPWFbDWhpEgQC+2Ts6dWY5fautqICwCOr3ppuuJaOQd7sNJ0KDnNYbopSN3Ug3GXt+OXt4ItBIVTl/adJPEpedo66LC2OppDCEhxbWDcNGQNkRNesvbgQ3TgZ4hgqORTV8OVaurGutmjIf+7ej0TVUHAydNRHDiPvmQRo0r2OolD6vJlXgfueqWABumQ5SP7PcsODkUmfGh3KKHqUtHI/tfve/Qvx2dvrWtO0VdqYVL0otutpzLvMFVB4uADdMh6Sptsq9Nca1088QIisN9FiZu+vLo9GOrjsEGT2WWe3OyV1m4okSBq84ObJgOT9402bAMdb3FzOVUHbnqcNMPh69Av4cgY156NJ1jHQp9vnP4oDm8hNwJhJ28vBFoJSqcbgdFsA1TlxpDBe3hqcKeYtgqaTd6y5uBDdNBHakmTVRwKTciqBIpmi+JVxWuukZlg2uM/pOMfkE/p2KA/otHX2/sa29c2tTNokLiOoAw0CPAMB7+t6PTN87XUY5XJUrVDdu1lDnWjWaOUyLPbd0CYMN0iPqRLF3Kw+kFTdVVyZWUUpHxMoF72EZlg6vQp3cW0fWNJHxN+RKuedIundQXA4RLX87t5uWtQDNT4HQ7iJ48Z8nN1UgOVxPJOcwlt3V2YMN0UFepKWDt14mbraWnbjZWBMjNp8hy1TUqG1xGhyifVFUXh8Wy1dNBC3W4pQ5g9n4dHPu7415GxEAPiyHjY9VaKgaIftXzddt/OHwV+lDmQ3Dk8CH1JfAIqdLzEehTitz7mWvZV366AWghOX37putkGyQZMgWeBSuTYvuvjo0bD9D+IphEYrwXb36kbLJ/dzOwYTpUMWzpyMVUnQyLlW5eCiTK4Xjo345O33ZEbPotE8VEZo+OyohYtoRpUqwsRRF4KYAVno5Ob31EDOK0/5QqiQWdeYBCkytCOnnmBI793XEfqpvrmWH1OBhDR2TlTH2V3MM2Khtckd5HmYVLT7rESTU9kWdhy4pPevWy+tN/DjRwnL4nW0cxfNAhWHWzuaAuzVFMOHk0Aa75BaBnxHHYCnn0NZURlw25h7UDoXV6yGt10nhPy5lcZIkdmTLBaeFwlrVPZDnPTjt3+3h5M9BOZTh9FQ9LZbg1+9CCnKWr1wjABU8G/3ALgK9Av+elhlMtnVo9XatYzrGZ47WfyppisJOXNwKtRIXT12u6SRypLBj2LhWc3yzHGFdE+3f1lcTAVbeCh73V81yrpF2sL6lL2+tlT3DRs8HpbTYd/NOvq8qYymITMZuSy5183sT2Hw6PTIfahqXh/lSyXhJ5xf7lBVAYbusalQ0uowf/73VNfnd0uhVoZgqcbgbaqQynm4F2KsPpZqCdynC6GYduur/GDG/KuKcfsgAAAABJRU5ErkJggg==" style="width:300px; height:300px;" />
-  </body>
-</html>
+import json
+from report_generation.models import ReportGenerationJob
+from report_generation.serializers import ReportGenerationJobSerializer
+
+job = ReportGenerationJob.objects.order_by("-created_at").first()
+
+print("JOB ID:", job.id)
+print("STATUS:", job.status)
+print()
+
+print(json.dumps(
+    ReportGenerationJobSerializer(job).data,
+    indent=2,
+    default=str,
+    ensure_ascii=False
+))
+
+from report_artifacts.models import ReportArtifact
+from report_artifacts.serializers import ReportArtifactSerializer
+
+artifacts = ReportArtifact.objects.filter(job=job).order_by("created_at")
+
+print("ARTIFACT COUNT:", artifacts.count())
+print()
+
+print(json.dumps(
+    ReportArtifactSerializer(artifacts, many=True).data,
+    indent=2,
+    default=str,
+    ensure_ascii=False
+))
+
+
+final_markdown = artifacts.filter(artifact_type="final_markdown").first()
+
+print(json.dumps(
+    ReportArtifactSerializer(final_markdown).data,
+    indent=2,
+    default=str,
+    ensure_ascii=False
+))
