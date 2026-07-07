@@ -4,19 +4,33 @@
       <p class="eyebrow">Report Generation</p>
       <h1>Generate IFRS <em>S1/S2 report</em></h1>
       <p class="subtitle">
-        Start an asynchronous report generation job. The backend creates a
-        job, Celery runs the workflow, and this page tracks the progress.
+        Start a real asynchronous generation job. Django creates the job, Celery
+        runs LangGraph, and the final report artifacts become available for
+        preview, download, and approval.
       </p>
     </div>
 
-    <button
-      class="primary-btn"
-      (click)="generateDraft()"
-      [disabled]="isStarting || isPolling"
-    >
-      <i class="pi pi-sparkles"></i>
-      {{ isStarting || isPolling ? 'Generating...' : 'Generate Draft' }}
-    </button>
+    <div class="hero-actions">
+      <button
+        class="secondary-btn"
+        type="button"
+        (click)="loadJobs()"
+        [disabled]="isLoadingJobs"
+      >
+        <i class="pi pi-refresh"></i>
+        {{ isLoadingJobs ? 'Refreshing...' : 'Refresh Jobs' }}
+      </button>
+
+      <button
+        class="primary-btn"
+        type="button"
+        (click)="generateDraft()"
+        [disabled]="isStarting || isRunningJob"
+      >
+        <i class="pi pi-sparkles"></i>
+        {{ isStarting ? 'Starting...' : isRunningJob ? 'Generation Running' : 'Generate Report' }}
+      </button>
+    </div>
   </section>
 
   <section class="config-card">
@@ -41,11 +55,23 @@
     </div>
   </section>
 
+  <div class="advanced-config">
+    <div>
+      <label>IFRS Asset Version</label>
+      <input [(ngModel)]="ifrsAssetVersion" />
+    </div>
+
+    <div>
+      <label>Style Asset Version</label>
+      <input [(ngModel)]="styleAssetVersion" />
+    </div>
+  </div>
+
   <div class="error-box" *ngIf="errorMessage">
     {{ errorMessage }}
   </div>
 
-  <div class="section-label">Generation Summary</div>
+  <div class="section-label">Current Generation</div>
 
   <section class="summary-grid">
     <div class="summary-card">
@@ -54,8 +80,15 @@
     </div>
 
     <div class="summary-card">
-      <p>Current Stage</p>
-      <h2>{{ currentJob?.current_stage || 'Idle' }}</h2>
+      <p>Status</p>
+      <h2>
+        <span
+          class="status-pill"
+          [ngClass]="getStatusClass(currentJob?.status)"
+        >
+          {{ statusLabel }}
+        </span>
+      </h2>
     </div>
 
     <div class="summary-card">
@@ -64,54 +97,161 @@
     </div>
 
     <div class="summary-card">
-      <p>Status</p>
-      <h2>{{ statusLabel }}</h2>
+      <p>Duration</p>
+      <h2>{{ generationDuration }}</h2>
     </div>
   </section>
 
   <section class="progress-card" *ngIf="currentJob">
     <div class="progress-header">
-      <span>Job ID</span>
+      <span>Selected Job</span>
       <strong>{{ currentJob.job_id }}</strong>
     </div>
 
     <div class="progress-track">
       <div
         class="progress-fill"
-        [style.width.%]="currentJob.progress_percent"
+        [style.width.%]="currentJob.progress_percent || 0"
       ></div>
     </div>
 
-    <p>
-      {{ currentJob.current_stage }} — {{ currentJob.progress_percent }}%
-    </p>
+    <div class="progress-meta">
+      <span>
+        Stage:
+        <strong>{{ currentJob.current_stage || 'queued' }}</strong>
+      </span>
+
+      <span>
+        Created:
+        <strong>{{ currentJob.created_at | date:'short' }}</strong>
+      </span>
+
+      <span *ngIf="currentJob.completed_at">
+        Completed:
+        <strong>{{ currentJob.completed_at | date:'short' }}</strong>
+      </span>
+    </div>
+
+    <div class="running-note" *ngIf="isRunningJob">
+      <i class="pi pi-spin pi-spinner"></i>
+      Report generation can take several minutes because it runs the full
+      notebook-based IFRS workflow and calls Azure agents. This page now polls
+      less frequently after the first two minutes to avoid overloading Django.
+    </div>
+
+    <div class="progress-actions">
+      <button
+        class="secondary-btn"
+        type="button"
+        (click)="refreshCurrentJob()"
+      >
+        Refresh Status
+      </button>
+
+      <button
+        class="secondary-btn"
+        type="button"
+        (click)="loadJobOutputs(currentJob.job_id)"
+        *ngIf="canSubmitForApproval"
+      >
+        Reload Artifacts
+      </button>
+    </div>
   </section>
 
-  <div class="section-label">Generated Sections</div>
+  <div class="section-label">Generation Pipeline</div>
 
-  <section class="sections-grid">
-    <div class="section-card" *ngFor="let section of sections">
+  <section class="pipeline-grid">
+    <div class="pipeline-step completed">
+      <span>1</span>
       <div>
-        <p class="standard">{{ section.standard }}</p>
-        <h3>{{ section.name }}</h3>
-        <span class="status">{{ section.status }}</span>
+        <strong>Job Created</strong>
+        <p>Django API accepted the generation request.</p>
+      </div>
+    </div>
+
+    <div
+      class="pipeline-step"
+      [ngClass]="{
+        completed: currentJob?.status === 'running' || canSubmitForApproval,
+        active: currentJob?.status === 'queued'
+      }"
+    >
+      <span>2</span>
+      <div>
+        <strong>Worker Started</strong>
+        <p>Celery starts the LangGraph generation workflow.</p>
+      </div>
+    </div>
+
+    <div
+      class="pipeline-step"
+      [ngClass]="{
+        completed: canSubmitForApproval,
+        active: currentJob?.status === 'running'
+      }"
+    >
+      <span>3</span>
+      <div>
+        <strong>Notebook Pipeline</strong>
+        <p>Evidence, planning, writing, QA, editorial polish and assembly run.</p>
+      </div>
+    </div>
+
+    <div
+      class="pipeline-step"
+      [ngClass]="{
+        completed: canSubmitForApproval,
+        danger: currentJob?.status === 'failed'
+      }"
+    >
+      <span>4</span>
+      <div>
+        <strong>Artifacts Ready</strong>
+        <p>Approved markdown, audit summary and handoff manifest are saved.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-label">Job History</div>
+
+  <section class="jobs-card">
+    <div class="empty-state" *ngIf="jobs.length === 0">
+      No report generation jobs found yet.
+    </div>
+
+    <div
+      class="job-row"
+      *ngFor="let job of jobs"
+      [class.selected]="currentJob?.job_id === job.job_id"
+      (click)="selectJob(job)"
+    >
+      <div>
+        <strong>{{ job.bank_code }} · {{ job.reporting_year }}</strong>
+        <p>{{ job.job_id }}</p>
       </div>
 
-      <div class="score">
-        <span>{{ section.score }}</span>
-        <p>Quality score</p>
+      <div>
+        <small>Payload</small>
+        <strong>{{ job.payload_manifest_version || job.payload_manifest }}</strong>
       </div>
 
-      <div class="actions">
-        <button class="secondary-btn" disabled>
-          Preview
-        </button>
-
-        <button class="download-btn" disabled>
-          <i class="pi pi-download"></i>
-          Section
-        </button>
+      <div>
+        <small>Created</small>
+        <strong>{{ job.created_at | date:'short' }}</strong>
       </div>
+
+      <div>
+        <small>Progress</small>
+        <strong>{{ job.progress_percent || 0 }}%</strong>
+      </div>
+
+      <span
+        class="status-pill"
+        [ngClass]="getStatusClass(job.status)"
+      >
+        {{ formatStatus(job.status) }}
+      </span>
     </div>
   </section>
 
@@ -130,75 +270,115 @@
     </div>
   </section>
 
-  <div class="section-label">Report Validation</div>
+  <div class="section-label" *ngIf="artifacts.length > 0">
+    Generated Artifacts
+  </div>
 
-  <section class="validation-card">
-    <div>
-      <p class="eyebrow">Final Draft Status</p>
-
-      <h3 *ngIf="!currentJob">
-        No report generation job started yet
-      </h3>
-
-      <h3
-        *ngIf="
-          currentJob?.status === 'queued' ||
-          currentJob?.status === 'running'
-        "
-      >
-        Report generation is running
-      </h3>
-
-      <h3 *ngIf="currentJob?.status === 'completed'">
-        Report draft generated successfully
-      </h3>
-
-      <h3 *ngIf="currentJob?.status === 'completed_with_warnings'">
-        Report draft generated with warnings
-      </h3>
-
-      <h3 *ngIf="currentJob?.status === 'failed'">
-        Report generation failed
-      </h3>
-
+  <section class="artifacts-layout" *ngIf="artifacts.length > 0">
+    <div class="artifacts-card">
       <div
-        class="section-label"
-        *ngIf="artifacts.length > 0"
+        class="artifact-item"
+        *ngFor="let artifact of sortedArtifacts"
+        [class.final-artifact]="artifact.artifact_type === 'final_markdown'"
+        [class.selected]="selectedPreviewArtifact?.id === artifact.id"
       >
-        Generated Artifacts
-      </div>
+        <div>
+          <strong>{{ getArtifactLabel(artifact) }}</strong>
+          <p>{{ getArtifactDescription(artifact) }}</p>
+          <small>
+            {{ artifact.content_type || 'file' }}
+            · {{ formatBytes(artifact.size_bytes) }}
+          </small>
+        </div>
 
-      <section
-        class="artifacts-card"
-        *ngIf="artifacts.length > 0"
-      >
-        <div
-          class="artifact-item"
-          *ngFor="let artifact of artifacts"
-        >
-          <div>
-            <strong>{{ getArtifactLabel(artifact) }}</strong>
-
-            <p>{{ artifact.object_key }}</p>
-
-            <small>
-              {{ artifact.content_type || 'file' }}
-
-              <span *ngIf="artifact.size_bytes">
-                · {{ artifact.size_bytes }} bytes
-              </span>
-            </small>
-          </div>
+        <div class="artifact-actions">
+          <button
+            class="secondary-btn"
+            type="button"
+            (click)="previewArtifact(artifact)"
+            *ngIf="canPreviewArtifact(artifact)"
+          >
+            Preview
+          </button>
 
           <button
             class="download-btn"
+            type="button"
             (click)="downloadArtifact(artifact)"
           >
             <i class="pi pi-download"></i>
             Download
           </button>
         </div>
-      </section>
+      </div>
+    </div>
+
+    <div class="preview-card">
+      <div class="preview-header">
+        <div>
+          <p class="eyebrow">Preview</p>
+          <h3>
+            {{
+              selectedPreviewArtifact
+                ? getArtifactLabel(selectedPreviewArtifact)
+                : 'No artifact selected'
+            }}
+          </h3>
+        </div>
+
+        <button
+          class="download-btn"
+          type="button"
+          *ngIf="selectedPreviewArtifact"
+          (click)="downloadArtifact(selectedPreviewArtifact)"
+        >
+          Download
+        </button>
+      </div>
+
+      <div class="preview-body" *ngIf="isPreviewLoading">
+        Loading preview...
+      </div>
+
+      <pre
+        class="preview-body"
+        *ngIf="!isPreviewLoading && previewText"
+      >{{ previewText }}</pre>
+
+      <div
+        class="preview-body empty-state"
+        *ngIf="!isPreviewLoading && !previewText"
+      >
+        Select a markdown or JSON artifact to preview it here.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-label">Approval Readiness</div>
+
+  <section class="validation-card">
+    <div>
+      <p class="eyebrow">Final Report Status</p>
+
+      <h3 *ngIf="!currentJob">
+        No report generation job selected yet
+      </h3>
+
+      <h3 *ngIf="isRunningJob">
+        Report generation is running
+      </h3>
+
+      <h3 *ngIf="currentJob?.status === 'completed'">
+        Report generated successfully
+      </h3>
+
+      <h3 *ngIf="currentJob?.status === 'completed_with_warnings'">
+        Report generated with warnings
+      </h3>
+
+      <h3 *ngIf="currentJob?.status === 'failed'">
+        Report generation failed
+      </h3>
 
       <div class="check-list">
         <div class="check">
@@ -213,9 +393,12 @@
 
         <div class="check">
           <i class="pi pi-check-circle"></i>
-          <span>
-            Final validation failures treated as warnings in prototype mode
-          </span>
+          <span>LangGraph runs the full notebook generation bridge</span>
+        </div>
+
+        <div class="check">
+          <i class="pi pi-check-circle"></i>
+          <span>Final markdown saved as an artifact</span>
         </div>
       </div>
     </div>
@@ -251,11 +434,12 @@
       </button>
 
       <button
-        class="disabled-btn"
-        disabled
-        *ngIf="artifacts.length === 0"
+        class="download-btn"
+        type="button"
+        *ngIf="finalReportArtifact"
+        (click)="downloadArtifact(finalReportArtifact)"
       >
-        Final Download Coming Later
+        Download Final Report
       </button>
     </div>
   </section>

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 export type GenerationJobStatus =
   | 'queued'
@@ -29,12 +29,15 @@ export interface GenerationJob {
   payload_manifest: number;
   payload_manifest_version: string;
   ifrs_asset_bundle?: number;
+  ifrs_asset_version?: string;
   style_asset_bundle?: number;
+  style_asset_version?: string;
   status: GenerationJobStatus;
   current_stage: string;
   progress_percent: number;
   warning_count: number;
   error_message: string;
+  celery_task_id?: string;
   config: any;
   final_summary: any;
   created_at: string;
@@ -65,6 +68,9 @@ export interface ReportArtifact {
   checksum: string;
   created_at: string;
 }
+
+type ListResponse<T> = T[] | { results: T[] };
+
 @Injectable({
   providedIn: 'root',
 })
@@ -80,6 +86,12 @@ export class Report {
     );
   }
 
+  getGenerationJobs(): Observable<GenerationJob[]> {
+    return this.http
+      .get<ListResponse<GenerationJob>>(`${this.apiUrl}/report-generation/jobs/`)
+      .pipe(map((response) => Array.isArray(response) ? response : response.results));
+  }
+
   getGenerationJob(jobId: string): Observable<GenerationJob> {
     return this.http.get<GenerationJob>(
       `${this.apiUrl}/report-generation/jobs/${jobId}/`
@@ -92,20 +104,18 @@ export class Report {
     );
   }
 
-
-
   getArtifacts(jobId: string): Observable<ReportArtifact[]> {
-  return this.http.get<ReportArtifact[]>(
-    `${this.apiUrl}/report-generation/jobs/${jobId}/artifacts/`
-  );
-}
+    return this.http.get<ReportArtifact[]>(
+      `${this.apiUrl}/report-generation/jobs/${jobId}/artifacts/`
+    );
+  }
 
-downloadArtifact(artifactId: string): Observable<Blob> {
-  return this.http.get(
-    `${this.apiUrl}/artifacts/${artifactId}/download/`,
-    {
-      responseType: 'blob',
-    }
-  );
-}
+  downloadArtifact(artifactId: string): Observable<Blob> {
+    return this.http.get(
+      `${this.apiUrl}/artifacts/${artifactId}/download/`,
+      {
+        responseType: 'blob',
+      }
+    );
+  }
 }
