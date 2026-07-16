@@ -34,6 +34,25 @@ SIMPLE_JWT = {
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+
+DATA_PREP_NOTEBOOK_PATH = (
+    BASE_DIR
+    / "data_preparation"
+    / "notebooks"
+    / "data_prep_pipeline.ipynb"
+)
+
+IFRS_REQUIREMENTS_DIR = (
+    BASE_DIR
+    / "data_preparation"
+    / "generation_inputs"
+    / "ifrs-assets"
+    / "IFRS-S1-S2"
+    / "2024"
+)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
@@ -66,6 +85,8 @@ INSTALLED_APPS = [
     "ifrs_assets",
     "report_generation",
     "report_artifacts",
+    "data_preparation",
+    "kpi_dashboard",
 ]
 
 MIDDLEWARE = [

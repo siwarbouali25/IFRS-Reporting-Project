@@ -1,16 +1,27 @@
 <div class="prep-page">
   <section class="hero">
     <div>
-      <p class="eyebrow">Prepared Data Center</p>
-      <h1>ESG data is <em>ready for reporting</em></h1>
+      <p class="eyebrow">Data Preparation Center</p>
+      <h1>Prepare ESG data for <em>IFRS S1/S2 reporting</em></h1>
       <p class="subtitle">
-        View prepared datasets, calculated ESG indicators, and download the final structured data used for IFRS S1/S2 report generation.
+        Upload client datasets, normalize them into canonical tables, validate data quality,
+        and generate structured JSON payloads for report generation.
       </p>
     </div>
 
-    <button class="primary-btn" routerLink="/report-generation">
+    <button class="primary-btn" routerLink="/report-generation" [disabled]="!payloadResult">
       Continue to Report Generation
     </button>
+  </section>
+
+  <section class="alert success" *ngIf="successMessage">
+    <i class="pi pi-check-circle"></i>
+    <span>{{ successMessage }}</span>
+  </section>
+
+  <section class="alert error" *ngIf="errorMessage">
+    <i class="pi pi-times-circle"></i>
+    <span>{{ errorMessage }}</span>
   </section>
 
   <div class="section-label">Preparation Overview</div>
@@ -25,63 +36,184 @@
     </div>
   </section>
 
-  <div class="section-label">Prepared ESG Domains</div>
+  <div class="section-label">Upload Dataset</div>
 
-  <section class="domain-grid">
-    <div class="domain-card" *ngFor="let domain of domains">
-      <div class="domain-header">
-        <div class="domain-icon">
-          <i [class]="domain.icon"></i>
-        </div>
-
-        <div>
-          <h3>{{ domain.name }}</h3>
-          <p>Ready for report generation</p>
-        </div>
+  <section class="workflow-card">
+    <div class="batch-form">
+      <div>
+        <label>Batch name</label>
+        <input type="text" [(ngModel)]="batchName" placeholder="BANK01 Dataset" />
       </div>
 
-      <div class="domain-stats">
-        <div>
-          <span>Metrics</span>
-          <strong>{{ domain.metrics }}</strong>
-        </div>
-        <div>
-          <span>Quality</span>
-          <strong>{{ domain.quality }}</strong>
-        </div>
-        <div>
-          <span>Updated</span>
-          <strong>{{ domain.updated }}</strong>
-        </div>
+      <button class="secondary-btn" (click)="createBatch()" [disabled]="loading || !batchName">
+        Create Batch
+      </button>
+    </div>
+
+    <div class="batch-info" *ngIf="currentBatch">
+      <span>Current batch</span>
+      <strong>{{ currentBatch.name }}</strong>
+      <small>{{ currentBatch.id }}</small>
+    </div>
+
+    <div class="upload-box">
+      <i class="pi pi-cloud-upload"></i>
+      <h3>Upload ZIP or CSV files</h3>
+      <p>Use a ZIP containing all CSV tables, or select multiple CSV files.</p>
+
+      <input
+        type="file"
+        multiple
+        accept=".zip,.csv"
+        (change)="onFilesSelected($event)"
+      />
+
+      <div class="selected-files" *ngIf="selectedFiles.length">
+        <strong>{{ selectedFiles.length }} file(s) selected</strong>
+        <span *ngFor="let file of selectedFiles">{{ file.name }}</span>
       </div>
 
-      <div class="domain-actions">
-        <button class="secondary-btn">Preview</button>
-        <button class="download-btn">
-          <i class="pi pi-download"></i>
-          Download
-        </button>
+      <button class="primary-btn" (click)="uploadFiles()" [disabled]="!canUpload">
+        Upload Dataset
+      </button>
+    </div>
+  </section>
+
+  <div class="section-label">Preparation Workflow</div>
+
+  <section class="workflow-card">
+    <div class="stepper">
+      <div class="step" *ngFor="let step of steps" [class]="step.status">
+        <div class="step-icon">
+          <i
+            [class]="
+              step.status === 'completed'
+                ? 'pi pi-check'
+                : step.status === 'running'
+                ? 'pi pi-spin pi-spinner'
+                : step.status === 'failed'
+                ? 'pi pi-times'
+                : 'pi pi-circle'
+            "
+          ></i>
+        </div>
+
+        <div>
+          <h3>{{ step.label }}</h3>
+          <p>{{ step.description }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="workflow-actions">
+      <button class="primary-btn" (click)="runFullPreparation()" [disabled]="!canRunPipeline">
+        Start Preparation
+      </button>
+
+      <button
+        class="primary-btn"
+        (click)="runPayloadGeneration()"
+        [disabled]="!validationPassed || loading"
+      >
+        Generate Payloads
+      </button>
+    </div>
+  </section>
+
+  <div class="section-label" *ngIf="detectionResult">Table Detection</div>
+
+  <section class="result-card" *ngIf="detectionResult">
+    <h3>Detected tables</h3>
+    <p>
+      {{ detectionResult.total_detected_files || detectionResult.detections?.length || 0 }}
+      files detected.
+    </p>
+
+    <div class="simple-table" *ngIf="detectionResult.detections?.length">
+      <div class="table-row header">
+        <span>File</span>
+        <span>Detected table</span>
+        <span>Confidence</span>
+        <span>Status</span>
+      </div>
+
+      <div class="table-row" *ngFor="let item of detectionResult.detections">
+        <span>{{ item.filename || item.file_name || '-' }}</span>
+        <span>{{ item.detected_table || '-' }}</span>
+        <span>{{ item.confidence ?? '-' }}</span>
+        <span>
+          <b [class.warning]="item.needs_review">
+            {{ item.needs_review ? 'Needs review' : 'Ready' }}
+          </b>
+        </span>
       </div>
     </div>
   </section>
 
-  <div class="section-label">Reporting Readiness</div>
+  <div class="section-label" *ngIf="mappingResult">Column Mapping</div>
 
-  <section class="ready-card">
-    <div>
-      <p class="eyebrow">IFRS S1/S2 Status</p>
-      <h3>Prepared data is ready for report generation</h3>
+  <section class="result-card" *ngIf="mappingResult">
+    <h3>Column mapping completed</h3>
+    <p>
+      {{ mappingResult.total_mapped_files || mappingResult.mappings?.length || 0 }}
+      files mapped.
+    </p>
 
-      <div class="indicator-list">
-        <div class="indicator" *ngFor="let indicator of indicators">
-          <i class="pi pi-check-circle"></i>
-          <span>{{ indicator }}</span>
+    <div class="status-pill" [class.warning]="mappingResult.needs_review">
+      {{ mappingResult.needs_review ? 'Review required' : 'No required mapping gaps' }}
+    </div>
+  </section>
+
+  <div class="section-label" *ngIf="canonicalResult">Canonical Dataset</div>
+
+  <section class="result-card" *ngIf="canonicalResult">
+    <h3>Canonical CSV files generated</h3>
+    <p>{{ canonicalResult.total_canonical_files || 0 }} canonical files created.</p>
+    <small>{{ canonicalResult.canonical_folder }}</small>
+  </section>
+
+  <div class="section-label" *ngIf="validationResult">Validation</div>
+
+  <section class="result-card" *ngIf="validationResult">
+    <h3>
+      {{ validationResult.is_valid ? 'Validation passed' : 'Validation failed' }}
+    </h3>
+
+    <p>
+      {{ validationResult.total_validated_files || 0 }} files validated.
+      {{ validationResult.issues?.length || 0 }} issue(s) found.
+    </p>
+
+    <div class="status-pill" [class.success]="validationResult.is_valid" [class.error-pill]="!validationResult.is_valid">
+      {{ validationResult.is_valid ? 'Ready for payload generation' : 'Blocking issues found' }}
+    </div>
+
+    <div class="issues" *ngIf="validationResult.issues?.length">
+      <div class="issue" *ngFor="let issue of validationResult.issues">
+        <strong>{{ issue.code }}</strong>
+        <span>{{ issue.message }}</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-label" *ngIf="payloadResult">Generated Payloads</div>
+
+  <section class="result-card" *ngIf="payloadResult">
+    <h3>Payload generation completed</h3>
+    <p>{{ payloadResult.payload_count }} payload files generated.</p>
+
+    <div class="payload-list">
+      <div class="payload-item" *ngFor="let payload of payloadFiles">
+        <div>
+          <strong>{{ payload.filename }}</strong>
+          <span>{{ payload.size_bytes }} bytes</span>
         </div>
+        <i class="pi pi-file"></i>
       </div>
     </div>
 
     <button class="primary-btn" routerLink="/report-generation">
-      Generate IFRS Report
+      Continue to Report Generation
     </button>
   </section>
 </div>

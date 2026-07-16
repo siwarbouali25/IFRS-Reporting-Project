@@ -1,0 +1,226 @@
+bank_id,reporting_year,emissions_tco2e,scope3_id,scope3_category,category_number,category_name,included_flag,calculation_method,data_source,pcaf_data_quality_score,exclusion_reason,is_synthetic
+BANK01,2022,14942.0,S3-BANK01-2022-C01,Purchased goods and services,1,Purchased goods and services,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK01,2022,3740.5,S3-BANK01-2022-C02,Capital goods,2,Capital goods,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK01,2022,2971.9,S3-BANK01-2022-C03,Fuel- and energy-related activities,3,Fuel- and energy-related activities,True,average_data_method,spend_based_estimate,4.0,,True
+BANK01,2022,,S3-BANK01-2022-C04,Upstream transportation and distribution,4,Upstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK01,2022,511.1,S3-BANK01-2022-C05,Waste generated in operations,5,Waste generated in operations,True,average_data_method,spend_based_estimate,4.0,,True
+BANK01,2022,,S3-BANK01-2022-C06,Business travel (reported in operational Scope 3 travel),6,Business travel (reported in operational Scope 3 travel),True,reported_separately,cross_reference,,,True
+BANK01,2022,25098.5,S3-BANK01-2022-C07,Employee commuting,7,Employee commuting,True,average_data_method,spend_based_estimate,4.0,,True
+BANK01,2022,,S3-BANK01-2022-C08,Upstream leased assets,8,Upstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK01,2022,,S3-BANK01-2022-C09,Downstream transportation and distribution,9,Downstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK01,2022,,S3-BANK01-2022-C10,Processing of sold products,10,Processing of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK01,2022,,S3-BANK01-2022-C11,Use of sold products,11,Use of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK01,2022,,S3-BANK01-2022-C12,End-of-life treatment of sold products,12,End-of-life treatment of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK01,2022,,S3-BANK01-2022-C13,Downstream leased assets,13,Downstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK01,2022,,S3-BANK01-2022-C14,Franchises,14,Franchises,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK01,2022,,S3-BANK01-2022-C15,Financed emissions (reported in the financed-emissions section),15,Financed emissions (reported in the financed-emissions section),True,reported_separately,cross_reference,,,True
+BANK01,2023,17122.9,S3-BANK01-2023-C01,Purchased goods and services,1,Purchased goods and services,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK01,2023,4052.8,S3-BANK01-2023-C02,Capital goods,2,Capital goods,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK01,2023,3251.9,S3-BANK01-2023-C03,Fuel- and energy-related activities,3,Fuel- and energy-related activities,True,average_data_method,spend_based_estimate,4.0,,True
+BANK01,2023,,S3-BANK01-2023-C04,Upstream transportation and distribution,4,Upstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK01,2023,551.5,S3-BANK01-2023-C05,Waste generated in operations,5,Waste generated in operations,True,average_data_method,spend_based_estimate,4.0,,True
+BANK01,2023,,S3-BANK01-2023-C06,Business travel (reported in operational Scope 3 travel),6,Business travel (reported in operational Scope 3 travel),True,reported_separately,cross_reference,,,True
+BANK01,2023,25305.4,S3-BANK01-2023-C07,Employee commuting,7,Employee commuting,True,average_data_method,spend_based_estimate,4.0,,True
+BANK01,2023,,S3-BANK01-2023-C08,Upstream leased assets,8,Upstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK01,2023,,S3-BANK01-2023-C09,Downstream transportation and distribution,9,Downstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK01,2023,,S3-BANK01-2023-C10,Processing of sold products,10,Processing of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK01,2023,,S3-BANK01-2023-C11,Use of sold products,11,Use of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK01,2023,,S3-BANK01-2023-C12,End-of-life treatment of sold products,12,End-of-life treatment of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK01,2023,,S3-BANK01-2023-C13,Downstream leased assets,13,Downstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK01,2023,,S3-BANK01-2023-C14,Franchises,14,Franchises,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK01,2023,,S3-BANK01-2023-C15,Financed emissions (reported in the financed-emissions section),15,Financed emissions (reported in the financed-emissions section),True,reported_separately,cross_reference,,,True
+BANK01,2024,14271.7,S3-BANK01-2024-C01,Purchased goods and services,1,Purchased goods and services,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK01,2024,3511.5,S3-BANK01-2024-C02,Capital goods,2,Capital goods,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK01,2024,2804.0,S3-BANK01-2024-C03,Fuel- and energy-related activities,3,Fuel- and energy-related activities,True,average_data_method,spend_based_estimate,4.0,,True
+BANK01,2024,,S3-BANK01-2024-C04,Upstream transportation and distribution,4,Upstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK01,2024,503.6,S3-BANK01-2024-C05,Waste generated in operations,5,Waste generated in operations,True,average_data_method,spend_based_estimate,4.0,,True
+BANK01,2024,,S3-BANK01-2024-C06,Business travel (reported in operational Scope 3 travel),6,Business travel (reported in operational Scope 3 travel),True,reported_separately,cross_reference,,,True
+BANK01,2024,27044.2,S3-BANK01-2024-C07,Employee commuting,7,Employee commuting,True,average_data_method,spend_based_estimate,4.0,,True
+BANK01,2024,,S3-BANK01-2024-C08,Upstream leased assets,8,Upstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK01,2024,,S3-BANK01-2024-C09,Downstream transportation and distribution,9,Downstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK01,2024,,S3-BANK01-2024-C10,Processing of sold products,10,Processing of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK01,2024,,S3-BANK01-2024-C11,Use of sold products,11,Use of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK01,2024,,S3-BANK01-2024-C12,End-of-life treatment of sold products,12,End-of-life treatment of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK01,2024,,S3-BANK01-2024-C13,Downstream leased assets,13,Downstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK01,2024,,S3-BANK01-2024-C14,Franchises,14,Franchises,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK01,2024,,S3-BANK01-2024-C15,Financed emissions (reported in the financed-emissions section),15,Financed emissions (reported in the financed-emissions section),True,reported_separately,cross_reference,,,True
+BANK02,2022,11047.5,S3-BANK02-2022-C01,Purchased goods and services,1,Purchased goods and services,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK02,2022,2756.6,S3-BANK02-2022-C02,Capital goods,2,Capital goods,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK02,2022,2168.1,S3-BANK02-2022-C03,Fuel- and energy-related activities,3,Fuel- and energy-related activities,True,average_data_method,spend_based_estimate,4.0,,True
+BANK02,2022,,S3-BANK02-2022-C04,Upstream transportation and distribution,4,Upstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK02,2022,389.3,S3-BANK02-2022-C05,Waste generated in operations,5,Waste generated in operations,True,average_data_method,spend_based_estimate,4.0,,True
+BANK02,2022,,S3-BANK02-2022-C06,Business travel (reported in operational Scope 3 travel),6,Business travel (reported in operational Scope 3 travel),True,reported_separately,cross_reference,,,True
+BANK02,2022,18996.1,S3-BANK02-2022-C07,Employee commuting,7,Employee commuting,True,average_data_method,spend_based_estimate,4.0,,True
+BANK02,2022,,S3-BANK02-2022-C08,Upstream leased assets,8,Upstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK02,2022,,S3-BANK02-2022-C09,Downstream transportation and distribution,9,Downstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK02,2022,,S3-BANK02-2022-C10,Processing of sold products,10,Processing of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK02,2022,,S3-BANK02-2022-C11,Use of sold products,11,Use of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK02,2022,,S3-BANK02-2022-C12,End-of-life treatment of sold products,12,End-of-life treatment of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK02,2022,,S3-BANK02-2022-C13,Downstream leased assets,13,Downstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK02,2022,,S3-BANK02-2022-C14,Franchises,14,Franchises,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK02,2022,,S3-BANK02-2022-C15,Financed emissions (reported in the financed-emissions section),15,Financed emissions (reported in the financed-emissions section),True,reported_separately,cross_reference,,,True
+BANK02,2023,11663.7,S3-BANK02-2023-C01,Purchased goods and services,1,Purchased goods and services,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK02,2023,3169.3,S3-BANK02-2023-C02,Capital goods,2,Capital goods,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK02,2023,2496.6,S3-BANK02-2023-C03,Fuel- and energy-related activities,3,Fuel- and energy-related activities,True,average_data_method,spend_based_estimate,4.0,,True
+BANK02,2023,,S3-BANK02-2023-C04,Upstream transportation and distribution,4,Upstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK02,2023,413.0,S3-BANK02-2023-C05,Waste generated in operations,5,Waste generated in operations,True,average_data_method,spend_based_estimate,4.0,,True
+BANK02,2023,,S3-BANK02-2023-C06,Business travel (reported in operational Scope 3 travel),6,Business travel (reported in operational Scope 3 travel),True,reported_separately,cross_reference,,,True
+BANK02,2023,20483.8,S3-BANK02-2023-C07,Employee commuting,7,Employee commuting,True,average_data_method,spend_based_estimate,4.0,,True
+BANK02,2023,,S3-BANK02-2023-C08,Upstream leased assets,8,Upstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK02,2023,,S3-BANK02-2023-C09,Downstream transportation and distribution,9,Downstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK02,2023,,S3-BANK02-2023-C10,Processing of sold products,10,Processing of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK02,2023,,S3-BANK02-2023-C11,Use of sold products,11,Use of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK02,2023,,S3-BANK02-2023-C12,End-of-life treatment of sold products,12,End-of-life treatment of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK02,2023,,S3-BANK02-2023-C13,Downstream leased assets,13,Downstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK02,2023,,S3-BANK02-2023-C14,Franchises,14,Franchises,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK02,2023,,S3-BANK02-2023-C15,Financed emissions (reported in the financed-emissions section),15,Financed emissions (reported in the financed-emissions section),True,reported_separately,cross_reference,,,True
+BANK02,2024,11414.2,S3-BANK02-2024-C01,Purchased goods and services,1,Purchased goods and services,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK02,2024,2643.2,S3-BANK02-2024-C02,Capital goods,2,Capital goods,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK02,2024,2156.3,S3-BANK02-2024-C03,Fuel- and energy-related activities,3,Fuel- and energy-related activities,True,average_data_method,spend_based_estimate,4.0,,True
+BANK02,2024,,S3-BANK02-2024-C04,Upstream transportation and distribution,4,Upstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK02,2024,375.7,S3-BANK02-2024-C05,Waste generated in operations,5,Waste generated in operations,True,average_data_method,spend_based_estimate,4.0,,True
+BANK02,2024,,S3-BANK02-2024-C06,Business travel (reported in operational Scope 3 travel),6,Business travel (reported in operational Scope 3 travel),True,reported_separately,cross_reference,,,True
+BANK02,2024,21069.0,S3-BANK02-2024-C07,Employee commuting,7,Employee commuting,True,average_data_method,spend_based_estimate,4.0,,True
+BANK02,2024,,S3-BANK02-2024-C08,Upstream leased assets,8,Upstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK02,2024,,S3-BANK02-2024-C09,Downstream transportation and distribution,9,Downstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK02,2024,,S3-BANK02-2024-C10,Processing of sold products,10,Processing of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK02,2024,,S3-BANK02-2024-C11,Use of sold products,11,Use of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK02,2024,,S3-BANK02-2024-C12,End-of-life treatment of sold products,12,End-of-life treatment of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK02,2024,,S3-BANK02-2024-C13,Downstream leased assets,13,Downstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK02,2024,,S3-BANK02-2024-C14,Franchises,14,Franchises,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK02,2024,,S3-BANK02-2024-C15,Financed emissions (reported in the financed-emissions section),15,Financed emissions (reported in the financed-emissions section),True,reported_separately,cross_reference,,,True
+BANK03,2022,2005.6,S3-BANK03-2022-C01,Purchased goods and services,1,Purchased goods and services,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK03,2022,516.4,S3-BANK03-2022-C02,Capital goods,2,Capital goods,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK03,2022,407.7,S3-BANK03-2022-C03,Fuel- and energy-related activities,3,Fuel- and energy-related activities,True,average_data_method,spend_based_estimate,4.0,,True
+BANK03,2022,,S3-BANK03-2022-C04,Upstream transportation and distribution,4,Upstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK03,2022,65.9,S3-BANK03-2022-C05,Waste generated in operations,5,Waste generated in operations,True,average_data_method,spend_based_estimate,4.0,,True
+BANK03,2022,,S3-BANK03-2022-C06,Business travel (reported in operational Scope 3 travel),6,Business travel (reported in operational Scope 3 travel),True,reported_separately,cross_reference,,,True
+BANK03,2022,5213.5,S3-BANK03-2022-C07,Employee commuting,7,Employee commuting,True,average_data_method,spend_based_estimate,4.0,,True
+BANK03,2022,,S3-BANK03-2022-C08,Upstream leased assets,8,Upstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK03,2022,,S3-BANK03-2022-C09,Downstream transportation and distribution,9,Downstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK03,2022,,S3-BANK03-2022-C10,Processing of sold products,10,Processing of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK03,2022,,S3-BANK03-2022-C11,Use of sold products,11,Use of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK03,2022,,S3-BANK03-2022-C12,End-of-life treatment of sold products,12,End-of-life treatment of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK03,2022,,S3-BANK03-2022-C13,Downstream leased assets,13,Downstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK03,2022,,S3-BANK03-2022-C14,Franchises,14,Franchises,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK03,2022,,S3-BANK03-2022-C15,Financed emissions (reported in the financed-emissions section),15,Financed emissions (reported in the financed-emissions section),True,reported_separately,cross_reference,,,True
+BANK03,2023,2339.4,S3-BANK03-2023-C01,Purchased goods and services,1,Purchased goods and services,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK03,2023,630.6,S3-BANK03-2023-C02,Capital goods,2,Capital goods,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK03,2023,498.1,S3-BANK03-2023-C03,Fuel- and energy-related activities,3,Fuel- and energy-related activities,True,average_data_method,spend_based_estimate,4.0,,True
+BANK03,2023,,S3-BANK03-2023-C04,Upstream transportation and distribution,4,Upstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK03,2023,82.5,S3-BANK03-2023-C05,Waste generated in operations,5,Waste generated in operations,True,average_data_method,spend_based_estimate,4.0,,True
+BANK03,2023,,S3-BANK03-2023-C06,Business travel (reported in operational Scope 3 travel),6,Business travel (reported in operational Scope 3 travel),True,reported_separately,cross_reference,,,True
+BANK03,2023,5370.7,S3-BANK03-2023-C07,Employee commuting,7,Employee commuting,True,average_data_method,spend_based_estimate,4.0,,True
+BANK03,2023,,S3-BANK03-2023-C08,Upstream leased assets,8,Upstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK03,2023,,S3-BANK03-2023-C09,Downstream transportation and distribution,9,Downstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK03,2023,,S3-BANK03-2023-C10,Processing of sold products,10,Processing of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK03,2023,,S3-BANK03-2023-C11,Use of sold products,11,Use of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK03,2023,,S3-BANK03-2023-C12,End-of-life treatment of sold products,12,End-of-life treatment of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK03,2023,,S3-BANK03-2023-C13,Downstream leased assets,13,Downstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK03,2023,,S3-BANK03-2023-C14,Franchises,14,Franchises,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK03,2023,,S3-BANK03-2023-C15,Financed emissions (reported in the financed-emissions section),15,Financed emissions (reported in the financed-emissions section),True,reported_separately,cross_reference,,,True
+BANK03,2024,1923.2,S3-BANK03-2024-C01,Purchased goods and services,1,Purchased goods and services,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK03,2024,462.0,S3-BANK03-2024-C02,Capital goods,2,Capital goods,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK03,2024,350.0,S3-BANK03-2024-C03,Fuel- and energy-related activities,3,Fuel- and energy-related activities,True,average_data_method,spend_based_estimate,4.0,,True
+BANK03,2024,,S3-BANK03-2024-C04,Upstream transportation and distribution,4,Upstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK03,2024,62.6,S3-BANK03-2024-C05,Waste generated in operations,5,Waste generated in operations,True,average_data_method,spend_based_estimate,4.0,,True
+BANK03,2024,,S3-BANK03-2024-C06,Business travel (reported in operational Scope 3 travel),6,Business travel (reported in operational Scope 3 travel),True,reported_separately,cross_reference,,,True
+BANK03,2024,5241.3,S3-BANK03-2024-C07,Employee commuting,7,Employee commuting,True,average_data_method,spend_based_estimate,4.0,,True
+BANK03,2024,,S3-BANK03-2024-C08,Upstream leased assets,8,Upstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK03,2024,,S3-BANK03-2024-C09,Downstream transportation and distribution,9,Downstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK03,2024,,S3-BANK03-2024-C10,Processing of sold products,10,Processing of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK03,2024,,S3-BANK03-2024-C11,Use of sold products,11,Use of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK03,2024,,S3-BANK03-2024-C12,End-of-life treatment of sold products,12,End-of-life treatment of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK03,2024,,S3-BANK03-2024-C13,Downstream leased assets,13,Downstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK03,2024,,S3-BANK03-2024-C14,Franchises,14,Franchises,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK03,2024,,S3-BANK03-2024-C15,Financed emissions (reported in the financed-emissions section),15,Financed emissions (reported in the financed-emissions section),True,reported_separately,cross_reference,,,True
+BANK04,2022,321.0,S3-BANK04-2022-C01,Purchased goods and services,1,Purchased goods and services,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK04,2022,84.2,S3-BANK04-2022-C02,Capital goods,2,Capital goods,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK04,2022,67.4,S3-BANK04-2022-C03,Fuel- and energy-related activities,3,Fuel- and energy-related activities,True,average_data_method,spend_based_estimate,4.0,,True
+BANK04,2022,,S3-BANK04-2022-C04,Upstream transportation and distribution,4,Upstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK04,2022,11.3,S3-BANK04-2022-C05,Waste generated in operations,5,Waste generated in operations,True,average_data_method,spend_based_estimate,4.0,,True
+BANK04,2022,,S3-BANK04-2022-C06,Business travel (reported in operational Scope 3 travel),6,Business travel (reported in operational Scope 3 travel),True,reported_separately,cross_reference,,,True
+BANK04,2022,547.3,S3-BANK04-2022-C07,Employee commuting,7,Employee commuting,True,average_data_method,spend_based_estimate,4.0,,True
+BANK04,2022,,S3-BANK04-2022-C08,Upstream leased assets,8,Upstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK04,2022,,S3-BANK04-2022-C09,Downstream transportation and distribution,9,Downstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK04,2022,,S3-BANK04-2022-C10,Processing of sold products,10,Processing of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK04,2022,,S3-BANK04-2022-C11,Use of sold products,11,Use of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK04,2022,,S3-BANK04-2022-C12,End-of-life treatment of sold products,12,End-of-life treatment of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK04,2022,,S3-BANK04-2022-C13,Downstream leased assets,13,Downstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK04,2022,,S3-BANK04-2022-C14,Franchises,14,Franchises,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK04,2022,,S3-BANK04-2022-C15,Financed emissions (reported in the financed-emissions section),15,Financed emissions (reported in the financed-emissions section),True,reported_separately,cross_reference,,,True
+BANK04,2023,294.8,S3-BANK04-2023-C01,Purchased goods and services,1,Purchased goods and services,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK04,2023,73.3,S3-BANK04-2023-C02,Capital goods,2,Capital goods,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK04,2023,62.2,S3-BANK04-2023-C03,Fuel- and energy-related activities,3,Fuel- and energy-related activities,True,average_data_method,spend_based_estimate,4.0,,True
+BANK04,2023,,S3-BANK04-2023-C04,Upstream transportation and distribution,4,Upstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK04,2023,10.3,S3-BANK04-2023-C05,Waste generated in operations,5,Waste generated in operations,True,average_data_method,spend_based_estimate,4.0,,True
+BANK04,2023,,S3-BANK04-2023-C06,Business travel (reported in operational Scope 3 travel),6,Business travel (reported in operational Scope 3 travel),True,reported_separately,cross_reference,,,True
+BANK04,2023,530.9,S3-BANK04-2023-C07,Employee commuting,7,Employee commuting,True,average_data_method,spend_based_estimate,4.0,,True
+BANK04,2023,,S3-BANK04-2023-C08,Upstream leased assets,8,Upstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK04,2023,,S3-BANK04-2023-C09,Downstream transportation and distribution,9,Downstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK04,2023,,S3-BANK04-2023-C10,Processing of sold products,10,Processing of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK04,2023,,S3-BANK04-2023-C11,Use of sold products,11,Use of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK04,2023,,S3-BANK04-2023-C12,End-of-life treatment of sold products,12,End-of-life treatment of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK04,2023,,S3-BANK04-2023-C13,Downstream leased assets,13,Downstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK04,2023,,S3-BANK04-2023-C14,Franchises,14,Franchises,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK04,2023,,S3-BANK04-2023-C15,Financed emissions (reported in the financed-emissions section),15,Financed emissions (reported in the financed-emissions section),True,reported_separately,cross_reference,,,True
+BANK04,2024,335.5,S3-BANK04-2024-C01,Purchased goods and services,1,Purchased goods and services,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK04,2024,88.4,S3-BANK04-2024-C02,Capital goods,2,Capital goods,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK04,2024,71.9,S3-BANK04-2024-C03,Fuel- and energy-related activities,3,Fuel- and energy-related activities,True,average_data_method,spend_based_estimate,4.0,,True
+BANK04,2024,,S3-BANK04-2024-C04,Upstream transportation and distribution,4,Upstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK04,2024,11.2,S3-BANK04-2024-C05,Waste generated in operations,5,Waste generated in operations,True,average_data_method,spend_based_estimate,4.0,,True
+BANK04,2024,,S3-BANK04-2024-C06,Business travel (reported in operational Scope 3 travel),6,Business travel (reported in operational Scope 3 travel),True,reported_separately,cross_reference,,,True
+BANK04,2024,527.6,S3-BANK04-2024-C07,Employee commuting,7,Employee commuting,True,average_data_method,spend_based_estimate,4.0,,True
+BANK04,2024,,S3-BANK04-2024-C08,Upstream leased assets,8,Upstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK04,2024,,S3-BANK04-2024-C09,Downstream transportation and distribution,9,Downstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK04,2024,,S3-BANK04-2024-C10,Processing of sold products,10,Processing of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK04,2024,,S3-BANK04-2024-C11,Use of sold products,11,Use of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK04,2024,,S3-BANK04-2024-C12,End-of-life treatment of sold products,12,End-of-life treatment of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK04,2024,,S3-BANK04-2024-C13,Downstream leased assets,13,Downstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK04,2024,,S3-BANK04-2024-C14,Franchises,14,Franchises,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK04,2024,,S3-BANK04-2024-C15,Financed emissions (reported in the financed-emissions section),15,Financed emissions (reported in the financed-emissions section),True,reported_separately,cross_reference,,,True
+BANK05,2022,1091.4,S3-BANK05-2022-C01,Purchased goods and services,1,Purchased goods and services,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK05,2022,290.7,S3-BANK05-2022-C02,Capital goods,2,Capital goods,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK05,2022,226.0,S3-BANK05-2022-C03,Fuel- and energy-related activities,3,Fuel- and energy-related activities,True,average_data_method,spend_based_estimate,4.0,,True
+BANK05,2022,,S3-BANK05-2022-C04,Upstream transportation and distribution,4,Upstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK05,2022,36.0,S3-BANK05-2022-C05,Waste generated in operations,5,Waste generated in operations,True,average_data_method,spend_based_estimate,4.0,,True
+BANK05,2022,,S3-BANK05-2022-C06,Business travel (reported in operational Scope 3 travel),6,Business travel (reported in operational Scope 3 travel),True,reported_separately,cross_reference,,,True
+BANK05,2022,1235.0,S3-BANK05-2022-C07,Employee commuting,7,Employee commuting,True,average_data_method,spend_based_estimate,4.0,,True
+BANK05,2022,,S3-BANK05-2022-C08,Upstream leased assets,8,Upstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK05,2022,,S3-BANK05-2022-C09,Downstream transportation and distribution,9,Downstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK05,2022,,S3-BANK05-2022-C10,Processing of sold products,10,Processing of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK05,2022,,S3-BANK05-2022-C11,Use of sold products,11,Use of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK05,2022,,S3-BANK05-2022-C12,End-of-life treatment of sold products,12,End-of-life treatment of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK05,2022,,S3-BANK05-2022-C13,Downstream leased assets,13,Downstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK05,2022,,S3-BANK05-2022-C14,Franchises,14,Franchises,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK05,2022,,S3-BANK05-2022-C15,Financed emissions (reported in the financed-emissions section),15,Financed emissions (reported in the financed-emissions section),True,reported_separately,cross_reference,,,True
+BANK05,2023,1106.0,S3-BANK05-2023-C01,Purchased goods and services,1,Purchased goods and services,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK05,2023,289.9,S3-BANK05-2023-C02,Capital goods,2,Capital goods,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK05,2023,241.0,S3-BANK05-2023-C03,Fuel- and energy-related activities,3,Fuel- and energy-related activities,True,average_data_method,spend_based_estimate,4.0,,True
+BANK05,2023,,S3-BANK05-2023-C04,Upstream transportation and distribution,4,Upstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK05,2023,40.4,S3-BANK05-2023-C05,Waste generated in operations,5,Waste generated in operations,True,average_data_method,spend_based_estimate,4.0,,True
+BANK05,2023,,S3-BANK05-2023-C06,Business travel (reported in operational Scope 3 travel),6,Business travel (reported in operational Scope 3 travel),True,reported_separately,cross_reference,,,True
+BANK05,2023,1184.5,S3-BANK05-2023-C07,Employee commuting,7,Employee commuting,True,average_data_method,spend_based_estimate,4.0,,True
+BANK05,2023,,S3-BANK05-2023-C08,Upstream leased assets,8,Upstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK05,2023,,S3-BANK05-2023-C09,Downstream transportation and distribution,9,Downstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK05,2023,,S3-BANK05-2023-C10,Processing of sold products,10,Processing of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK05,2023,,S3-BANK05-2023-C11,Use of sold products,11,Use of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK05,2023,,S3-BANK05-2023-C12,End-of-life treatment of sold products,12,End-of-life treatment of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK05,2023,,S3-BANK05-2023-C13,Downstream leased assets,13,Downstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK05,2023,,S3-BANK05-2023-C14,Franchises,14,Franchises,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK05,2023,,S3-BANK05-2023-C15,Financed emissions (reported in the financed-emissions section),15,Financed emissions (reported in the financed-emissions section),True,reported_separately,cross_reference,,,True
+BANK05,2024,1167.9,S3-BANK05-2024-C01,Purchased goods and services,1,Purchased goods and services,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK05,2024,304.8,S3-BANK05-2024-C02,Capital goods,2,Capital goods,True,spend_based_eeio,spend_based_estimate,4.0,,True
+BANK05,2024,241.7,S3-BANK05-2024-C03,Fuel- and energy-related activities,3,Fuel- and energy-related activities,True,average_data_method,spend_based_estimate,4.0,,True
+BANK05,2024,,S3-BANK05-2024-C04,Upstream transportation and distribution,4,Upstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK05,2024,40.0,S3-BANK05-2024-C05,Waste generated in operations,5,Waste generated in operations,True,average_data_method,spend_based_estimate,4.0,,True
+BANK05,2024,,S3-BANK05-2024-C06,Business travel (reported in operational Scope 3 travel),6,Business travel (reported in operational Scope 3 travel),True,reported_separately,cross_reference,,,True
+BANK05,2024,1191.7,S3-BANK05-2024-C07,Employee commuting,7,Employee commuting,True,average_data_method,spend_based_estimate,4.0,,True
+BANK05,2024,,S3-BANK05-2024-C08,Upstream leased assets,8,Upstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK05,2024,,S3-BANK05-2024-C09,Downstream transportation and distribution,9,Downstream transportation and distribution,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK05,2024,,S3-BANK05-2024-C10,Processing of sold products,10,Processing of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK05,2024,,S3-BANK05-2024-C11,Use of sold products,11,Use of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK05,2024,,S3-BANK05-2024-C12,End-of-life treatment of sold products,12,End-of-life treatment of sold products,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK05,2024,,S3-BANK05-2024-C13,Downstream leased assets,13,Downstream leased assets,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK05,2024,,S3-BANK05-2024-C14,Franchises,14,Franchises,False,,,,Not relevant to a banking business model / assessed not material,True
+BANK05,2024,,S3-BANK05-2024-C15,Financed emissions (reported in the financed-emissions section),15,Financed emissions (reported in the financed-emissions section),True,reported_separately,cross_reference,,,True

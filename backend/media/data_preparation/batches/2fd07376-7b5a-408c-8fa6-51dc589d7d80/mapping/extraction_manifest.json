@@ -1,0 +1,204 @@
+{
+  "batch_id": "2fd07376-7b5a-408c-8fa6-51dc589d7d80",
+  "extracted_folder": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted",
+  "files": [
+    {
+      "source_type": "csv",
+      "source_name": "carbon_credits.csv",
+      "extracted_filename": "carbon_credits.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\carbon_credits.csv",
+      "size_bytes": 4945
+    },
+    {
+      "source_type": "csv",
+      "source_name": "climate_financial_effects.csv",
+      "extracted_filename": "climate_financial_effects.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\climate_financial_effects.csv",
+      "size_bytes": 11090
+    },
+    {
+      "source_type": "csv",
+      "source_name": "climate_opportunities.csv",
+      "extracted_filename": "climate_opportunities.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\climate_opportunities.csv",
+      "size_bytes": 7048
+    },
+    {
+      "source_type": "csv",
+      "source_name": "climate_risk_register.csv",
+      "extracted_filename": "climate_risk_register.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\climate_risk_register.csv",
+      "size_bytes": 32388
+    },
+    {
+      "source_type": "csv",
+      "source_name": "climate_scenarios.csv",
+      "extracted_filename": "climate_scenarios.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\climate_scenarios.csv",
+      "size_bytes": 75090
+    },
+    {
+      "source_type": "csv",
+      "source_name": "collateral.csv",
+      "extracted_filename": "collateral.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\collateral.csv",
+      "size_bytes": 29632
+    },
+    {
+      "source_type": "csv",
+      "source_name": "counterparties.csv",
+      "extracted_filename": "counterparties.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\counterparties.csv",
+      "size_bytes": 46791
+    },
+    {
+      "source_type": "csv",
+      "source_name": "counterparty_emissions.csv",
+      "extracted_filename": "counterparty_emissions.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\counterparty_emissions.csv",
+      "size_bytes": 91694
+    },
+    {
+      "source_type": "csv",
+      "source_name": "employees.csv",
+      "extracted_filename": "employees.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\employees.csv",
+      "size_bytes": 1045
+    },
+    {
+      "source_type": "csv",
+      "source_name": "exposures.csv",
+      "extracted_filename": "exposures.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\exposures.csv",
+      "size_bytes": 78411
+    },
+    {
+      "source_type": "csv",
+      "source_name": "facilities.csv",
+      "extracted_filename": "facilities.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\facilities.csv",
+      "size_bytes": 4881
+    },
+    {
+      "source_type": "csv",
+      "source_name": "financial_summary.csv",
+      "extracted_filename": "financial_summary.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\financial_summary.csv",
+      "size_bytes": 2087
+    },
+    {
+      "source_type": "csv",
+      "source_name": "ghg_methodology.csv",
+      "extracted_filename": "ghg_methodology.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\ghg_methodology.csv",
+      "size_bytes": 5933
+    },
+    {
+      "source_type": "csv",
+      "source_name": "governance.csv",
+      "extracted_filename": "governance.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\governance.csv",
+      "size_bytes": 2939
+    },
+    {
+      "source_type": "csv",
+      "source_name": "internal_carbon_price.csv",
+      "extracted_filename": "internal_carbon_price.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\internal_carbon_price.csv",
+      "size_bytes": 1696
+    },
+    {
+      "source_type": "csv",
+      "source_name": "investments.csv",
+      "extracted_filename": "investments.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\investments.csv",
+      "size_bytes": 19688
+    },
+    {
+      "source_type": "csv",
+      "source_name": "physical_risk_exposures.csv",
+      "extracted_filename": "physical_risk_exposures.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\physical_risk_exposures.csv",
+      "size_bytes": 67997
+    },
+    {
+      "source_type": "csv",
+      "source_name": "rec_registry.csv",
+      "extracted_filename": "rec_registry.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\rec_registry.csv",
+      "size_bytes": 5739
+    },
+    {
+      "source_type": "csv",
+      "source_name": "resilience_assessment.csv",
+      "extracted_filename": "resilience_assessment.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\resilience_assessment.csv",
+      "size_bytes": 7624
+    },
+    {
+      "source_type": "csv",
+      "source_name": "scope12_consolidation.csv",
+      "extracted_filename": "scope12_consolidation.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\scope12_consolidation.csv",
+      "size_bytes": 5921
+    },
+    {
+      "source_type": "csv",
+      "source_name": "scope3_categories.csv",
+      "extracted_filename": "scope3_categories.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\scope3_categories.csv",
+      "size_bytes": 30782
+    },
+    {
+      "source_type": "csv",
+      "source_name": "source_systems.csv",
+      "extracted_filename": "source_systems.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\source_systems.csv",
+      "size_bytes": 717
+    },
+    {
+      "source_type": "csv",
+      "source_name": "targets.csv",
+      "extracted_filename": "targets.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\targets.csv",
+      "size_bytes": 4844
+    },
+    {
+      "source_type": "csv",
+      "source_name": "transition_plan.csv",
+      "extracted_filename": "transition_plan.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\transition_plan.csv",
+      "size_bytes": 3886
+    },
+    {
+      "source_type": "csv",
+      "source_name": "travel_records.csv",
+      "extracted_filename": "travel_records.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\travel_records.csv",
+      "size_bytes": 207701
+    },
+    {
+      "source_type": "csv",
+      "source_name": "utility_invoices.csv",
+      "extracted_filename": "utility_invoices.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\utility_invoices.csv",
+      "size_bytes": 354037
+    },
+    {
+      "source_type": "csv",
+      "source_name": "value_chain_map.csv",
+      "extracted_filename": "value_chain_map.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\value_chain_map.csv",
+      "size_bytes": 18694
+    },
+    {
+      "source_type": "csv",
+      "source_name": "vehicles.csv",
+      "extracted_filename": "vehicles.csv",
+      "extracted_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\2fd07376-7b5a-408c-8fa6-51dc589d7d80\\extracted\\vehicles.csv",
+      "size_bytes": 77291
+    }
+  ],
+  "errors": [],
+  "total_extracted_csv_files": 28
+}

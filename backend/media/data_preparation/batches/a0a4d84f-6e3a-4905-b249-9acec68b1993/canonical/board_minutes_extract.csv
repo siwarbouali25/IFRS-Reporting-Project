@@ -1,0 +1,155 @@
+meeting_id,bank_id,meeting_date,committee_name,committee_type,reporting_year,climate_agenda_flag,climate_topics_discussed,decision_made_flag,decision_summary,ifrs_s2_para_evidence,quorum_reached,members_present
+MTG-BANK01-FB-2022-001,BANK01,2022-01-12,Full Board,full_board,2022,True,transition_plan_review|exec_remuneration_esg_kpis,True,Approved 2024 ESG report for publication,§6(a)(v),True,7
+MTG-BANK01-FB-2022-002,BANK01,2022-04-12,Full Board,full_board,2022,True,carbon_credit_approval,False,,§6(a)(iii),False,8
+MTG-BANK01-FB-2022-003,BANK01,2022-07-08,Full Board,full_board,2022,True,exec_remuneration_esg_kpis|tcfd_review|carbon_credit_approval,False,,§6(a)(iii),True,8
+MTG-BANK01-FB-2022-004,BANK01,2022-10-11,Full Board,full_board,2022,True,carbon_credit_approval,True,Approved carbon credit procurement budget,§6(a)(iii),True,9
+MTG-BANK01-ESG-2022-005,BANK01,2022-07-01,ESG & Sustainability Committee,esg_committee,2022,True,net_zero_progress|carbon_credit_approval|tcfd_review,False,,§6(a)(iii),True,5
+MTG-BANK01-ESG-2022-006,BANK01,2022-10-03,ESG & Sustainability Committee,esg_committee,2022,True,transition_plan_review|physical_risk_update|tcfd_review|scenario_analysis,False,,§6(a)(iii),True,4
+MTG-BANK01-ESG-2022-007,BANK01,2022-03-28,ESG & Sustainability Committee,esg_committee,2022,True,physical_risk_update|transition_plan_review|carbon_credit_approval,True,Approved 2024 ESG report for publication,§6(a)(v),True,4
+MTG-BANK01-ESG-2022-008,BANK01,2022-08-25,ESG & Sustainability Committee,esg_committee,2022,True,transition_plan_review|green_finance_growth|net_zero_progress|scenario_analysis,True,Endorsed updated transition plan,§6(a)(v),True,3
+MTG-BANK01-ESG-2022-009,BANK01,2022-04-04,ESG & Sustainability Committee,esg_committee,2022,True,scenario_analysis|transition_plan_review|tcfd_review|exec_remuneration_esg_kpis,False,,§6(a)(iii),True,5
+MTG-BANK01-FB-2023-001,BANK01,2023-01-13,Full Board,full_board,2023,True,green_finance_growth,True,Approved 2024 ESG report for publication,§6(a)(v),True,8
+MTG-BANK01-FB-2023-002,BANK01,2023-04-25,Full Board,full_board,2023,True,green_finance_growth|exec_remuneration_esg_kpis|carbon_credit_approval,True,Endorsed net-zero interim target revision,§6(a)(iii),True,9
+MTG-BANK01-FB-2023-003,BANK01,2023-07-11,Full Board,full_board,2023,True,transition_plan_review,False,,§6(a)(iii),True,8
+MTG-BANK01-FB-2023-004,BANK01,2023-10-30,Full Board,full_board,2023,True,exec_remuneration_esg_kpis|green_finance_growth|transition_plan_review,True,Endorsed net-zero interim target revision,§6(a)(iii),True,9
+MTG-BANK01-FB-2023-005,BANK01,2023-11-16,Full Board,full_board,2023,True,scenario_analysis|transition_plan_review,True,Approved carbon credit procurement budget,§6(a)(iii),True,10
+MTG-BANK01-FB-2023-006,BANK01,2023-03-20,Full Board,full_board,2023,False,,False,,§6(a)(iii),True,9
+MTG-BANK01-FB-2023-007,BANK01,2023-10-19,Full Board,full_board,2023,True,net_zero_progress,True,Approved carbon credit procurement budget,§6(a)(iii),True,10
+MTG-BANK01-ESG-2023-008,BANK01,2023-12-22,ESG & Sustainability Committee,esg_committee,2023,True,carbon_credit_approval|physical_risk_update,True,Approved 2024 ESG report for publication,§6(a)(v),True,4
+MTG-BANK01-ESG-2023-009,BANK01,2023-07-10,ESG & Sustainability Committee,esg_committee,2023,True,net_zero_progress|scenario_analysis|tcfd_review,False,,§6(a)(iii),False,5
+MTG-BANK01-ESG-2023-010,BANK01,2023-04-17,ESG & Sustainability Committee,esg_committee,2023,True,exec_remuneration_esg_kpis|carbon_credit_approval|physical_risk_update|tcfd_review,True,Approved climate scenario analysis methodology,§6(a)(v),True,4
+MTG-BANK01-ESG-2023-011,BANK01,2023-09-04,ESG & Sustainability Committee,esg_committee,2023,True,physical_risk_update|transition_plan_review|tcfd_review,False,,§6(a)(iii),True,5
+MTG-BANK01-ESG-2023-012,BANK01,2023-08-18,ESG & Sustainability Committee,esg_committee,2023,True,exec_remuneration_esg_kpis|transition_plan_review|green_finance_growth|scenario_analysis,False,,§6(a)(iii),True,5
+MTG-BANK01-ESG-2023-013,BANK01,2023-09-25,ESG & Sustainability Committee,esg_committee,2023,True,green_finance_growth|scenario_analysis|tcfd_review|carbon_credit_approval,True,Endorsed updated transition plan,§6(a)(v),True,5
+MTG-BANK01-FB-2024-001,BANK01,2024-01-24,Full Board,full_board,2024,True,transition_plan_review|carbon_credit_approval,True,Approved 2024 ESG report for publication,§6(a)(v),True,9
+MTG-BANK01-FB-2024-002,BANK01,2024-04-12,Full Board,full_board,2024,True,tcfd_review,False,,§6(a)(iii),True,9
+MTG-BANK01-FB-2024-003,BANK01,2024-07-17,Full Board,full_board,2024,True,transition_plan_review,True,Approved climate scenario analysis methodology,§6(a)(iii),True,10
+MTG-BANK01-FB-2024-004,BANK01,2024-10-07,Full Board,full_board,2024,True,tcfd_review|green_finance_growth,True,Endorsed updated transition plan,§6(a)(iii),True,10
+MTG-BANK01-FB-2024-005,BANK01,2024-11-04,Full Board,full_board,2024,True,tcfd_review,False,,§6(a)(iii),True,10
+MTG-BANK01-FB-2024-006,BANK01,2024-03-18,Full Board,full_board,2024,True,tcfd_review|green_finance_growth|exec_remuneration_esg_kpis,False,,§6(a)(iii),False,10
+MTG-BANK01-FB-2024-007,BANK01,2024-11-01,Full Board,full_board,2024,True,net_zero_progress,True,Endorsed net-zero interim target revision,§6(a)(iii),True,6
+MTG-BANK01-FB-2024-008,BANK01,2024-11-26,Full Board,full_board,2024,True,exec_remuneration_esg_kpis|physical_risk_update,True,Approved carbon credit procurement budget,§6(a)(iii),True,10
+MTG-BANK01-ESG-2024-009,BANK01,2024-07-19,ESG & Sustainability Committee,esg_committee,2024,True,transition_plan_review|scenario_analysis,True,Approved carbon credit procurement budget,§6(a)(v),True,5
+MTG-BANK01-ESG-2024-010,BANK01,2024-04-15,ESG & Sustainability Committee,esg_committee,2024,True,physical_risk_update|tcfd_review|transition_plan_review,True,Approved carbon credit procurement budget,§6(a)(v),True,5
+MTG-BANK01-ESG-2024-011,BANK01,2024-04-15,ESG & Sustainability Committee,esg_committee,2024,True,tcfd_review|physical_risk_update,True,Approved climate scenario analysis methodology,§6(a)(v),True,5
+MTG-BANK01-ESG-2024-012,BANK01,2024-08-29,ESG & Sustainability Committee,esg_committee,2024,True,tcfd_review|exec_remuneration_esg_kpis,True,Approved climate scenario analysis methodology,§6(a)(v),True,4
+MTG-BANK01-ESG-2024-013,BANK01,2024-07-15,ESG & Sustainability Committee,esg_committee,2024,True,exec_remuneration_esg_kpis|carbon_credit_approval|net_zero_progress,False,,§6(a)(iii),True,5
+MTG-BANK01-ESG-2024-014,BANK01,2024-06-10,ESG & Sustainability Committee,esg_committee,2024,True,net_zero_progress|exec_remuneration_esg_kpis,True,Approved climate scenario analysis methodology,§6(a)(v),True,5
+MTG-BANK01-ESG-2024-015,BANK01,2024-05-20,ESG & Sustainability Committee,esg_committee,2024,True,net_zero_progress|physical_risk_update,True,Approved carbon credit procurement budget,§6(a)(v),False,5
+MTG-BANK02-FB-2022-001,BANK02,2022-01-13,Full Board,full_board,2022,True,green_finance_growth|net_zero_progress|carbon_credit_approval,True,Approved 2024 ESG report for publication,§6(a)(v),True,5
+MTG-BANK02-FB-2022-002,BANK02,2022-04-18,Full Board,full_board,2022,True,physical_risk_update|exec_remuneration_esg_kpis,True,Approved 2024 ESG report for publication,§6(a)(iii),True,7
+MTG-BANK02-FB-2022-003,BANK02,2022-07-18,Full Board,full_board,2022,False,,False,,§6(a)(iii),True,8
+MTG-BANK02-FB-2022-004,BANK02,2022-10-20,Full Board,full_board,2022,True,tcfd_review|physical_risk_update,False,,§6(a)(iii),True,9
+MTG-BANK02-FB-2022-005,BANK02,2022-09-06,Full Board,full_board,2022,True,green_finance_growth|physical_risk_update|scenario_analysis,True,Approved climate scenario analysis methodology,§6(a)(iii),True,8
+MTG-BANK02-FB-2022-006,BANK02,2022-01-31,Full Board,full_board,2022,False,,False,,§6(a)(iii),True,4
+MTG-BANK02-ESG-2022-007,BANK02,2022-04-07,ESG & Sustainability Committee,esg_committee,2022,True,carbon_credit_approval|physical_risk_update,True,Approved carbon credit procurement budget,§6(a)(v),True,3
+MTG-BANK02-ESG-2022-008,BANK02,2022-10-10,ESG & Sustainability Committee,esg_committee,2022,True,green_finance_growth|net_zero_progress,False,,§6(a)(iii),True,4
+MTG-BANK02-ESG-2022-009,BANK02,2022-09-05,ESG & Sustainability Committee,esg_committee,2022,True,scenario_analysis|carbon_credit_approval,True,Endorsed updated transition plan,§6(a)(v),True,3
+MTG-BANK02-ESG-2022-010,BANK02,2022-11-02,ESG & Sustainability Committee,esg_committee,2022,True,green_finance_growth|carbon_credit_approval|tcfd_review,True,Approved 2024 ESG report for publication,§6(a)(v),True,4
+MTG-BANK02-FB-2023-001,BANK02,2023-01-30,Full Board,full_board,2023,True,exec_remuneration_esg_kpis|scenario_analysis,True,Approved 2024 ESG report for publication,§6(a)(v),True,9
+MTG-BANK02-FB-2023-002,BANK02,2023-04-06,Full Board,full_board,2023,False,,False,,§6(a)(iii),True,6
+MTG-BANK02-FB-2023-003,BANK02,2023-07-11,Full Board,full_board,2023,True,scenario_analysis,True,Approved carbon credit procurement budget,§6(a)(iii),True,9
+MTG-BANK02-FB-2023-004,BANK02,2023-10-16,Full Board,full_board,2023,False,,False,,§6(a)(iii),True,7
+MTG-BANK02-FB-2023-005,BANK02,2023-04-03,Full Board,full_board,2023,False,,False,,§6(a)(iii),True,6
+MTG-BANK02-FB-2023-006,BANK02,2023-06-12,Full Board,full_board,2023,False,,False,,§6(a)(iii),True,8
+MTG-BANK02-ESG-2023-007,BANK02,2023-03-27,ESG & Sustainability Committee,esg_committee,2023,True,physical_risk_update|green_finance_growth|exec_remuneration_esg_kpis,True,Approved carbon credit procurement budget,§6(a)(v),True,4
+MTG-BANK02-ESG-2023-008,BANK02,2023-08-07,ESG & Sustainability Committee,esg_committee,2023,True,transition_plan_review|green_finance_growth,False,,§6(a)(iii),True,4
+MTG-BANK02-ESG-2023-009,BANK02,2023-06-09,ESG & Sustainability Committee,esg_committee,2023,True,scenario_analysis|net_zero_progress,True,Endorsed updated transition plan,§6(a)(v),True,4
+MTG-BANK02-ESG-2023-010,BANK02,2023-10-02,ESG & Sustainability Committee,esg_committee,2023,True,scenario_analysis|tcfd_review|green_finance_growth,True,Endorsed updated transition plan,§6(a)(v),True,4
+MTG-BANK02-FB-2024-001,BANK02,2024-01-22,Full Board,full_board,2024,True,tcfd_review,True,Approved 2024 ESG report for publication,§6(a)(v),True,8
+MTG-BANK02-FB-2024-002,BANK02,2024-04-15,Full Board,full_board,2024,True,scenario_analysis|carbon_credit_approval|tcfd_review,True,Approved carbon credit procurement budget,§6(a)(iii),True,7
+MTG-BANK02-FB-2024-003,BANK02,2024-07-29,Full Board,full_board,2024,True,green_finance_growth|scenario_analysis|carbon_credit_approval,False,,§6(a)(iii),True,8
+MTG-BANK02-FB-2024-004,BANK02,2024-10-21,Full Board,full_board,2024,False,,False,,§6(a)(iii),True,9
+MTG-BANK02-ESG-2024-005,BANK02,2024-06-20,ESG & Sustainability Committee,esg_committee,2024,True,net_zero_progress|carbon_credit_approval,True,Approved carbon credit procurement budget,§6(a)(v),True,4
+MTG-BANK02-ESG-2024-006,BANK02,2024-02-19,ESG & Sustainability Committee,esg_committee,2024,True,transition_plan_review|scenario_analysis|net_zero_progress,False,,§6(a)(iii),True,4
+MTG-BANK02-ESG-2024-007,BANK02,2024-05-06,ESG & Sustainability Committee,esg_committee,2024,True,green_finance_growth|tcfd_review,False,,§6(a)(iii),True,4
+MTG-BANK02-ESG-2024-008,BANK02,2024-01-22,ESG & Sustainability Committee,esg_committee,2024,True,exec_remuneration_esg_kpis|physical_risk_update|carbon_credit_approval,True,Endorsed updated transition plan,§6(a)(v),True,4
+MTG-BANK03-FB-2022-001,BANK03,2022-01-03,Full Board,full_board,2022,True,carbon_credit_approval|green_finance_growth,True,Approved 2024 ESG report for publication,§6(a)(v),True,7
+MTG-BANK03-FB-2022-002,BANK03,2022-04-13,Full Board,full_board,2022,True,exec_remuneration_esg_kpis|net_zero_progress|tcfd_review,True,Approved green finance framework update,§6(a)(iii),True,10
+MTG-BANK03-FB-2022-003,BANK03,2022-07-12,Full Board,full_board,2022,True,carbon_credit_approval|net_zero_progress,False,,§6(a)(iii),True,9
+MTG-BANK03-FB-2022-004,BANK03,2022-10-17,Full Board,full_board,2022,False,,False,,§6(a)(iii),True,10
+MTG-BANK03-FB-2022-005,BANK03,2022-06-13,Full Board,full_board,2022,False,,False,,§6(a)(iii),True,9
+MTG-BANK03-ESG-2022-006,BANK03,2022-03-28,ESG & Sustainability Committee,esg_committee,2022,True,scenario_analysis|green_finance_growth,False,,§6(a)(iii),True,4
+MTG-BANK03-ESG-2022-007,BANK03,2022-10-03,ESG & Sustainability Committee,esg_committee,2022,True,exec_remuneration_esg_kpis|tcfd_review|green_finance_growth|net_zero_progress,True,Approved climate scenario analysis methodology,§6(a)(v),True,4
+MTG-BANK03-ESG-2022-008,BANK03,2022-12-05,ESG & Sustainability Committee,esg_committee,2022,True,exec_remuneration_esg_kpis|transition_plan_review,False,,§6(a)(iii),True,5
+MTG-BANK03-ESG-2022-009,BANK03,2022-04-06,ESG & Sustainability Committee,esg_committee,2022,True,transition_plan_review|physical_risk_update|exec_remuneration_esg_kpis,False,,§6(a)(iii),True,4
+MTG-BANK03-FB-2023-001,BANK03,2023-01-19,Full Board,full_board,2023,True,carbon_credit_approval|tcfd_review,True,Approved 2024 ESG report for publication,§6(a)(v),True,9
+MTG-BANK03-FB-2023-002,BANK03,2023-04-20,Full Board,full_board,2023,True,tcfd_review,True,Approved 2024 ESG report for publication,§6(a)(iii),True,9
+MTG-BANK03-FB-2023-003,BANK03,2023-07-20,Full Board,full_board,2023,False,,False,,§6(a)(iii),True,10
+MTG-BANK03-FB-2023-004,BANK03,2023-10-16,Full Board,full_board,2023,True,transition_plan_review,True,Approved climate scenario analysis methodology,§6(a)(iii),True,5
+MTG-BANK03-ESG-2023-005,BANK03,2023-09-18,ESG & Sustainability Committee,esg_committee,2023,True,green_finance_growth|exec_remuneration_esg_kpis,True,Approved climate scenario analysis methodology,§6(a)(v),True,4
+MTG-BANK03-ESG-2023-006,BANK03,2023-02-01,ESG & Sustainability Committee,esg_committee,2023,True,carbon_credit_approval|net_zero_progress|scenario_analysis,True,Endorsed updated transition plan,§6(a)(v),True,5
+MTG-BANK03-ESG-2023-007,BANK03,2023-08-09,ESG & Sustainability Committee,esg_committee,2023,True,exec_remuneration_esg_kpis|carbon_credit_approval|green_finance_growth|net_zero_progress,False,,§6(a)(iii),True,4
+MTG-BANK03-ESG-2023-008,BANK03,2023-12-15,ESG & Sustainability Committee,esg_committee,2023,True,carbon_credit_approval|green_finance_growth|exec_remuneration_esg_kpis|tcfd_review,True,Endorsed updated transition plan,§6(a)(v),True,4
+MTG-BANK03-FB-2024-001,BANK03,2024-01-15,Full Board,full_board,2024,True,exec_remuneration_esg_kpis,True,Approved 2024 ESG report for publication,§6(a)(v),True,9
+MTG-BANK03-FB-2024-002,BANK03,2024-04-29,Full Board,full_board,2024,True,net_zero_progress|scenario_analysis,False,,§6(a)(iii),True,10
+MTG-BANK03-FB-2024-003,BANK03,2024-07-25,Full Board,full_board,2024,True,net_zero_progress,True,Approved carbon credit procurement budget,§6(a)(iii),True,8
+MTG-BANK03-FB-2024-004,BANK03,2024-10-18,Full Board,full_board,2024,True,exec_remuneration_esg_kpis|green_finance_growth|tcfd_review,True,Endorsed net-zero interim target revision,§6(a)(iii),True,9
+MTG-BANK03-ESG-2024-005,BANK03,2024-10-29,ESG & Sustainability Committee,esg_committee,2024,True,physical_risk_update|exec_remuneration_esg_kpis|carbon_credit_approval,False,,§6(a)(iii),False,4
+MTG-BANK03-ESG-2024-006,BANK03,2024-02-12,ESG & Sustainability Committee,esg_committee,2024,True,carbon_credit_approval|scenario_analysis|physical_risk_update,True,Approved green finance framework update,§6(a)(v),True,5
+MTG-BANK03-ESG-2024-007,BANK03,2024-05-07,ESG & Sustainability Committee,esg_committee,2024,True,net_zero_progress|green_finance_growth,False,,§6(a)(iii),True,4
+MTG-BANK03-ESG-2024-008,BANK03,2024-11-18,ESG & Sustainability Committee,esg_committee,2024,True,tcfd_review|physical_risk_update|scenario_analysis|transition_plan_review,True,Approved 2024 ESG report for publication,§6(a)(v),True,4
+MTG-BANK04-FB-2022-001,BANK04,2022-01-18,Full Board,full_board,2022,True,net_zero_progress|carbon_credit_approval,True,Approved 2024 ESG report for publication,§6(a)(v),True,10
+MTG-BANK04-FB-2022-002,BANK04,2022-04-18,Full Board,full_board,2022,True,physical_risk_update,False,,§6(a)(iii),True,9
+MTG-BANK04-FB-2022-003,BANK04,2022-07-07,Full Board,full_board,2022,True,carbon_credit_approval|transition_plan_review,False,,§6(a)(iii),True,10
+MTG-BANK04-FB-2022-004,BANK04,2022-10-25,Full Board,full_board,2022,True,green_finance_growth|net_zero_progress,True,Approved green finance framework update,§6(a)(iii),True,12
+MTG-BANK04-FB-2022-005,BANK04,2022-01-24,Full Board,full_board,2022,True,exec_remuneration_esg_kpis|net_zero_progress|carbon_credit_approval,True,Approved carbon credit procurement budget,§6(a)(iii),True,7
+MTG-BANK04-FB-2022-006,BANK04,2022-04-18,Full Board,full_board,2022,True,carbon_credit_approval|transition_plan_review|tcfd_review,False,,§6(a)(iii),True,10
+MTG-BANK04-FB-2022-007,BANK04,2022-03-18,Full Board,full_board,2022,True,transition_plan_review|green_finance_growth,False,,§6(a)(iii),True,12
+MTG-BANK04-FB-2022-008,BANK04,2022-01-24,Full Board,full_board,2022,True,physical_risk_update|scenario_analysis,True,Approved carbon credit procurement budget,§6(a)(iii),True,11
+MTG-BANK04-ESG-2022-009,BANK04,2022-06-13,ESG & Sustainability Committee,esg_committee,2022,True,exec_remuneration_esg_kpis|physical_risk_update,True,Endorsed net-zero interim target revision,§6(a)(v),True,5
+MTG-BANK04-ESG-2022-010,BANK04,2022-09-09,ESG & Sustainability Committee,esg_committee,2022,True,tcfd_review|carbon_credit_approval|transition_plan_review|net_zero_progress,True,Approved 2024 ESG report for publication,§6(a)(v),True,6
+MTG-BANK04-ESG-2022-011,BANK04,2022-11-28,ESG & Sustainability Committee,esg_committee,2022,True,exec_remuneration_esg_kpis|carbon_credit_approval|scenario_analysis,True,Endorsed net-zero interim target revision,§6(a)(v),False,5
+MTG-BANK04-ESG-2022-012,BANK04,2022-03-18,ESG & Sustainability Committee,esg_committee,2022,True,net_zero_progress|tcfd_review|scenario_analysis,False,,§6(a)(iii),True,5
+MTG-BANK04-ESG-2022-013,BANK04,2022-06-27,ESG & Sustainability Committee,esg_committee,2022,True,transition_plan_review|carbon_credit_approval|tcfd_review,True,Approved green finance framework update,§6(a)(v),True,6
+MTG-BANK04-ESG-2022-014,BANK04,2022-05-23,ESG & Sustainability Committee,esg_committee,2022,True,green_finance_growth|exec_remuneration_esg_kpis|transition_plan_review|carbon_credit_approval,False,,§6(a)(iii),True,6
+MTG-BANK04-ESG-2022-015,BANK04,2022-12-19,ESG & Sustainability Committee,esg_committee,2022,True,green_finance_growth|net_zero_progress,True,Endorsed net-zero interim target revision,§6(a)(v),True,6
+MTG-BANK04-ESG-2022-016,BANK04,2022-11-07,ESG & Sustainability Committee,esg_committee,2022,True,green_finance_growth|net_zero_progress,True,Endorsed updated transition plan,§6(a)(v),True,6
+MTG-BANK04-ESG-2022-017,BANK04,2022-01-12,ESG & Sustainability Committee,esg_committee,2022,True,net_zero_progress|tcfd_review,False,,§6(a)(iii),True,6
+MTG-BANK04-FB-2023-001,BANK04,2023-01-23,Full Board,full_board,2023,True,exec_remuneration_esg_kpis,True,Approved 2024 ESG report for publication,§6(a)(v),True,12
+MTG-BANK04-FB-2023-002,BANK04,2023-04-28,Full Board,full_board,2023,True,scenario_analysis|carbon_credit_approval,True,Approved carbon credit procurement budget,§6(a)(iii),True,11
+MTG-BANK04-FB-2023-003,BANK04,2023-07-05,Full Board,full_board,2023,False,,False,,§6(a)(iii),True,12
+MTG-BANK04-FB-2023-004,BANK04,2023-10-24,Full Board,full_board,2023,True,scenario_analysis|exec_remuneration_esg_kpis|physical_risk_update,True,Approved climate scenario analysis methodology,§6(a)(iii),True,10
+MTG-BANK04-ESG-2023-005,BANK04,2023-11-07,ESG & Sustainability Committee,esg_committee,2023,True,exec_remuneration_esg_kpis|scenario_analysis,True,Approved 2024 ESG report for publication,§6(a)(v),True,6
+MTG-BANK04-ESG-2023-006,BANK04,2023-10-16,ESG & Sustainability Committee,esg_committee,2023,True,exec_remuneration_esg_kpis|net_zero_progress|scenario_analysis|carbon_credit_approval,False,,§6(a)(iii),True,5
+MTG-BANK04-ESG-2023-007,BANK04,2023-09-19,ESG & Sustainability Committee,esg_committee,2023,True,exec_remuneration_esg_kpis|scenario_analysis|tcfd_review,True,Approved 2024 ESG report for publication,§6(a)(v),True,4
+MTG-BANK04-ESG-2023-008,BANK04,2023-09-12,ESG & Sustainability Committee,esg_committee,2023,True,net_zero_progress|carbon_credit_approval|scenario_analysis,False,,§6(a)(iii),True,6
+MTG-BANK04-ESG-2023-009,BANK04,2023-05-08,ESG & Sustainability Committee,esg_committee,2023,True,transition_plan_review|exec_remuneration_esg_kpis|carbon_credit_approval,True,Approved carbon credit procurement budget,§6(a)(v),True,4
+MTG-BANK04-ESG-2023-010,BANK04,2023-07-10,ESG & Sustainability Committee,esg_committee,2023,True,scenario_analysis|tcfd_review|exec_remuneration_esg_kpis|carbon_credit_approval,True,Approved climate scenario analysis methodology,§6(a)(v),True,5
+MTG-BANK04-ESG-2023-011,BANK04,2023-08-02,ESG & Sustainability Committee,esg_committee,2023,True,physical_risk_update|net_zero_progress|green_finance_growth,False,,§6(a)(iii),False,4
+MTG-BANK04-ESG-2023-012,BANK04,2023-04-10,ESG & Sustainability Committee,esg_committee,2023,True,green_finance_growth|carbon_credit_approval|physical_risk_update|tcfd_review,True,Approved carbon credit procurement budget,§6(a)(v),True,6
+MTG-BANK04-ESG-2023-013,BANK04,2023-07-12,ESG & Sustainability Committee,esg_committee,2023,True,scenario_analysis|transition_plan_review|net_zero_progress,False,,§6(a)(iii),True,5
+MTG-BANK04-ESG-2023-014,BANK04,2023-10-19,ESG & Sustainability Committee,esg_committee,2023,True,physical_risk_update|transition_plan_review|carbon_credit_approval|green_finance_growth,True,Endorsed net-zero interim target revision,§6(a)(v),True,4
+MTG-BANK04-FB-2024-001,BANK04,2024-01-08,Full Board,full_board,2024,True,exec_remuneration_esg_kpis,True,Approved 2024 ESG report for publication,§6(a)(v),True,9
+MTG-BANK04-FB-2024-002,BANK04,2024-04-25,Full Board,full_board,2024,True,carbon_credit_approval|tcfd_review|transition_plan_review,False,,§6(a)(iii),True,11
+MTG-BANK04-FB-2024-003,BANK04,2024-07-26,Full Board,full_board,2024,True,green_finance_growth|exec_remuneration_esg_kpis|scenario_analysis,True,Approved 2024 ESG report for publication,§6(a)(iii),True,11
+MTG-BANK04-FB-2024-004,BANK04,2024-10-02,Full Board,full_board,2024,True,scenario_analysis,True,Approved carbon credit procurement budget,§6(a)(iii),True,9
+MTG-BANK04-FB-2024-005,BANK04,2024-11-15,Full Board,full_board,2024,True,carbon_credit_approval,False,,§6(a)(iii),True,10
+MTG-BANK04-FB-2024-006,BANK04,2024-06-24,Full Board,full_board,2024,True,transition_plan_review,True,Endorsed net-zero interim target revision,§6(a)(iii),True,11
+MTG-BANK04-ESG-2024-007,BANK04,2024-09-09,ESG & Sustainability Committee,esg_committee,2024,True,carbon_credit_approval|scenario_analysis,False,,§6(a)(iii),True,5
+MTG-BANK04-ESG-2024-008,BANK04,2024-04-09,ESG & Sustainability Committee,esg_committee,2024,True,scenario_analysis|green_finance_growth,False,,§6(a)(iii),True,5
+MTG-BANK04-ESG-2024-009,BANK04,2024-10-28,ESG & Sustainability Committee,esg_committee,2024,True,scenario_analysis|carbon_credit_approval|transition_plan_review|green_finance_growth,False,,§6(a)(iii),True,5
+MTG-BANK04-ESG-2024-010,BANK04,2024-10-17,ESG & Sustainability Committee,esg_committee,2024,True,net_zero_progress|exec_remuneration_esg_kpis,True,Approved climate scenario analysis methodology,§6(a)(v),True,6
+MTG-BANK04-ESG-2024-011,BANK04,2024-08-23,ESG & Sustainability Committee,esg_committee,2024,True,exec_remuneration_esg_kpis|carbon_credit_approval|transition_plan_review,True,Approved 2024 ESG report for publication,§6(a)(v),True,5
+MTG-BANK04-ESG-2024-012,BANK04,2024-05-06,ESG & Sustainability Committee,esg_committee,2024,True,exec_remuneration_esg_kpis|green_finance_growth|transition_plan_review,True,Endorsed net-zero interim target revision,§6(a)(v),True,6
+MTG-BANK04-ESG-2024-013,BANK04,2024-06-05,ESG & Sustainability Committee,esg_committee,2024,True,carbon_credit_approval|transition_plan_review,True,Approved climate scenario analysis methodology,§6(a)(v),True,6
+MTG-BANK04-ESG-2024-014,BANK04,2024-07-29,ESG & Sustainability Committee,esg_committee,2024,True,green_finance_growth|exec_remuneration_esg_kpis|tcfd_review|transition_plan_review,True,Approved 2024 ESG report for publication,§6(a)(v),True,5
+MTG-BANK04-ESG-2024-015,BANK04,2024-11-19,ESG & Sustainability Committee,esg_committee,2024,True,green_finance_growth|exec_remuneration_esg_kpis|transition_plan_review,True,Approved climate scenario analysis methodology,§6(a)(v),True,6
+MTG-BANK04-ESG-2024-016,BANK04,2024-12-09,ESG & Sustainability Committee,esg_committee,2024,True,tcfd_review|net_zero_progress,False,,§6(a)(iii),True,6
+MTG-BANK04-ESG-2024-017,BANK04,2024-09-16,ESG & Sustainability Committee,esg_committee,2024,True,tcfd_review|physical_risk_update|net_zero_progress,False,,§6(a)(iii),True,6
+MTG-BANK05-FB-2022-001,BANK05,2022-01-19,Full Board,full_board,2022,True,net_zero_progress|scenario_analysis,True,Approved 2024 ESG report for publication,§6(a)(v),True,9
+MTG-BANK05-FB-2022-002,BANK05,2022-04-11,Full Board,full_board,2022,False,,False,,§6(a)(iii),True,9
+MTG-BANK05-FB-2022-003,BANK05,2022-07-19,Full Board,full_board,2022,False,,False,,§6(a)(iii),False,10
+MTG-BANK05-FB-2022-004,BANK05,2022-10-26,Full Board,full_board,2022,False,,False,,§6(a)(iii),True,11
+MTG-BANK05-FB-2023-001,BANK05,2023-01-04,Full Board,full_board,2023,True,tcfd_review,True,Approved 2024 ESG report for publication,§6(a)(v),True,11
+MTG-BANK05-FB-2023-002,BANK05,2023-04-17,Full Board,full_board,2023,False,,False,,§6(a)(iii),True,10
+MTG-BANK05-FB-2023-003,BANK05,2023-07-10,Full Board,full_board,2023,True,net_zero_progress,False,,§6(a)(iii),True,8
+MTG-BANK05-FB-2023-004,BANK05,2023-10-24,Full Board,full_board,2023,True,transition_plan_review|carbon_credit_approval,True,Approved green finance framework update,§6(a)(iii),True,10
+MTG-BANK05-FB-2023-005,BANK05,2023-10-11,Full Board,full_board,2023,True,exec_remuneration_esg_kpis,True,Endorsed updated transition plan,§6(a)(iii),True,9
+MTG-BANK05-FB-2023-006,BANK05,2023-02-09,Full Board,full_board,2023,False,,False,,§6(a)(iii),True,10
+MTG-BANK05-FB-2023-007,BANK05,2023-08-24,Full Board,full_board,2023,False,,False,,§6(a)(iii),True,11
+MTG-BANK05-FB-2024-001,BANK05,2024-01-23,Full Board,full_board,2024,True,transition_plan_review|carbon_credit_approval|net_zero_progress,True,Approved 2024 ESG report for publication,§6(a)(v),True,12
+MTG-BANK05-FB-2024-002,BANK05,2024-04-19,Full Board,full_board,2024,False,,False,,§6(a)(iii),True,11
+MTG-BANK05-FB-2024-003,BANK05,2024-07-16,Full Board,full_board,2024,False,,False,,§6(a)(iii),True,12
+MTG-BANK05-FB-2024-004,BANK05,2024-10-16,Full Board,full_board,2024,False,,False,,§6(a)(iii),True,11
+MTG-BANK05-FB-2024-005,BANK05,2024-08-14,Full Board,full_board,2024,False,,False,,§6(a)(iii),True,12

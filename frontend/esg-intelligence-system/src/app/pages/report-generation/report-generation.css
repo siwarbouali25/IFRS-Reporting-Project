@@ -17,7 +17,7 @@
 
 .report-page {
   min-height: 100vh;
-  padding: 28px;
+  padding: 24px;
   color: var(--text);
   background:
     radial-gradient(ellipse 50% 35% at 0% 0%, rgba(155, 92, 255, 0.18), transparent),
@@ -33,35 +33,35 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 30px 34px;
-  border-radius: 24px;
+  padding: 26px 30px;
+  border-radius: 22px;
   border: 1px solid var(--acid-border);
   background: var(--card);
-  margin-bottom: 22px;
-  gap: 24px;
+  margin-bottom: 18px;
+  gap: 22px;
 }
 
 .hero-actions,
 .progress-actions,
 .artifact-actions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
   flex-wrap: wrap;
 }
 
 .eyebrow,
 .standard {
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--purple-light);
-  margin: 0 0 10px;
+  margin: 0 0 8px;
 }
 
 h1 {
-  font-size: 36px;
+  font-size: 32px;
   font-weight: 800;
   margin: 0;
 }
@@ -78,8 +78,8 @@ h3 {
 
 .subtitle {
   color: var(--muted);
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: 13px;
+  line-height: 1.55;
   max-width: 720px;
 }
 
@@ -90,8 +90,9 @@ h3 {
 .download-btn,
 .disabled-btn {
   border: none;
-  padding: 12px 17px;
-  border-radius: 13px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 12px;
   font-weight: 900;
   cursor: pointer;
   white-space: nowrap;
@@ -125,12 +126,12 @@ h3 {
 /* Section labels */
 
 .section-label {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.22);
-  margin: 24px 0 12px;
+  margin: 17px 0 8px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -152,14 +153,9 @@ h3 {
 .preview-card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 20px;
-  margin-bottom: 20px;
-}
-
-/* More spacing before current request card */
-.progress-card {
-  margin-top: 20px;
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 18px;
 }
 
 /* Error */
@@ -168,26 +164,27 @@ h3 {
   border: 1px solid rgba(255, 80, 80, 0.4);
   background: rgba(255, 80, 80, 0.12);
   color: #ffb3b3;
-  padding: 14px 16px;
-  border-radius: 14px;
-  margin-bottom: 18px;
+  padding: 12px 14px;
+  border-radius: 13px;
+  margin-bottom: 16px;
+  font-size: 12px;
   font-weight: 700;
 }
 
-/* Smaller summary cards */
+/* Compact summary cards */
 
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+  gap: 10px;
 }
 
 .summary-card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 14px 16px;
-  min-height: 82px;
+  border-radius: 14px;
+  padding: 12px 14px;
+  min-height: 62px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -195,31 +192,31 @@ h3 {
 
 .summary-card p {
   color: var(--muted);
-  font-size: 11px;
-  margin: 0 0 6px;
+  font-size: 10px;
+  margin: 0 0 5px;
 }
 
 .summary-card h2 {
   margin: 0;
-  font-size: 20px;
-  line-height: 1.25;
+  font-size: 17px;
+  line-height: 1.2;
 }
 
 /* Status */
 
 .status-pill {
   display: inline-block;
-  padding: 7px 12px;
+  padding: 5px 10px;
   border-radius: 999px;
   text-transform: uppercase;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 900;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.6px;
 }
 
 .summary-card .status-pill {
-  padding: 6px 10px;
-  font-size: 9px;
+  padding: 5px 9px;
+  font-size: 8px;
 }
 
 .status-pill.success {
@@ -252,33 +249,38 @@ h3 {
   background: rgba(255, 255, 255, 0.04);
 }
 
-/* Progress */
+/* Compact progress card */
+
+.progress-card {
+  padding: 16px 18px;
+  margin-top: 18px;
+}
 
 .progress-header,
 .progress-meta {
   display: flex;
   justify-content: space-between;
-  gap: 18px;
+  gap: 14px;
   color: var(--muted);
-  font-size: 12px;
-  margin-bottom: 12px;
+  font-size: 11px;
+  margin-bottom: 10px;
   flex-wrap: wrap;
 }
 
 .progress-header strong,
 .progress-meta strong {
   color: var(--text);
-  font-size: 12px;
+  font-size: 11px;
   word-break: break-word;
 }
 
 .progress-track {
   width: 100%;
-  height: 13px;
+  height: 10px;
   border-radius: 999px;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.08);
-  margin: 16px 0 14px;
+  margin: 12px 0 12px;
 }
 
 .progress-fill {
@@ -293,53 +295,55 @@ h3 {
   color: var(--muted);
   background: rgba(155, 92, 255, 0.08);
   border: 1px solid var(--purple-border);
-  padding: 14px;
-  border-radius: 14px;
-  font-size: 13px;
-  line-height: 1.5;
-  margin: 16px 0;
+  padding: 12px;
+  border-radius: 13px;
+  font-size: 12px;
+  line-height: 1.45;
+  margin: 12px 0;
 }
 
-/* Pipeline */
+/* Compact pipeline */
 
 .pipeline-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 12px;
+  gap: 10px;
 }
 
 .pipeline-step {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 16px;
+  border-radius: 16px;
+  padding: 12px;
   display: flex;
-  gap: 12px;
-  min-height: 118px;
+  gap: 10px;
+  min-height: 84px;
 }
 
 .pipeline-step span {
-  min-width: 30px;
-  height: 30px;
+  min-width: 26px;
+  height: 26px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.06);
   color: var(--muted);
   display: grid;
   place-items: center;
+  font-size: 12px;
   font-weight: 900;
 }
 
 .pipeline-step strong {
   display: block;
-  margin-bottom: 6px;
-  font-size: 14px;
+  margin-bottom: 4px;
+  font-size: 12px;
+  line-height: 1.2;
 }
 
 .pipeline-step p {
   color: var(--muted);
   margin: 0;
-  font-size: 12px;
-  line-height: 1.45;
+  font-size: 10.5px;
+  line-height: 1.38;
 }
 
 .pipeline-step.completed {
@@ -369,17 +373,17 @@ h3 {
 
 .jobs-card {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .job-row {
   display: grid;
   grid-template-columns: 1.8fr 1fr 1.1fr 1.1fr auto;
-  gap: 16px;
+  gap: 14px;
   align-items: center;
-  padding: 14px;
+  padding: 12px;
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 14px;
   cursor: pointer;
   transition: 0.2s ease;
 }
@@ -390,11 +394,15 @@ h3 {
   background: rgba(214, 240, 0, 0.05);
 }
 
+.job-row strong {
+  font-size: 12px;
+}
+
 .job-row p,
 .job-row small {
   color: var(--muted);
-  margin: 5px 0 0;
-  font-size: 11px;
+  margin: 4px 0 0;
+  font-size: 10px;
   word-break: break-word;
 }
 
@@ -404,7 +412,7 @@ h3 {
   display: flex;
   justify-content: space-between;
   gap: 18px;
-  padding: 14px 0;
+  padding: 12px 0;
   border-bottom: 1px solid var(--border);
 }
 
@@ -414,18 +422,19 @@ h3 {
 
 .warning-item strong {
   color: var(--acid);
+  font-size: 12px;
 }
 
 .warning-item p {
   color: var(--muted);
-  margin: 6px 0 0;
-  font-size: 13px;
-  line-height: 1.5;
+  margin: 5px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .warning-item span {
   color: var(--purple-light);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 900;
   text-transform: uppercase;
 }
@@ -435,7 +444,7 @@ h3 {
 .artifacts-layout {
   display: grid;
   grid-template-columns: 0.85fr 1.15fr;
-  gap: 18px;
+  gap: 16px;
   align-items: start;
 }
 
@@ -443,11 +452,11 @@ h3 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 18px;
-  padding: 16px;
+  gap: 14px;
+  padding: 13px;
   border: 1px solid var(--border);
-  border-radius: 16px;
-  margin-bottom: 12px;
+  border-radius: 14px;
+  margin-bottom: 10px;
 }
 
 .artifact-item.final-artifact {
@@ -461,25 +470,25 @@ h3 {
 
 .artifact-item strong {
   color: var(--text);
-  font-size: 15px;
+  font-size: 13px;
 }
 
 .artifact-item p {
   color: var(--muted);
-  margin: 6px 0;
-  font-size: 12px;
-  line-height: 1.5;
+  margin: 5px 0;
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 .artifact-item small {
   color: var(--purple-light);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
 }
 
 .preview-card {
-  min-height: 520px;
-  max-height: 760px;
+  min-height: 500px;
+  max-height: 720px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -490,7 +499,11 @@ h3 {
   justify-content: space-between;
   gap: 14px;
   align-items: center;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
+}
+
+.preview-header h3 {
+  font-size: 16px;
 }
 
 .preview-body {
@@ -499,38 +512,38 @@ h3 {
   white-space: pre-wrap;
   background: rgba(255, 255, 255, 0.035);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 16px;
+  border-radius: 14px;
+  padding: 14px;
   color: #e8e8e8;
-  font-size: 12px;
-  line-height: 1.55;
+  font-size: 11px;
+  line-height: 1.5;
   margin: 0;
 }
 
 .empty-state {
   color: var(--muted);
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 /* Approval */
 
 .validation-card h3 {
-  margin: 0 0 18px;
-  font-size: 22px;
+  margin: 0 0 14px;
+  font-size: 18px;
 }
 
 .check-list {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .check {
   display: flex;
-  gap: 10px;
+  gap: 9px;
   align-items: center;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .check i {
@@ -538,19 +551,19 @@ h3 {
 }
 
 .approval-box {
-  min-width: 250px;
+  min-width: 230px;
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .pending {
   color: var(--purple-light);
   background: var(--purple-bg);
   border: 1px solid var(--purple-border);
-  padding: 8px 12px;
+  padding: 7px 11px;
   border-radius: 999px;
   text-align: center;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 900;
   text-transform: uppercase;
 }

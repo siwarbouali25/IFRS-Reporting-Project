@@ -1,0 +1,3947 @@
+{
+  "batch_id": "7123bd3a-948b-44db-8cdb-c8b37e9efeeb",
+  "extracted_folder": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted",
+  "total_csv_files": 30,
+  "detections": [
+    {
+      "source_filename": "banks.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\banks.csv",
+      "headers": [
+        "bank_id",
+        "bank_name",
+        "archetype",
+        "country",
+        "total_assets_meur",
+        "headcount",
+        "established_year",
+        "reporting_currency",
+        "fiscal_year_end",
+        "target_intensity_tco2e_per_meur",
+        "behavior",
+        "lei_code",
+        "boundary_type",
+        "regulatory_regime",
+        "in_scope_esg_flag",
+        "total_loans_meur",
+        "tier1_capital_meur",
+        "cet1_ratio_pct"
+      ],
+      "normalized_headers": [
+        "bank_id",
+        "bank_name",
+        "archetype",
+        "country",
+        "total_assets_meur",
+        "headcount",
+        "established_year",
+        "reporting_currency",
+        "fiscal_year_end",
+        "target_intensity_tco2e_per_meur",
+        "behavior",
+        "lei_code",
+        "boundary_type",
+        "regulatory_regime",
+        "in_scope_esg_flag",
+        "total_loans_meur",
+        "tier1_capital_meur",
+        "cet1_ratio_pct"
+      ],
+      "detected_table": "banks",
+      "confidence": 0.76,
+      "needs_review": false,
+      "top_candidates": [
+        {
+          "table_name": "banks",
+          "score": 19,
+          "confidence": 0.76,
+          "filename_score": 4,
+          "column_score": 15,
+          "matched_columns": [
+            "bank_id",
+            "bank_name",
+            "total_assets_meur",
+            "reporting_currency",
+            "fiscal_year_end"
+          ],
+          "missing_signature_columns": []
+        },
+        {
+          "table_name": "financial_summary",
+          "score": 9,
+          "confidence": 0.2903,
+          "filename_score": 0,
+          "column_score": 9,
+          "matched_columns": [
+            "bank_id",
+            "total_assets_meur",
+            "total_loans_meur"
+          ],
+          "missing_signature_columns": [
+            "reporting_year",
+            "green_loans_meur",
+            "total_revenue_meur",
+            "net_profit_meur"
+          ]
+        },
+        {
+          "table_name": "employees",
+          "score": 6,
+          "confidence": 0.2857,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "total_headcount"
+          ],
+          "missing_signature_columns": [
+            "reporting_year",
+            "female_pct",
+            "avg_training_hours_per_employee"
+          ]
+        },
+        {
+          "table_name": "facilities",
+          "score": 6,
+          "confidence": 0.2069,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "country"
+          ],
+          "missing_signature_columns": [
+            "facility_id",
+            "facility_type",
+            "city",
+            "floor_area_sqm",
+            "epc_rating"
+          ]
+        },
+        {
+          "table_name": "counterparties",
+          "score": 6,
+          "confidence": 0.2069,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "country"
+          ],
+          "missing_signature_columns": [
+            "counterparty_id",
+            "legal_name",
+            "nace_code",
+            "annual_revenue_meur",
+            "evic_meur"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "board_minutes_extract.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\board_minutes_extract.csv",
+      "headers": [
+        "meeting_id",
+        "bank_id",
+        "committee_name",
+        "committee_type",
+        "meeting_date",
+        "reporting_year",
+        "quorum_reached",
+        "members_present",
+        "climate_agenda_flag",
+        "climate_topics_discussed",
+        "decision_made_flag",
+        "decision_summary",
+        "ifrs_s2_para_evidence"
+      ],
+      "normalized_headers": [
+        "meeting_id",
+        "bank_id",
+        "committee_name",
+        "committee_type",
+        "meeting_date",
+        "reporting_year",
+        "quorum_reached",
+        "members_present",
+        "climate_agenda_flag",
+        "climate_topics_discussed",
+        "decision_made_flag",
+        "decision_summary",
+        "ifrs_s2_para_evidence"
+      ],
+      "detected_table": "board_minutes_extract",
+      "confidence": 0.8462,
+      "needs_review": false,
+      "top_candidates": [
+        {
+          "table_name": "board_minutes_extract",
+          "score": 22,
+          "confidence": 0.8462,
+          "filename_score": 4,
+          "column_score": 18,
+          "matched_columns": [
+            "meeting_id",
+            "committee_name",
+            "meeting_date",
+            "climate_agenda_flag",
+            "climate_topics_discussed",
+            "decision_summary"
+          ],
+          "missing_signature_columns": []
+        },
+        {
+          "table_name": "governance",
+          "score": 8,
+          "confidence": 0.2759,
+          "filename_score": 2,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "board_size",
+            "esg_committee_exists",
+            "board_climate_expertise_pct",
+            "external_assurance",
+            "erm_integration_flag"
+          ]
+        },
+        {
+          "table_name": "financial_summary",
+          "score": 6,
+          "confidence": 0.1935,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "total_assets_meur",
+            "total_loans_meur",
+            "green_loans_meur",
+            "total_revenue_meur",
+            "net_profit_meur"
+          ]
+        },
+        {
+          "table_name": "carbon_credits",
+          "score": 6,
+          "confidence": 0.2222,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "credit_id",
+            "credits_tco2e",
+            "use",
+            "retired_flag",
+            "permanence_years"
+          ]
+        },
+        {
+          "table_name": "internal_carbon_price",
+          "score": 6,
+          "confidence": 0.3333,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "price_eur_per_tco2e",
+            "scope"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "carbon_credits.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\carbon_credits.csv",
+      "headers": [
+        "credit_id",
+        "bank_id",
+        "registry",
+        "project_type",
+        "project_country",
+        "vintage_year",
+        "tonnes_co2e",
+        "price_per_tonne_eur",
+        "total_cost_eur",
+        "purchase_date",
+        "use",
+        "credit_type",
+        "underlying_mechanism",
+        "permanence_rating",
+        "additionality_verified",
+        "planned_flag",
+        "reporting_year",
+        "retirement_year",
+        "associated_target_id"
+      ],
+      "normalized_headers": [
+        "credit_id",
+        "bank_id",
+        "registry",
+        "project_type",
+        "project_country",
+        "vintage_year",
+        "tonnes_co2e",
+        "price_per_tonne_eur",
+        "total_cost_eur",
+        "purchase_date",
+        "use",
+        "credit_type",
+        "underlying_mechanism",
+        "permanence_rating",
+        "additionality_verified",
+        "planned_flag",
+        "reporting_year",
+        "retirement_year",
+        "associated_target_id"
+      ],
+      "detected_table": "carbon_credits",
+      "confidence": 0.5926,
+      "needs_review": false,
+      "top_candidates": [
+        {
+          "table_name": "carbon_credits",
+          "score": 16,
+          "confidence": 0.5926,
+          "filename_score": 4,
+          "column_score": 12,
+          "matched_columns": [
+            "credit_id",
+            "bank_id",
+            "reporting_year",
+            "use"
+          ],
+          "missing_signature_columns": [
+            "credits_tco2e",
+            "retired_flag",
+            "permanence_years"
+          ]
+        },
+        {
+          "table_name": "rec_registry",
+          "score": 9,
+          "confidence": 0.3462,
+          "filename_score": 0,
+          "column_score": 9,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year",
+            "registry"
+          ],
+          "missing_signature_columns": [
+            "certificate_id",
+            "volume_mwh",
+            "certificate_type"
+          ]
+        },
+        {
+          "table_name": "financial_summary",
+          "score": 6,
+          "confidence": 0.1935,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "total_assets_meur",
+            "total_loans_meur",
+            "green_loans_meur",
+            "total_revenue_meur",
+            "net_profit_meur"
+          ]
+        },
+        {
+          "table_name": "governance",
+          "score": 6,
+          "confidence": 0.2069,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "board_size",
+            "esg_committee_exists",
+            "board_climate_expertise_pct",
+            "external_assurance",
+            "erm_integration_flag"
+          ]
+        },
+        {
+          "table_name": "internal_carbon_price",
+          "score": 6,
+          "confidence": 0.3333,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "price_eur_per_tco2e",
+            "scope"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "climate_financial_effects.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\climate_financial_effects.csv",
+      "headers": [
+        "effect_id",
+        "bank_id",
+        "reporting_year",
+        "driver_type",
+        "linked_id",
+        "affected_statement",
+        "line_item",
+        "effect_timing",
+        "horizon",
+        "quantitative_effect_meur",
+        "qualitative_description",
+        "material_adjustment_next_period_flag",
+        "basis",
+        "is_synthetic"
+      ],
+      "normalized_headers": [
+        "effect_id",
+        "bank_id",
+        "reporting_year",
+        "driver_type",
+        "linked_id",
+        "affected_statement",
+        "line_item",
+        "effect_timing",
+        "horizon",
+        "quantitative_effect_meur",
+        "qualitative_description",
+        "material_adjustment_next_period_flag",
+        "basis",
+        "is_synthetic"
+      ],
+      "detected_table": "climate_financial_effects",
+      "confidence": 0.619,
+      "needs_review": false,
+      "top_candidates": [
+        {
+          "table_name": "climate_financial_effects",
+          "score": 13,
+          "confidence": 0.619,
+          "filename_score": 4,
+          "column_score": 9,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year",
+            "time_horizon"
+          ],
+          "missing_signature_columns": [
+            "effect_type",
+            "amount_meur"
+          ]
+        },
+        {
+          "table_name": "financial_summary",
+          "score": 6,
+          "confidence": 0.1935,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "total_assets_meur",
+            "total_loans_meur",
+            "green_loans_meur",
+            "total_revenue_meur",
+            "net_profit_meur"
+          ]
+        },
+        {
+          "table_name": "governance",
+          "score": 6,
+          "confidence": 0.2069,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "board_size",
+            "esg_committee_exists",
+            "board_climate_expertise_pct",
+            "external_assurance",
+            "erm_integration_flag"
+          ]
+        },
+        {
+          "table_name": "carbon_credits",
+          "score": 6,
+          "confidence": 0.2222,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "credit_id",
+            "credits_tco2e",
+            "use",
+            "retired_flag",
+            "permanence_years"
+          ]
+        },
+        {
+          "table_name": "internal_carbon_price",
+          "score": 6,
+          "confidence": 0.3333,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "price_eur_per_tco2e",
+            "scope"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "climate_opportunities.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\climate_opportunities.csv",
+      "headers": [
+        "opportunity_id",
+        "bank_id",
+        "reporting_year",
+        "opportunity_type",
+        "category",
+        "description",
+        "estimated_revenue_impact_meur",
+        "time_horizon",
+        "confidence_level",
+        "ifrs_s2_para_evidence",
+        "data_source",
+        "linked_risk_category"
+      ],
+      "normalized_headers": [
+        "opportunity_id",
+        "bank_id",
+        "reporting_year",
+        "opportunity_type",
+        "category",
+        "description",
+        "estimated_revenue_impact_meur",
+        "time_horizon",
+        "confidence_level",
+        "ifrs_s2_para_evidence",
+        "data_source",
+        "linked_risk_category"
+      ],
+      "detected_table": "climate_opportunities",
+      "confidence": 0.619,
+      "needs_review": false,
+      "top_candidates": [
+        {
+          "table_name": "climate_opportunities",
+          "score": 13,
+          "confidence": 0.619,
+          "filename_score": 4,
+          "column_score": 9,
+          "matched_columns": [
+            "opportunity_id",
+            "opportunity_category",
+            "time_horizon"
+          ],
+          "missing_signature_columns": [
+            "opportunity_name",
+            "financial_impact_meur"
+          ]
+        },
+        {
+          "table_name": "scope3_categories",
+          "score": 9,
+          "confidence": 0.5,
+          "filename_score": 0,
+          "column_score": 9,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year",
+            "scope3_category"
+          ],
+          "missing_signature_columns": [
+            "emissions_tco2e"
+          ]
+        },
+        {
+          "table_name": "climate_financial_effects",
+          "score": 9,
+          "confidence": 0.4286,
+          "filename_score": 0,
+          "column_score": 9,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year",
+            "time_horizon"
+          ],
+          "missing_signature_columns": [
+            "effect_type",
+            "amount_meur"
+          ]
+        },
+        {
+          "table_name": "financial_summary",
+          "score": 6,
+          "confidence": 0.1935,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "total_assets_meur",
+            "total_loans_meur",
+            "green_loans_meur",
+            "total_revenue_meur",
+            "net_profit_meur"
+          ]
+        },
+        {
+          "table_name": "governance",
+          "score": 6,
+          "confidence": 0.2069,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "board_size",
+            "esg_committee_exists",
+            "board_climate_expertise_pct",
+            "external_assurance",
+            "erm_integration_flag"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "climate_risk_register.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\climate_risk_register.csv",
+      "headers": [
+        "risk_id",
+        "bank_id",
+        "reporting_year",
+        "risk_name",
+        "risk_category",
+        "risk_description",
+        "time_horizon",
+        "likelihood_score",
+        "severity_score",
+        "risk_rating",
+        "financial_impact_meur",
+        "mitigation_actions",
+        "erm_integrated_flag",
+        "scenario_analysis_link",
+        "monitoring_frequency",
+        "changed_since_prior_period",
+        "ifrs_s2_para_evidence"
+      ],
+      "normalized_headers": [
+        "risk_id",
+        "bank_id",
+        "reporting_year",
+        "risk_name",
+        "risk_category",
+        "risk_description",
+        "time_horizon",
+        "likelihood_score",
+        "severity_score",
+        "risk_rating",
+        "financial_impact_meur",
+        "mitigation_actions",
+        "erm_integrated_flag",
+        "scenario_analysis_link",
+        "monitoring_frequency",
+        "changed_since_prior_period",
+        "ifrs_s2_para_evidence"
+      ],
+      "detected_table": "climate_risk_register",
+      "confidence": 0.9333,
+      "needs_review": false,
+      "top_candidates": [
+        {
+          "table_name": "climate_risk_register",
+          "score": 28,
+          "confidence": 0.9333,
+          "filename_score": 4,
+          "column_score": 24,
+          "matched_columns": [
+            "risk_id",
+            "risk_name",
+            "risk_category",
+            "risk_description",
+            "likelihood_score",
+            "severity_score",
+            "risk_rating",
+            "mitigation_actions"
+          ],
+          "missing_signature_columns": []
+        },
+        {
+          "table_name": "climate_financial_effects",
+          "score": 9,
+          "confidence": 0.4286,
+          "filename_score": 0,
+          "column_score": 9,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year",
+            "time_horizon"
+          ],
+          "missing_signature_columns": [
+            "effect_type",
+            "amount_meur"
+          ]
+        },
+        {
+          "table_name": "financial_summary",
+          "score": 6,
+          "confidence": 0.1935,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "total_assets_meur",
+            "total_loans_meur",
+            "green_loans_meur",
+            "total_revenue_meur",
+            "net_profit_meur"
+          ]
+        },
+        {
+          "table_name": "governance",
+          "score": 6,
+          "confidence": 0.2069,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "board_size",
+            "esg_committee_exists",
+            "board_climate_expertise_pct",
+            "external_assurance",
+            "erm_integration_flag"
+          ]
+        },
+        {
+          "table_name": "carbon_credits",
+          "score": 6,
+          "confidence": 0.2222,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "credit_id",
+            "credits_tco2e",
+            "use",
+            "retired_flag",
+            "permanence_years"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "climate_scenarios.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\climate_scenarios.csv",
+      "headers": [
+        "scenario_id",
+        "bank_id",
+        "scenario_name",
+        "scenario_type",
+        "framework",
+        "temperature_outcome_c",
+        "horizon",
+        "horizon_year",
+        "physical_risk_loss_pct_capital",
+        "transition_risk_loss_pct_capital",
+        "high_risk_exposure_pct",
+        "stranded_assets_estimate_meur",
+        "paris_aligned_flag",
+        "revenue_at_risk_meur",
+        "carbon_price_assumption_eur_per_tco2e",
+        "gdp_growth_assumption_pct",
+        "renewable_energy_share_pct",
+        "technology_readiness",
+        "scope_of_analysis",
+        "analysis_conducted_year",
+        "methodology_notes",
+        "resilience_assessment",
+        "scenario_magnitude_adjusted_flag"
+      ],
+      "normalized_headers": [
+        "scenario_id",
+        "bank_id",
+        "scenario_name",
+        "scenario_type",
+        "framework",
+        "temperature_outcome_c",
+        "horizon",
+        "horizon_year",
+        "physical_risk_loss_pct_capital",
+        "transition_risk_loss_pct_capital",
+        "high_risk_exposure_pct",
+        "stranded_assets_estimate_meur",
+        "paris_aligned_flag",
+        "revenue_at_risk_meur",
+        "carbon_price_assumption_eur_per_tco2e",
+        "gdp_growth_assumption_pct",
+        "renewable_energy_share_pct",
+        "technology_readiness",
+        "scope_of_analysis",
+        "analysis_conducted_year",
+        "methodology_notes",
+        "resilience_assessment",
+        "scenario_magnitude_adjusted_flag"
+      ],
+      "detected_table": "climate_scenarios",
+      "confidence": 0.8621,
+      "needs_review": false,
+      "top_candidates": [
+        {
+          "table_name": "climate_scenarios",
+          "score": 25,
+          "confidence": 0.8621,
+          "filename_score": 4,
+          "column_score": 21,
+          "matched_columns": [
+            "scenario_id",
+            "scenario_name",
+            "scenario_type",
+            "framework",
+            "temperature_outcome_c",
+            "horizon",
+            "carbon_price_assumption_eur_per_tco2e"
+          ],
+          "missing_signature_columns": []
+        },
+        {
+          "table_name": "climate_financial_effects",
+          "score": 6,
+          "confidence": 0.2857,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "time_horizon"
+          ],
+          "missing_signature_columns": [
+            "reporting_year",
+            "effect_type",
+            "amount_meur"
+          ]
+        },
+        {
+          "table_name": "resilience_assessment",
+          "score": 6,
+          "confidence": 0.375,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "scenario_name"
+          ],
+          "missing_signature_columns": [
+            "assessment_summary",
+            "resilience_rating"
+          ]
+        },
+        {
+          "table_name": "targets",
+          "score": 6,
+          "confidence": 0.2,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "target_framework"
+          ],
+          "missing_signature_columns": [
+            "target_id",
+            "target_type",
+            "scope",
+            "baseline_year",
+            "target_year",
+            "status"
+          ]
+        },
+        {
+          "table_name": "banks",
+          "score": 3,
+          "confidence": 0.12,
+          "filename_score": 0,
+          "column_score": 3,
+          "matched_columns": [
+            "bank_id"
+          ],
+          "missing_signature_columns": [
+            "bank_name",
+            "total_assets_meur",
+            "reporting_currency",
+            "fiscal_year_end"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "collateral.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\collateral.csv",
+      "headers": [
+        "collateral_id",
+        "exposure_id",
+        "bank_id",
+        "counterparty_id",
+        "collateral_type",
+        "property_type",
+        "country",
+        "market_value_meur",
+        "ltv_pct",
+        "epc_rating",
+        "year_built",
+        "floor_area_sqm",
+        "valuation_date",
+        "physical_risk_score",
+        "market_value_at_origination_meur",
+        "building_emissions_tco2e",
+        "postcode",
+        "flood_zone_class",
+        "exposure_amount_meur"
+      ],
+      "normalized_headers": [
+        "collateral_id",
+        "exposure_id",
+        "bank_id",
+        "counterparty_id",
+        "collateral_type",
+        "property_type",
+        "country",
+        "market_value_meur",
+        "ltv_pct",
+        "epc_rating",
+        "year_built",
+        "floor_area_sqm",
+        "valuation_date",
+        "physical_risk_score",
+        "market_value_at_origination_meur",
+        "building_emissions_tco2e",
+        "postcode",
+        "flood_zone_class",
+        "exposure_amount_meur"
+      ],
+      "detected_table": "collateral",
+      "confidence": 0.6296,
+      "needs_review": false,
+      "top_candidates": [
+        {
+          "table_name": "collateral",
+          "score": 17,
+          "confidence": 0.6296,
+          "filename_score": 2,
+          "column_score": 15,
+          "matched_columns": [
+            "collateral_id",
+            "exposure_id",
+            "collateral_type",
+            "country",
+            "epc_rating"
+          ],
+          "missing_signature_columns": [
+            "valuation_amount_meur",
+            "flood_risk_score"
+          ]
+        },
+        {
+          "table_name": "facilities",
+          "score": 12,
+          "confidence": 0.4138,
+          "filename_score": 0,
+          "column_score": 12,
+          "matched_columns": [
+            "bank_id",
+            "country",
+            "floor_area_sqm",
+            "epc_rating"
+          ],
+          "missing_signature_columns": [
+            "facility_id",
+            "facility_type",
+            "city"
+          ]
+        },
+        {
+          "table_name": "exposures",
+          "score": 9,
+          "confidence": 0.3333,
+          "filename_score": 0,
+          "column_score": 9,
+          "matched_columns": [
+            "exposure_id",
+            "bank_id",
+            "counterparty_id"
+          ],
+          "missing_signature_columns": [
+            "product_type",
+            "outstanding_amount_meur",
+            "committed_amount_meur",
+            "pcaf_asset_class"
+          ]
+        },
+        {
+          "table_name": "counterparties",
+          "score": 9,
+          "confidence": 0.3103,
+          "filename_score": 0,
+          "column_score": 9,
+          "matched_columns": [
+            "counterparty_id",
+            "bank_id",
+            "country"
+          ],
+          "missing_signature_columns": [
+            "legal_name",
+            "nace_code",
+            "annual_revenue_meur",
+            "evic_meur"
+          ]
+        },
+        {
+          "table_name": "physical_risk_exposures",
+          "score": 6,
+          "confidence": 0.2308,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "counterparty_id",
+            "exposure_amount_meur"
+          ],
+          "missing_signature_columns": [
+            "physical_risk_id",
+            "hazard_type",
+            "acute_risk_score",
+            "chronic_risk_score"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "counterparties.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\counterparties.csv",
+      "headers": [
+        "counterparty_id",
+        "bank_id",
+        "legal_name",
+        "nace_code",
+        "nace_description",
+        "sector_carbon_tier",
+        "country",
+        "country_name",
+        "annual_revenue_meur",
+        "evic_meur",
+        "is_listed",
+        "sme_flag",
+        "onboarded_date",
+        "ppp_adjusted_gdp_meur",
+        "national_scope1_tco2e",
+        "national_scope2_tco2e",
+        "national_scope3_tco2e",
+        "sbti_target_flag",
+        "data_source_type",
+        "transition_risk_score"
+      ],
+      "normalized_headers": [
+        "counterparty_id",
+        "bank_id",
+        "legal_name",
+        "nace_code",
+        "nace_description",
+        "sector_carbon_tier",
+        "country",
+        "country_name",
+        "annual_revenue_meur",
+        "evic_meur",
+        "is_listed",
+        "sme_flag",
+        "onboarded_date",
+        "ppp_adjusted_gdp_meur",
+        "national_scope1_tco2e",
+        "national_scope2_tco2e",
+        "national_scope3_tco2e",
+        "sbti_target_flag",
+        "data_source_type",
+        "transition_risk_score"
+      ],
+      "detected_table": "counterparties",
+      "confidence": 0.7931,
+      "needs_review": false,
+      "top_candidates": [
+        {
+          "table_name": "counterparties",
+          "score": 23,
+          "confidence": 0.7931,
+          "filename_score": 2,
+          "column_score": 21,
+          "matched_columns": [
+            "counterparty_id",
+            "bank_id",
+            "legal_name",
+            "nace_code",
+            "country",
+            "annual_revenue_meur",
+            "evic_meur"
+          ],
+          "missing_signature_columns": []
+        },
+        {
+          "table_name": "facilities",
+          "score": 6,
+          "confidence": 0.2069,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "country"
+          ],
+          "missing_signature_columns": [
+            "facility_id",
+            "facility_type",
+            "city",
+            "floor_area_sqm",
+            "epc_rating"
+          ]
+        },
+        {
+          "table_name": "exposures",
+          "score": 6,
+          "confidence": 0.2222,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "counterparty_id"
+          ],
+          "missing_signature_columns": [
+            "exposure_id",
+            "product_type",
+            "outstanding_amount_meur",
+            "committed_amount_meur",
+            "pcaf_asset_class"
+          ]
+        },
+        {
+          "table_name": "banks",
+          "score": 3,
+          "confidence": 0.12,
+          "filename_score": 0,
+          "column_score": 3,
+          "matched_columns": [
+            "bank_id"
+          ],
+          "missing_signature_columns": [
+            "bank_name",
+            "total_assets_meur",
+            "reporting_currency",
+            "fiscal_year_end"
+          ]
+        },
+        {
+          "table_name": "financial_summary",
+          "score": 3,
+          "confidence": 0.0968,
+          "filename_score": 0,
+          "column_score": 3,
+          "matched_columns": [
+            "bank_id"
+          ],
+          "missing_signature_columns": [
+            "reporting_year",
+            "total_assets_meur",
+            "total_loans_meur",
+            "green_loans_meur",
+            "total_revenue_meur",
+            "net_profit_meur"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "counterparty_emissions.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\counterparty_emissions.csv",
+      "headers": [
+        "emissions_id",
+        "counterparty_id",
+        "reporting_year",
+        "scope_1_tco2e",
+        "scope_2_location_tco2e",
+        "scope_2_market_tco2e",
+        "scope_3_tco2e",
+        "total_ghg_tco2e",
+        "pcaf_data_quality_score",
+        "data_source",
+        "verification_status",
+        "gwp_basis"
+      ],
+      "normalized_headers": [
+        "emissions_id",
+        "counterparty_id",
+        "reporting_year",
+        "scope_1_tco2e",
+        "scope_2_location_tco2e",
+        "scope_2_market_tco2e",
+        "scope_3_tco2e",
+        "total_ghg_tco2e",
+        "pcaf_data_quality_score",
+        "data_source",
+        "verification_status",
+        "gwp_basis"
+      ],
+      "detected_table": "financial_summary",
+      "confidence": 0.0968,
+      "needs_review": true,
+      "top_candidates": [
+        {
+          "table_name": "financial_summary",
+          "score": 3,
+          "confidence": 0.0968,
+          "filename_score": 0,
+          "column_score": 3,
+          "matched_columns": [
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "bank_id",
+            "total_assets_meur",
+            "total_loans_meur",
+            "green_loans_meur",
+            "total_revenue_meur",
+            "net_profit_meur"
+          ]
+        },
+        {
+          "table_name": "governance",
+          "score": 3,
+          "confidence": 0.1034,
+          "filename_score": 0,
+          "column_score": 3,
+          "matched_columns": [
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "bank_id",
+            "board_size",
+            "esg_committee_exists",
+            "board_climate_expertise_pct",
+            "external_assurance",
+            "erm_integration_flag"
+          ]
+        },
+        {
+          "table_name": "physical_risk_exposures",
+          "score": 3,
+          "confidence": 0.1154,
+          "filename_score": 0,
+          "column_score": 3,
+          "matched_columns": [
+            "counterparty_id"
+          ],
+          "missing_signature_columns": [
+            "physical_risk_id",
+            "hazard_type",
+            "acute_risk_score",
+            "chronic_risk_score",
+            "exposure_amount_meur"
+          ]
+        },
+        {
+          "table_name": "carbon_credits",
+          "score": 3,
+          "confidence": 0.1111,
+          "filename_score": 0,
+          "column_score": 3,
+          "matched_columns": [
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "credit_id",
+            "bank_id",
+            "credits_tco2e",
+            "use",
+            "retired_flag",
+            "permanence_years"
+          ]
+        },
+        {
+          "table_name": "internal_carbon_price",
+          "score": 3,
+          "confidence": 0.1667,
+          "filename_score": 0,
+          "column_score": 3,
+          "matched_columns": [
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "bank_id",
+            "price_eur_per_tco2e",
+            "scope"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "employees.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\employees.csv",
+      "headers": [
+        "bank_id",
+        "reporting_year",
+        "total_headcount",
+        "female_pct",
+        "board_female_pct",
+        "executive_female_pct",
+        "avg_training_hours_per_employee",
+        "esg_training_hours_per_employee",
+        "ceo_pay_ratio",
+        "voluntary_turnover_pct",
+        "lost_time_injury_rate"
+      ],
+      "normalized_headers": [
+        "bank_id",
+        "reporting_year",
+        "total_headcount",
+        "female_pct",
+        "board_female_pct",
+        "executive_female_pct",
+        "avg_training_hours_per_employee",
+        "esg_training_hours_per_employee",
+        "ceo_pay_ratio",
+        "voluntary_turnover_pct",
+        "lost_time_injury_rate"
+      ],
+      "detected_table": "employees",
+      "confidence": 0.8095,
+      "needs_review": false,
+      "top_candidates": [
+        {
+          "table_name": "employees",
+          "score": 17,
+          "confidence": 0.8095,
+          "filename_score": 2,
+          "column_score": 15,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year",
+            "total_headcount",
+            "female_pct",
+            "avg_training_hours_per_employee"
+          ],
+          "missing_signature_columns": []
+        },
+        {
+          "table_name": "financial_summary",
+          "score": 6,
+          "confidence": 0.1935,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "total_assets_meur",
+            "total_loans_meur",
+            "green_loans_meur",
+            "total_revenue_meur",
+            "net_profit_meur"
+          ]
+        },
+        {
+          "table_name": "governance",
+          "score": 6,
+          "confidence": 0.2069,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "board_size",
+            "esg_committee_exists",
+            "board_climate_expertise_pct",
+            "external_assurance",
+            "erm_integration_flag"
+          ]
+        },
+        {
+          "table_name": "carbon_credits",
+          "score": 6,
+          "confidence": 0.2222,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "credit_id",
+            "credits_tco2e",
+            "use",
+            "retired_flag",
+            "permanence_years"
+          ]
+        },
+        {
+          "table_name": "internal_carbon_price",
+          "score": 6,
+          "confidence": 0.3333,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "price_eur_per_tco2e",
+            "scope"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "exposures.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\exposures.csv",
+      "headers": [
+        "exposure_id",
+        "bank_id",
+        "counterparty_id",
+        "product_type",
+        "origination_date",
+        "maturity_date",
+        "outstanding_amount_meur",
+        "committed_amount_meur",
+        "currency",
+        "interest_rate_pct",
+        "stage",
+        "eu_taxonomy_aligned",
+        "pcaf_asset_class",
+        "undrawn_amount_meur",
+        "green_label_flag",
+        "green_taxonomy",
+        "origination_property_value_meur",
+        "total_project_cost_meur",
+        "has_control",
+        "instrument_type"
+      ],
+      "normalized_headers": [
+        "exposure_id",
+        "bank_id",
+        "counterparty_id",
+        "product_type",
+        "origination_date",
+        "maturity_date",
+        "outstanding_amount_meur",
+        "committed_amount_meur",
+        "currency",
+        "interest_rate_pct",
+        "stage",
+        "eu_taxonomy_aligned",
+        "pcaf_asset_class",
+        "undrawn_amount_meur",
+        "green_label_flag",
+        "green_taxonomy",
+        "origination_property_value_meur",
+        "total_project_cost_meur",
+        "has_control",
+        "instrument_type"
+      ],
+      "detected_table": "exposures",
+      "confidence": 0.8519,
+      "needs_review": false,
+      "top_candidates": [
+        {
+          "table_name": "exposures",
+          "score": 23,
+          "confidence": 0.8519,
+          "filename_score": 2,
+          "column_score": 21,
+          "matched_columns": [
+            "exposure_id",
+            "bank_id",
+            "counterparty_id",
+            "product_type",
+            "outstanding_amount_meur",
+            "committed_amount_meur",
+            "pcaf_asset_class"
+          ],
+          "missing_signature_columns": []
+        },
+        {
+          "table_name": "banks",
+          "score": 6,
+          "confidence": 0.24,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_currency"
+          ],
+          "missing_signature_columns": [
+            "bank_name",
+            "total_assets_meur",
+            "fiscal_year_end"
+          ]
+        },
+        {
+          "table_name": "value_chain_map",
+          "score": 6,
+          "confidence": 0.3158,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "value_chain_stage"
+          ],
+          "missing_signature_columns": [
+            "activity",
+            "description",
+            "climate_risk_exposure"
+          ]
+        },
+        {
+          "table_name": "counterparties",
+          "score": 6,
+          "confidence": 0.2069,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "counterparty_id",
+            "bank_id"
+          ],
+          "missing_signature_columns": [
+            "legal_name",
+            "nace_code",
+            "country",
+            "annual_revenue_meur",
+            "evic_meur"
+          ]
+        },
+        {
+          "table_name": "financial_summary",
+          "score": 3,
+          "confidence": 0.0968,
+          "filename_score": 0,
+          "column_score": 3,
+          "matched_columns": [
+            "bank_id"
+          ],
+          "missing_signature_columns": [
+            "reporting_year",
+            "total_assets_meur",
+            "total_loans_meur",
+            "green_loans_meur",
+            "total_revenue_meur",
+            "net_profit_meur"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "facilities.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\facilities.csv",
+      "headers": [
+        "facility_id",
+        "bank_id",
+        "facility_type",
+        "country",
+        "city",
+        "floor_area_sqm",
+        "headcount",
+        "year_built",
+        "epc_rating",
+        "ownership"
+      ],
+      "normalized_headers": [
+        "facility_id",
+        "bank_id",
+        "facility_type",
+        "country",
+        "city",
+        "floor_area_sqm",
+        "headcount",
+        "year_built",
+        "epc_rating",
+        "ownership"
+      ],
+      "detected_table": "facilities",
+      "confidence": 0.7931,
+      "needs_review": false,
+      "top_candidates": [
+        {
+          "table_name": "facilities",
+          "score": 23,
+          "confidence": 0.7931,
+          "filename_score": 2,
+          "column_score": 21,
+          "matched_columns": [
+            "facility_id",
+            "bank_id",
+            "facility_type",
+            "country",
+            "city",
+            "floor_area_sqm",
+            "epc_rating"
+          ],
+          "missing_signature_columns": []
+        },
+        {
+          "table_name": "employees",
+          "score": 6,
+          "confidence": 0.2857,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "total_headcount"
+          ],
+          "missing_signature_columns": [
+            "reporting_year",
+            "female_pct",
+            "avg_training_hours_per_employee"
+          ]
+        },
+        {
+          "table_name": "counterparties",
+          "score": 6,
+          "confidence": 0.2069,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "country"
+          ],
+          "missing_signature_columns": [
+            "counterparty_id",
+            "legal_name",
+            "nace_code",
+            "annual_revenue_meur",
+            "evic_meur"
+          ]
+        },
+        {
+          "table_name": "collateral",
+          "score": 6,
+          "confidence": 0.2222,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "country",
+            "epc_rating"
+          ],
+          "missing_signature_columns": [
+            "collateral_id",
+            "exposure_id",
+            "collateral_type",
+            "valuation_amount_meur",
+            "flood_risk_score"
+          ]
+        },
+        {
+          "table_name": "banks",
+          "score": 3,
+          "confidence": 0.12,
+          "filename_score": 0,
+          "column_score": 3,
+          "matched_columns": [
+            "bank_id"
+          ],
+          "missing_signature_columns": [
+            "bank_name",
+            "total_assets_meur",
+            "reporting_currency",
+            "fiscal_year_end"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "financial_summary.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\financial_summary.csv",
+      "headers": [
+        "summary_id",
+        "bank_id",
+        "reporting_year",
+        "total_assets_meur",
+        "total_loans_meur",
+        "total_undrawn_meur",
+        "green_loans_meur",
+        "green_loans_pct",
+        "total_revenue_meur",
+        "net_interest_income_meur",
+        "net_profit_meur",
+        "tier1_capital_meur",
+        "cet1_ratio_pct",
+        "return_on_equity_pct",
+        "climate_capex_meur",
+        "climate_opex_meur",
+        "carbon_intensity_tco2e_per_meur_lending"
+      ],
+      "normalized_headers": [
+        "summary_id",
+        "bank_id",
+        "reporting_year",
+        "total_assets_meur",
+        "total_loans_meur",
+        "total_undrawn_meur",
+        "green_loans_meur",
+        "green_loans_pct",
+        "total_revenue_meur",
+        "net_interest_income_meur",
+        "net_profit_meur",
+        "tier1_capital_meur",
+        "cet1_ratio_pct",
+        "return_on_equity_pct",
+        "climate_capex_meur",
+        "climate_opex_meur",
+        "carbon_intensity_tco2e_per_meur_lending"
+      ],
+      "detected_table": "financial_summary",
+      "confidence": 0.7419,
+      "needs_review": true,
+      "top_candidates": [
+        {
+          "table_name": "financial_summary",
+          "score": 23,
+          "confidence": 0.7419,
+          "filename_score": 2,
+          "column_score": 21,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year",
+            "total_assets_meur",
+            "total_loans_meur",
+            "green_loans_meur",
+            "total_revenue_meur",
+            "net_profit_meur"
+          ],
+          "missing_signature_columns": []
+        },
+        {
+          "table_name": "banks",
+          "score": 6,
+          "confidence": 0.24,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "total_assets_meur"
+          ],
+          "missing_signature_columns": [
+            "bank_name",
+            "reporting_currency",
+            "fiscal_year_end"
+          ]
+        },
+        {
+          "table_name": "governance",
+          "score": 6,
+          "confidence": 0.2069,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "board_size",
+            "esg_committee_exists",
+            "board_climate_expertise_pct",
+            "external_assurance",
+            "erm_integration_flag"
+          ]
+        },
+        {
+          "table_name": "carbon_credits",
+          "score": 6,
+          "confidence": 0.2222,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "credit_id",
+            "credits_tco2e",
+            "use",
+            "retired_flag",
+            "permanence_years"
+          ]
+        },
+        {
+          "table_name": "internal_carbon_price",
+          "score": 6,
+          "confidence": 0.3333,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "price_eur_per_tco2e",
+            "scope"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "ghg_methodology.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\ghg_methodology.csv",
+      "headers": [
+        "method_id",
+        "bank_id",
+        "reporting_year",
+        "scope",
+        "measurement_approach",
+        "key_inputs",
+        "key_assumptions",
+        "reason_for_approach",
+        "changes_in_period",
+        "consolidation_basis",
+        "gwp_basis",
+        "standard_reference",
+        "is_synthetic"
+      ],
+      "normalized_headers": [
+        "method_id",
+        "bank_id",
+        "reporting_year",
+        "scope",
+        "measurement_approach",
+        "key_inputs",
+        "key_assumptions",
+        "reason_for_approach",
+        "changes_in_period",
+        "consolidation_basis",
+        "gwp_basis",
+        "standard_reference",
+        "is_synthetic"
+      ],
+      "detected_table": "ghg_methodology",
+      "confidence": 0.4762,
+      "needs_review": true,
+      "top_candidates": [
+        {
+          "table_name": "ghg_methodology",
+          "score": 10,
+          "confidence": 0.4762,
+          "filename_score": 4,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "scope"
+          ],
+          "missing_signature_columns": [
+            "methodology",
+            "emission_factor_source",
+            "calculation_method"
+          ]
+        },
+        {
+          "table_name": "internal_carbon_price",
+          "score": 9,
+          "confidence": 0.5,
+          "filename_score": 0,
+          "column_score": 9,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year",
+            "scope"
+          ],
+          "missing_signature_columns": [
+            "price_eur_per_tco2e"
+          ]
+        },
+        {
+          "table_name": "financial_summary",
+          "score": 6,
+          "confidence": 0.1935,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "total_assets_meur",
+            "total_loans_meur",
+            "green_loans_meur",
+            "total_revenue_meur",
+            "net_profit_meur"
+          ]
+        },
+        {
+          "table_name": "governance",
+          "score": 6,
+          "confidence": 0.2069,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "board_size",
+            "esg_committee_exists",
+            "board_climate_expertise_pct",
+            "external_assurance",
+            "erm_integration_flag"
+          ]
+        },
+        {
+          "table_name": "carbon_credits",
+          "score": 6,
+          "confidence": 0.2222,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "credit_id",
+            "credits_tco2e",
+            "use",
+            "retired_flag",
+            "permanence_years"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "governance.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\governance.csv",
+      "headers": [
+        "bank_id",
+        "reporting_year",
+        "board_size",
+        "independent_directors_pct",
+        "esg_committee_exists",
+        "esg_committee_meetings_per_year",
+        "board_climate_expertise_pct",
+        "ceo_compensation_esg_linked",
+        "ceo_esg_compensation_pct",
+        "climate_risk_reporting_to_board",
+        "tcfd_aligned",
+        "ifrs_s2_aligned",
+        "external_assurance",
+        "assurance_provider",
+        "all_exec_climate_remuneration_pct",
+        "board_full_meeting_frequency",
+        "climate_on_board_agenda_pct",
+        "management_committee_name",
+        "erm_integration_flag",
+        "skills_development_programme",
+        "major_transactions_climate_check",
+        "assurance_scope",
+        "assurance_standard"
+      ],
+      "normalized_headers": [
+        "bank_id",
+        "reporting_year",
+        "board_size",
+        "independent_directors_pct",
+        "esg_committee_exists",
+        "esg_committee_meetings_per_year",
+        "board_climate_expertise_pct",
+        "ceo_compensation_esg_linked",
+        "ceo_esg_compensation_pct",
+        "climate_risk_reporting_to_board",
+        "tcfd_aligned",
+        "ifrs_s2_aligned",
+        "external_assurance",
+        "assurance_provider",
+        "all_exec_climate_remuneration_pct",
+        "board_full_meeting_frequency",
+        "climate_on_board_agenda_pct",
+        "management_committee_name",
+        "erm_integration_flag",
+        "skills_development_programme",
+        "major_transactions_climate_check",
+        "assurance_scope",
+        "assurance_standard"
+      ],
+      "detected_table": "governance",
+      "confidence": 0.7931,
+      "needs_review": false,
+      "top_candidates": [
+        {
+          "table_name": "governance",
+          "score": 23,
+          "confidence": 0.7931,
+          "filename_score": 2,
+          "column_score": 21,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year",
+            "board_size",
+            "esg_committee_exists",
+            "board_climate_expertise_pct",
+            "external_assurance",
+            "erm_integration_flag"
+          ],
+          "missing_signature_columns": []
+        },
+        {
+          "table_name": "financial_summary",
+          "score": 6,
+          "confidence": 0.1935,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "total_assets_meur",
+            "total_loans_meur",
+            "green_loans_meur",
+            "total_revenue_meur",
+            "net_profit_meur"
+          ]
+        },
+        {
+          "table_name": "carbon_credits",
+          "score": 6,
+          "confidence": 0.2222,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "credit_id",
+            "credits_tco2e",
+            "use",
+            "retired_flag",
+            "permanence_years"
+          ]
+        },
+        {
+          "table_name": "internal_carbon_price",
+          "score": 6,
+          "confidence": 0.3333,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "price_eur_per_tco2e",
+            "scope"
+          ]
+        },
+        {
+          "table_name": "scope3_categories",
+          "score": 6,
+          "confidence": 0.3333,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "scope3_category",
+            "emissions_tco2e"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "internal_carbon_price.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\internal_carbon_price.csv",
+      "headers": [
+        "icp_id",
+        "bank_id",
+        "reporting_year",
+        "carbon_price_eur_per_tco2e",
+        "price_type",
+        "application_scope",
+        "applies_to_lending_decisions",
+        "applies_to_financed_emissions",
+        "benchmark_reference",
+        "review_frequency",
+        "currency"
+      ],
+      "normalized_headers": [
+        "icp_id",
+        "bank_id",
+        "reporting_year",
+        "carbon_price_eur_per_tco2e",
+        "price_type",
+        "application_scope",
+        "applies_to_lending_decisions",
+        "applies_to_financed_emissions",
+        "benchmark_reference",
+        "review_frequency",
+        "currency"
+      ],
+      "detected_table": "internal_carbon_price",
+      "confidence": 0.5556,
+      "needs_review": false,
+      "top_candidates": [
+        {
+          "table_name": "internal_carbon_price",
+          "score": 10,
+          "confidence": 0.5556,
+          "filename_score": 4,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "price_eur_per_tco2e",
+            "scope"
+          ]
+        },
+        {
+          "table_name": "banks",
+          "score": 6,
+          "confidence": 0.24,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_currency"
+          ],
+          "missing_signature_columns": [
+            "bank_name",
+            "total_assets_meur",
+            "fiscal_year_end"
+          ]
+        },
+        {
+          "table_name": "financial_summary",
+          "score": 6,
+          "confidence": 0.1935,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "total_assets_meur",
+            "total_loans_meur",
+            "green_loans_meur",
+            "total_revenue_meur",
+            "net_profit_meur"
+          ]
+        },
+        {
+          "table_name": "governance",
+          "score": 6,
+          "confidence": 0.2069,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "board_size",
+            "esg_committee_exists",
+            "board_climate_expertise_pct",
+            "external_assurance",
+            "erm_integration_flag"
+          ]
+        },
+        {
+          "table_name": "carbon_credits",
+          "score": 6,
+          "confidence": 0.2222,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "credit_id",
+            "credits_tco2e",
+            "use",
+            "retired_flag",
+            "permanence_years"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "investments.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\investments.csv",
+      "headers": [
+        "investment_id",
+        "bank_id",
+        "asset_class",
+        "issuer_name",
+        "nace_code",
+        "country",
+        "nominal_amount_meur",
+        "market_value_meur",
+        "currency",
+        "esg_classification",
+        "purchase_date",
+        "issuer_revenue_meur",
+        "issuer_evic_meur",
+        "ppp_gdp_meur",
+        "pcaf_data_quality_score",
+        "counterparty_id",
+        "reporting_year"
+      ],
+      "normalized_headers": [
+        "investment_id",
+        "bank_id",
+        "asset_class",
+        "issuer_name",
+        "nace_code",
+        "country",
+        "nominal_amount_meur",
+        "market_value_meur",
+        "currency",
+        "esg_classification",
+        "purchase_date",
+        "issuer_revenue_meur",
+        "issuer_evic_meur",
+        "ppp_gdp_meur",
+        "pcaf_data_quality_score",
+        "counterparty_id",
+        "reporting_year"
+      ],
+      "detected_table": "investments",
+      "confidence": 0.8621,
+      "needs_review": false,
+      "top_candidates": [
+        {
+          "table_name": "investments",
+          "score": 25,
+          "confidence": 0.8621,
+          "filename_score": 4,
+          "column_score": 21,
+          "matched_columns": [
+            "investment_id",
+            "bank_id",
+            "asset_class",
+            "issuer_name",
+            "nominal_amount_meur",
+            "market_value_meur",
+            "issuer_evic_meur"
+          ],
+          "missing_signature_columns": []
+        },
+        {
+          "table_name": "counterparties",
+          "score": 12,
+          "confidence": 0.4138,
+          "filename_score": 0,
+          "column_score": 12,
+          "matched_columns": [
+            "counterparty_id",
+            "bank_id",
+            "nace_code",
+            "country"
+          ],
+          "missing_signature_columns": [
+            "legal_name",
+            "annual_revenue_meur",
+            "evic_meur"
+          ]
+        },
+        {
+          "table_name": "exposures",
+          "score": 9,
+          "confidence": 0.3333,
+          "filename_score": 0,
+          "column_score": 9,
+          "matched_columns": [
+            "bank_id",
+            "counterparty_id",
+            "pcaf_asset_class"
+          ],
+          "missing_signature_columns": [
+            "exposure_id",
+            "product_type",
+            "outstanding_amount_meur",
+            "committed_amount_meur"
+          ]
+        },
+        {
+          "table_name": "portfolio_composition",
+          "score": 9,
+          "confidence": 0.4286,
+          "filename_score": 0,
+          "column_score": 9,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year",
+            "asset_class"
+          ],
+          "missing_signature_columns": [
+            "sector",
+            "exposure_amount_meur"
+          ]
+        },
+        {
+          "table_name": "banks",
+          "score": 6,
+          "confidence": 0.24,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_currency"
+          ],
+          "missing_signature_columns": [
+            "bank_name",
+            "total_assets_meur",
+            "fiscal_year_end"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "physical_risk_exposures.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\physical_risk_exposures.csv",
+      "headers": [
+        "physical_risk_id",
+        "counterparty_id",
+        "bank_id",
+        "hazard_type",
+        "country",
+        "acute_risk_score",
+        "chronic_risk_score",
+        "assessment_horizon",
+        "scenario_basis",
+        "data_source",
+        "hazard_category",
+        "exposure_amount_meur",
+        "high_risk_flag",
+        "financial_impact_meur",
+        "portfolio_pct",
+        "nace_code"
+      ],
+      "normalized_headers": [
+        "physical_risk_id",
+        "counterparty_id",
+        "bank_id",
+        "hazard_type",
+        "country",
+        "acute_risk_score",
+        "chronic_risk_score",
+        "assessment_horizon",
+        "scenario_basis",
+        "data_source",
+        "hazard_category",
+        "exposure_amount_meur",
+        "high_risk_flag",
+        "financial_impact_meur",
+        "portfolio_pct",
+        "nace_code"
+      ],
+      "detected_table": "physical_risk_exposures",
+      "confidence": 0.7692,
+      "needs_review": false,
+      "top_candidates": [
+        {
+          "table_name": "physical_risk_exposures",
+          "score": 20,
+          "confidence": 0.7692,
+          "filename_score": 2,
+          "column_score": 18,
+          "matched_columns": [
+            "physical_risk_id",
+            "counterparty_id",
+            "hazard_type",
+            "acute_risk_score",
+            "chronic_risk_score",
+            "exposure_amount_meur"
+          ],
+          "missing_signature_columns": []
+        },
+        {
+          "table_name": "counterparties",
+          "score": 12,
+          "confidence": 0.4138,
+          "filename_score": 0,
+          "column_score": 12,
+          "matched_columns": [
+            "counterparty_id",
+            "bank_id",
+            "nace_code",
+            "country"
+          ],
+          "missing_signature_columns": [
+            "legal_name",
+            "annual_revenue_meur",
+            "evic_meur"
+          ]
+        },
+        {
+          "table_name": "exposures",
+          "score": 8,
+          "confidence": 0.2963,
+          "filename_score": 2,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "counterparty_id"
+          ],
+          "missing_signature_columns": [
+            "exposure_id",
+            "product_type",
+            "outstanding_amount_meur",
+            "committed_amount_meur",
+            "pcaf_asset_class"
+          ]
+        },
+        {
+          "table_name": "facilities",
+          "score": 6,
+          "confidence": 0.2069,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "country"
+          ],
+          "missing_signature_columns": [
+            "facility_id",
+            "facility_type",
+            "city",
+            "floor_area_sqm",
+            "epc_rating"
+          ]
+        },
+        {
+          "table_name": "portfolio_composition",
+          "score": 6,
+          "confidence": 0.2857,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "exposure_amount_meur"
+          ],
+          "missing_signature_columns": [
+            "reporting_year",
+            "asset_class",
+            "sector"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "rec_registry.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\rec_registry.csv",
+      "headers": [
+        "rec_id",
+        "bank_id",
+        "certificate_type",
+        "energy_source",
+        "country_of_generation",
+        "volume_mwh",
+        "issuing_registry",
+        "issue_date",
+        "expiry_date",
+        "cancellation_date",
+        "associated_facility_ids",
+        "reporting_year",
+        "price_eur_per_mwh"
+      ],
+      "normalized_headers": [
+        "rec_id",
+        "bank_id",
+        "certificate_type",
+        "energy_source",
+        "country_of_generation",
+        "volume_mwh",
+        "issuing_registry",
+        "issue_date",
+        "expiry_date",
+        "cancellation_date",
+        "associated_facility_ids",
+        "reporting_year",
+        "price_eur_per_mwh"
+      ],
+      "detected_table": "rec_registry",
+      "confidence": 0.7308,
+      "needs_review": false,
+      "top_candidates": [
+        {
+          "table_name": "rec_registry",
+          "score": 19,
+          "confidence": 0.7308,
+          "filename_score": 4,
+          "column_score": 15,
+          "matched_columns": [
+            "certificate_id",
+            "bank_id",
+            "reporting_year",
+            "volume_mwh",
+            "certificate_type"
+          ],
+          "missing_signature_columns": [
+            "registry"
+          ]
+        },
+        {
+          "table_name": "financial_summary",
+          "score": 6,
+          "confidence": 0.1935,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "total_assets_meur",
+            "total_loans_meur",
+            "green_loans_meur",
+            "total_revenue_meur",
+            "net_profit_meur"
+          ]
+        },
+        {
+          "table_name": "governance",
+          "score": 6,
+          "confidence": 0.2069,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "board_size",
+            "esg_committee_exists",
+            "board_climate_expertise_pct",
+            "external_assurance",
+            "erm_integration_flag"
+          ]
+        },
+        {
+          "table_name": "carbon_credits",
+          "score": 6,
+          "confidence": 0.2222,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "credit_id",
+            "credits_tco2e",
+            "use",
+            "retired_flag",
+            "permanence_years"
+          ]
+        },
+        {
+          "table_name": "internal_carbon_price",
+          "score": 6,
+          "confidence": 0.3333,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "price_eur_per_tco2e",
+            "scope"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "resilience_assessment.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\resilience_assessment.csv",
+      "headers": [
+        "resilience_id",
+        "bank_id",
+        "reporting_year",
+        "scenario_type",
+        "capacity_to_adjust",
+        "asset_redeployment_capacity",
+        "financial_resource_flexibility",
+        "significant_uncertainties",
+        "assessment_horizon",
+        "is_synthetic",
+        "data_source"
+      ],
+      "normalized_headers": [
+        "resilience_id",
+        "bank_id",
+        "reporting_year",
+        "scenario_type",
+        "capacity_to_adjust",
+        "asset_redeployment_capacity",
+        "financial_resource_flexibility",
+        "significant_uncertainties",
+        "assessment_horizon",
+        "is_synthetic",
+        "data_source"
+      ],
+      "detected_table": "resilience_assessment",
+      "confidence": 0.4375,
+      "needs_review": true,
+      "top_candidates": [
+        {
+          "table_name": "resilience_assessment",
+          "score": 7,
+          "confidence": 0.4375,
+          "filename_score": 4,
+          "column_score": 3,
+          "matched_columns": [
+            "bank_id"
+          ],
+          "missing_signature_columns": [
+            "scenario_name",
+            "assessment_summary",
+            "resilience_rating"
+          ]
+        },
+        {
+          "table_name": "financial_summary",
+          "score": 6,
+          "confidence": 0.1935,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "total_assets_meur",
+            "total_loans_meur",
+            "green_loans_meur",
+            "total_revenue_meur",
+            "net_profit_meur"
+          ]
+        },
+        {
+          "table_name": "governance",
+          "score": 6,
+          "confidence": 0.2069,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "board_size",
+            "esg_committee_exists",
+            "board_climate_expertise_pct",
+            "external_assurance",
+            "erm_integration_flag"
+          ]
+        },
+        {
+          "table_name": "carbon_credits",
+          "score": 6,
+          "confidence": 0.2222,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "credit_id",
+            "credits_tco2e",
+            "use",
+            "retired_flag",
+            "permanence_years"
+          ]
+        },
+        {
+          "table_name": "internal_carbon_price",
+          "score": 6,
+          "confidence": 0.3333,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "price_eur_per_tco2e",
+            "scope"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "scope12_consolidation.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\scope12_consolidation.csv",
+      "headers": [
+        "cons_id",
+        "bank_id",
+        "reporting_year",
+        "scope",
+        "consolidated_group_share_pct",
+        "other_investees_share_pct",
+        "consolidation_basis",
+        "note",
+        "is_synthetic"
+      ],
+      "normalized_headers": [
+        "cons_id",
+        "bank_id",
+        "reporting_year",
+        "scope",
+        "consolidated_group_share_pct",
+        "other_investees_share_pct",
+        "consolidation_basis",
+        "note",
+        "is_synthetic"
+      ],
+      "detected_table": "scope12_consolidation",
+      "confidence": 0.4762,
+      "needs_review": true,
+      "top_candidates": [
+        {
+          "table_name": "scope12_consolidation",
+          "score": 10,
+          "confidence": 0.4762,
+          "filename_score": 4,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "scope1_total_tco2e",
+            "scope2_location_tco2e",
+            "scope2_market_tco2e"
+          ]
+        },
+        {
+          "table_name": "internal_carbon_price",
+          "score": 9,
+          "confidence": 0.5,
+          "filename_score": 0,
+          "column_score": 9,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year",
+            "scope"
+          ],
+          "missing_signature_columns": [
+            "price_eur_per_tco2e"
+          ]
+        },
+        {
+          "table_name": "financial_summary",
+          "score": 6,
+          "confidence": 0.1935,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "total_assets_meur",
+            "total_loans_meur",
+            "green_loans_meur",
+            "total_revenue_meur",
+            "net_profit_meur"
+          ]
+        },
+        {
+          "table_name": "governance",
+          "score": 6,
+          "confidence": 0.2069,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "board_size",
+            "esg_committee_exists",
+            "board_climate_expertise_pct",
+            "external_assurance",
+            "erm_integration_flag"
+          ]
+        },
+        {
+          "table_name": "carbon_credits",
+          "score": 6,
+          "confidence": 0.2222,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "credit_id",
+            "credits_tco2e",
+            "use",
+            "retired_flag",
+            "permanence_years"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "scope3_categories.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\scope3_categories.csv",
+      "headers": [
+        "scope3_id",
+        "bank_id",
+        "reporting_year",
+        "category_number",
+        "category_name",
+        "included_flag",
+        "emissions_tco2e",
+        "calculation_method",
+        "data_source",
+        "pcaf_data_quality_score",
+        "exclusion_reason",
+        "is_synthetic"
+      ],
+      "normalized_headers": [
+        "scope3_id",
+        "bank_id",
+        "reporting_year",
+        "category_number",
+        "category_name",
+        "included_flag",
+        "emissions_tco2e",
+        "calculation_method",
+        "data_source",
+        "pcaf_data_quality_score",
+        "exclusion_reason",
+        "is_synthetic"
+      ],
+      "detected_table": "scope3_categories",
+      "confidence": 0.6111,
+      "needs_review": true,
+      "top_candidates": [
+        {
+          "table_name": "scope3_categories",
+          "score": 11,
+          "confidence": 0.6111,
+          "filename_score": 2,
+          "column_score": 9,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year",
+            "emissions_tco2e"
+          ],
+          "missing_signature_columns": [
+            "scope3_category"
+          ]
+        },
+        {
+          "table_name": "business_travel",
+          "score": 9,
+          "confidence": 0.375,
+          "filename_score": 0,
+          "column_score": 9,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year",
+            "emissions_tco2e"
+          ],
+          "missing_signature_columns": [
+            "travel_id",
+            "travel_mode",
+            "distance_km"
+          ]
+        },
+        {
+          "table_name": "financial_summary",
+          "score": 6,
+          "confidence": 0.1935,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "total_assets_meur",
+            "total_loans_meur",
+            "green_loans_meur",
+            "total_revenue_meur",
+            "net_profit_meur"
+          ]
+        },
+        {
+          "table_name": "governance",
+          "score": 6,
+          "confidence": 0.2069,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "board_size",
+            "esg_committee_exists",
+            "board_climate_expertise_pct",
+            "external_assurance",
+            "erm_integration_flag"
+          ]
+        },
+        {
+          "table_name": "carbon_credits",
+          "score": 6,
+          "confidence": 0.2222,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "credit_id",
+            "credits_tco2e",
+            "use",
+            "retired_flag",
+            "permanence_years"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "source_systems.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\source_systems.csv",
+      "headers": [
+        "system_id",
+        "system_name",
+        "purpose",
+        "owner"
+      ],
+      "normalized_headers": [
+        "system_id",
+        "system_name",
+        "purpose",
+        "owner"
+      ],
+      "detected_table": "source_systems",
+      "confidence": 1.0,
+      "needs_review": false,
+      "top_candidates": [
+        {
+          "table_name": "source_systems",
+          "score": 16,
+          "confidence": 1.0,
+          "filename_score": 4,
+          "column_score": 12,
+          "matched_columns": [
+            "system_id",
+            "system_name",
+            "purpose",
+            "owner"
+          ],
+          "missing_signature_columns": []
+        },
+        {
+          "table_name": "banks",
+          "score": 0,
+          "confidence": 0.0,
+          "filename_score": 0,
+          "column_score": 0,
+          "matched_columns": [],
+          "missing_signature_columns": [
+            "bank_id",
+            "bank_name",
+            "total_assets_meur",
+            "reporting_currency",
+            "fiscal_year_end"
+          ]
+        },
+        {
+          "table_name": "financial_summary",
+          "score": 0,
+          "confidence": 0.0,
+          "filename_score": 0,
+          "column_score": 0,
+          "matched_columns": [],
+          "missing_signature_columns": [
+            "bank_id",
+            "reporting_year",
+            "total_assets_meur",
+            "total_loans_meur",
+            "green_loans_meur",
+            "total_revenue_meur",
+            "net_profit_meur"
+          ]
+        },
+        {
+          "table_name": "governance",
+          "score": 0,
+          "confidence": 0.0,
+          "filename_score": 0,
+          "column_score": 0,
+          "matched_columns": [],
+          "missing_signature_columns": [
+            "bank_id",
+            "reporting_year",
+            "board_size",
+            "esg_committee_exists",
+            "board_climate_expertise_pct",
+            "external_assurance",
+            "erm_integration_flag"
+          ]
+        },
+        {
+          "table_name": "board_minutes_extract",
+          "score": 0,
+          "confidence": 0.0,
+          "filename_score": 0,
+          "column_score": 0,
+          "matched_columns": [],
+          "missing_signature_columns": [
+            "meeting_id",
+            "committee_name",
+            "meeting_date",
+            "climate_agenda_flag",
+            "climate_topics_discussed",
+            "decision_summary"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "targets.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\targets.csv",
+      "headers": [
+        "target_id",
+        "bank_id",
+        "target_type",
+        "scope",
+        "metric",
+        "baseline_year",
+        "baseline_value",
+        "target_year",
+        "target_value_pct_reduction",
+        "target_framework",
+        "status",
+        "gross_or_net",
+        "associated_gross_target_id",
+        "ghg_gases_covered",
+        "scope_coverage",
+        "third_party_validated",
+        "validation_body",
+        "sectoral_decarbonisation",
+        "interim_milestones_json",
+        "planned_carbon_credits_pct",
+        "planned_credit_type",
+        "target_applies_to",
+        "latest_paris_alignment",
+        "review_frequency",
+        "progress_metric"
+      ],
+      "normalized_headers": [
+        "target_id",
+        "bank_id",
+        "target_type",
+        "scope",
+        "metric",
+        "baseline_year",
+        "baseline_value",
+        "target_year",
+        "target_value_pct_reduction",
+        "target_framework",
+        "status",
+        "gross_or_net",
+        "associated_gross_target_id",
+        "ghg_gases_covered",
+        "scope_coverage",
+        "third_party_validated",
+        "validation_body",
+        "sectoral_decarbonisation",
+        "interim_milestones_json",
+        "planned_carbon_credits_pct",
+        "planned_credit_type",
+        "target_applies_to",
+        "latest_paris_alignment",
+        "review_frequency",
+        "progress_metric"
+      ],
+      "detected_table": "targets",
+      "confidence": 0.8667,
+      "needs_review": false,
+      "top_candidates": [
+        {
+          "table_name": "targets",
+          "score": 26,
+          "confidence": 0.8667,
+          "filename_score": 2,
+          "column_score": 24,
+          "matched_columns": [
+            "target_id",
+            "bank_id",
+            "target_type",
+            "scope",
+            "baseline_year",
+            "target_year",
+            "target_framework",
+            "status"
+          ],
+          "missing_signature_columns": []
+        },
+        {
+          "table_name": "transition_plan",
+          "score": 9,
+          "confidence": 0.4091,
+          "filename_score": 0,
+          "column_score": 9,
+          "matched_columns": [
+            "bank_id",
+            "implementation_status",
+            "target_year"
+          ],
+          "missing_signature_columns": [
+            "action_id",
+            "action_name",
+            "capex_meur"
+          ]
+        },
+        {
+          "table_name": "internal_carbon_price",
+          "score": 6,
+          "confidence": 0.3333,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "scope"
+          ],
+          "missing_signature_columns": [
+            "reporting_year",
+            "price_eur_per_tco2e"
+          ]
+        },
+        {
+          "table_name": "ghg_methodology",
+          "score": 6,
+          "confidence": 0.2857,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "scope"
+          ],
+          "missing_signature_columns": [
+            "methodology",
+            "emission_factor_source",
+            "calculation_method"
+          ]
+        },
+        {
+          "table_name": "banks",
+          "score": 3,
+          "confidence": 0.12,
+          "filename_score": 0,
+          "column_score": 3,
+          "matched_columns": [
+            "bank_id"
+          ],
+          "missing_signature_columns": [
+            "bank_name",
+            "total_assets_meur",
+            "reporting_currency",
+            "fiscal_year_end"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "transition_plan.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\transition_plan.csv",
+      "headers": [
+        "tp_id",
+        "bank_id",
+        "reporting_year",
+        "has_transition_plan",
+        "net_zero_target_year",
+        "aligned_framework",
+        "key_assumptions",
+        "dependencies",
+        "resourcing_meur",
+        "resourcing_description",
+        "prior_period_progress",
+        "is_synthetic",
+        "data_source"
+      ],
+      "normalized_headers": [
+        "tp_id",
+        "bank_id",
+        "reporting_year",
+        "has_transition_plan",
+        "net_zero_target_year",
+        "aligned_framework",
+        "key_assumptions",
+        "dependencies",
+        "resourcing_meur",
+        "resourcing_description",
+        "prior_period_progress",
+        "is_synthetic",
+        "data_source"
+      ],
+      "detected_table": "transition_plan",
+      "confidence": 0.3182,
+      "needs_review": true,
+      "top_candidates": [
+        {
+          "table_name": "transition_plan",
+          "score": 7,
+          "confidence": 0.3182,
+          "filename_score": 4,
+          "column_score": 3,
+          "matched_columns": [
+            "bank_id"
+          ],
+          "missing_signature_columns": [
+            "action_id",
+            "action_name",
+            "implementation_status",
+            "target_year",
+            "capex_meur"
+          ]
+        },
+        {
+          "table_name": "financial_summary",
+          "score": 6,
+          "confidence": 0.1935,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "total_assets_meur",
+            "total_loans_meur",
+            "green_loans_meur",
+            "total_revenue_meur",
+            "net_profit_meur"
+          ]
+        },
+        {
+          "table_name": "governance",
+          "score": 6,
+          "confidence": 0.2069,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "board_size",
+            "esg_committee_exists",
+            "board_climate_expertise_pct",
+            "external_assurance",
+            "erm_integration_flag"
+          ]
+        },
+        {
+          "table_name": "carbon_credits",
+          "score": 6,
+          "confidence": 0.2222,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "credit_id",
+            "credits_tco2e",
+            "use",
+            "retired_flag",
+            "permanence_years"
+          ]
+        },
+        {
+          "table_name": "internal_carbon_price",
+          "score": 6,
+          "confidence": 0.3333,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "reporting_year"
+          ],
+          "missing_signature_columns": [
+            "price_eur_per_tco2e",
+            "scope"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "travel_records.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\travel_records.csv",
+      "headers": [
+        "travel_id",
+        "bank_id",
+        "employee_id_hash",
+        "travel_date",
+        "mode",
+        "distance_km",
+        "emission_factor_kg_co2e_per_km",
+        "emissions_kg_co2e",
+        "purpose"
+      ],
+      "normalized_headers": [
+        "travel_id",
+        "bank_id",
+        "employee_id_hash",
+        "travel_date",
+        "mode",
+        "distance_km",
+        "emission_factor_kg_co2e_per_km",
+        "emissions_kg_co2e",
+        "purpose"
+      ],
+      "detected_table": "business_travel",
+      "confidence": 0.5833,
+      "needs_review": false,
+      "top_candidates": [
+        {
+          "table_name": "business_travel",
+          "score": 14,
+          "confidence": 0.5833,
+          "filename_score": 2,
+          "column_score": 12,
+          "matched_columns": [
+            "travel_id",
+            "bank_id",
+            "travel_mode",
+            "distance_km"
+          ],
+          "missing_signature_columns": [
+            "reporting_year",
+            "emissions_tco2e"
+          ]
+        },
+        {
+          "table_name": "rec_registry",
+          "score": 5,
+          "confidence": 0.1923,
+          "filename_score": 2,
+          "column_score": 3,
+          "matched_columns": [
+            "bank_id"
+          ],
+          "missing_signature_columns": [
+            "certificate_id",
+            "reporting_year",
+            "volume_mwh",
+            "certificate_type",
+            "registry"
+          ]
+        },
+        {
+          "table_name": "banks",
+          "score": 3,
+          "confidence": 0.12,
+          "filename_score": 0,
+          "column_score": 3,
+          "matched_columns": [
+            "bank_id"
+          ],
+          "missing_signature_columns": [
+            "bank_name",
+            "total_assets_meur",
+            "reporting_currency",
+            "fiscal_year_end"
+          ]
+        },
+        {
+          "table_name": "financial_summary",
+          "score": 3,
+          "confidence": 0.0968,
+          "filename_score": 0,
+          "column_score": 3,
+          "matched_columns": [
+            "bank_id"
+          ],
+          "missing_signature_columns": [
+            "reporting_year",
+            "total_assets_meur",
+            "total_loans_meur",
+            "green_loans_meur",
+            "total_revenue_meur",
+            "net_profit_meur"
+          ]
+        },
+        {
+          "table_name": "governance",
+          "score": 3,
+          "confidence": 0.1034,
+          "filename_score": 0,
+          "column_score": 3,
+          "matched_columns": [
+            "bank_id"
+          ],
+          "missing_signature_columns": [
+            "reporting_year",
+            "board_size",
+            "esg_committee_exists",
+            "board_climate_expertise_pct",
+            "external_assurance",
+            "erm_integration_flag"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "utility_invoices.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\utility_invoices.csv",
+      "headers": [
+        "invoice_id",
+        "facility_id",
+        "bank_id",
+        "invoice_year",
+        "invoice_month",
+        "electricity_kwh",
+        "electricity_cost_eur",
+        "renewable_share_pct",
+        "natural_gas_kwh",
+        "natural_gas_cost_eur",
+        "water_m3",
+        "water_cost_eur",
+        "rec_volume_kwh",
+        "rec_registry",
+        "grid_emission_factor_tco2e_per_mwh",
+        "scope2_location_tco2e",
+        "scope2_market_tco2e",
+        "scope1_gas_tco2e"
+      ],
+      "normalized_headers": [
+        "invoice_id",
+        "facility_id",
+        "bank_id",
+        "invoice_year",
+        "invoice_month",
+        "electricity_kwh",
+        "electricity_cost_eur",
+        "renewable_share_pct",
+        "natural_gas_kwh",
+        "natural_gas_cost_eur",
+        "water_m3",
+        "water_cost_eur",
+        "rec_volume_kwh",
+        "rec_registry",
+        "grid_emission_factor_tco2e_per_mwh",
+        "scope2_location_tco2e",
+        "scope2_market_tco2e",
+        "scope1_gas_tco2e"
+      ],
+      "detected_table": "utility_invoices",
+      "confidence": 0.6087,
+      "needs_review": false,
+      "top_candidates": [
+        {
+          "table_name": "utility_invoices",
+          "score": 14,
+          "confidence": 0.6087,
+          "filename_score": 2,
+          "column_score": 12,
+          "matched_columns": [
+            "bank_id",
+            "electricity_kwh",
+            "scope2_location_tco2e",
+            "scope2_market_tco2e"
+          ],
+          "missing_signature_columns": [
+            "reporting_year"
+          ]
+        },
+        {
+          "table_name": "scope12_consolidation",
+          "score": 9,
+          "confidence": 0.4286,
+          "filename_score": 0,
+          "column_score": 9,
+          "matched_columns": [
+            "bank_id",
+            "scope2_location_tco2e",
+            "scope2_market_tco2e"
+          ],
+          "missing_signature_columns": [
+            "reporting_year",
+            "scope1_total_tco2e"
+          ]
+        },
+        {
+          "table_name": "facilities",
+          "score": 6,
+          "confidence": 0.2069,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "facility_id",
+            "bank_id"
+          ],
+          "missing_signature_columns": [
+            "facility_type",
+            "country",
+            "city",
+            "floor_area_sqm",
+            "epc_rating"
+          ]
+        },
+        {
+          "table_name": "banks",
+          "score": 3,
+          "confidence": 0.12,
+          "filename_score": 0,
+          "column_score": 3,
+          "matched_columns": [
+            "bank_id"
+          ],
+          "missing_signature_columns": [
+            "bank_name",
+            "total_assets_meur",
+            "reporting_currency",
+            "fiscal_year_end"
+          ]
+        },
+        {
+          "table_name": "financial_summary",
+          "score": 3,
+          "confidence": 0.0968,
+          "filename_score": 0,
+          "column_score": 3,
+          "matched_columns": [
+            "bank_id"
+          ],
+          "missing_signature_columns": [
+            "reporting_year",
+            "total_assets_meur",
+            "total_loans_meur",
+            "green_loans_meur",
+            "total_revenue_meur",
+            "net_profit_meur"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "value_chain_map.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\value_chain_map.csv",
+      "headers": [
+        "node_id",
+        "bank_id",
+        "node_name",
+        "node_type",
+        "upstream_downstream",
+        "sustainability_theme",
+        "climate_exposure_type",
+        "materiality_flag",
+        "climate_risk_description",
+        "financial_exposure_meur",
+        "nace_link",
+        "scope3_category",
+        "ifrs_s2_para_evidence"
+      ],
+      "normalized_headers": [
+        "node_id",
+        "bank_id",
+        "node_name",
+        "node_type",
+        "upstream_downstream",
+        "sustainability_theme",
+        "climate_exposure_type",
+        "materiality_flag",
+        "climate_risk_description",
+        "financial_exposure_meur",
+        "nace_link",
+        "scope3_category",
+        "ifrs_s2_para_evidence"
+      ],
+      "detected_table": "scope3_categories",
+      "confidence": 0.3333,
+      "needs_review": true,
+      "top_candidates": [
+        {
+          "table_name": "scope3_categories",
+          "score": 6,
+          "confidence": 0.3333,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "scope3_category"
+          ],
+          "missing_signature_columns": [
+            "reporting_year",
+            "emissions_tco2e"
+          ]
+        },
+        {
+          "table_name": "value_chain_map",
+          "score": 5,
+          "confidence": 0.2632,
+          "filename_score": 2,
+          "column_score": 3,
+          "matched_columns": [
+            "bank_id"
+          ],
+          "missing_signature_columns": [
+            "activity",
+            "value_chain_stage",
+            "description",
+            "climate_risk_exposure"
+          ]
+        },
+        {
+          "table_name": "banks",
+          "score": 3,
+          "confidence": 0.12,
+          "filename_score": 0,
+          "column_score": 3,
+          "matched_columns": [
+            "bank_id"
+          ],
+          "missing_signature_columns": [
+            "bank_name",
+            "total_assets_meur",
+            "reporting_currency",
+            "fiscal_year_end"
+          ]
+        },
+        {
+          "table_name": "financial_summary",
+          "score": 3,
+          "confidence": 0.0968,
+          "filename_score": 0,
+          "column_score": 3,
+          "matched_columns": [
+            "bank_id"
+          ],
+          "missing_signature_columns": [
+            "reporting_year",
+            "total_assets_meur",
+            "total_loans_meur",
+            "green_loans_meur",
+            "total_revenue_meur",
+            "net_profit_meur"
+          ]
+        },
+        {
+          "table_name": "governance",
+          "score": 3,
+          "confidence": 0.1034,
+          "filename_score": 0,
+          "column_score": 3,
+          "matched_columns": [
+            "bank_id"
+          ],
+          "missing_signature_columns": [
+            "reporting_year",
+            "board_size",
+            "esg_committee_exists",
+            "board_climate_expertise_pct",
+            "external_assurance",
+            "erm_integration_flag"
+          ]
+        }
+      ]
+    },
+    {
+      "source_filename": "vehicles.csv",
+      "source_path": "C:\\Users\\HP\\Documents\\IFRS-Reporting-api\\IFRS-Reporting\\IFRS-Reporting\\backend\\media\\data_preparation\\batches\\7123bd3a-948b-44db-8cdb-c8b37e9efeeb\\extracted\\vehicles.csv",
+      "headers": [
+        "vehicle_id",
+        "bank_id",
+        "vehicle_type",
+        "fuel_type",
+        "registration_year",
+        "emissions_g_co2_per_km",
+        "annual_km_2024",
+        "annual_fuel_consumption_l",
+        "annual_electricity_consumption_kwh",
+        "annual_km_2022",
+        "annual_km_2023",
+        "scope1_tco2e_2024",
+        "emission_factor_source",
+        "scope1_check",
+        "scope1_delta_pct",
+        "scope1_recalc",
+        "delta_pct",
+        "scope1_fuel_path",
+        "delta_fuel_path",
+        "scope1_tco2e_2024_clean",
+        "scope1_tco2e_2024_original"
+      ],
+      "normalized_headers": [
+        "vehicle_id",
+        "bank_id",
+        "vehicle_type",
+        "fuel_type",
+        "registration_year",
+        "emissions_g_co2_per_km",
+        "annual_km_2024",
+        "annual_fuel_consumption_l",
+        "annual_electricity_consumption_kwh",
+        "annual_km_2022",
+        "annual_km_2023",
+        "scope1_tco2e_2024",
+        "emission_factor_source",
+        "scope1_check",
+        "scope1_delta_pct",
+        "scope1_recalc",
+        "delta_pct",
+        "scope1_fuel_path",
+        "delta_fuel_path",
+        "scope1_tco2e_2024_clean",
+        "scope1_tco2e_2024_original"
+      ],
+      "detected_table": "fleet_vehicles",
+      "confidence": 0.7083,
+      "needs_review": false,
+      "top_candidates": [
+        {
+          "table_name": "fleet_vehicles",
+          "score": 17,
+          "confidence": 0.7083,
+          "filename_score": 2,
+          "column_score": 15,
+          "matched_columns": [
+            "vehicle_id",
+            "bank_id",
+            "fuel_type",
+            "annual_fuel_consumption_l",
+            "scope1_tco2e_2024"
+          ],
+          "missing_signature_columns": [
+            "reporting_year"
+          ]
+        },
+        {
+          "table_name": "ghg_methodology",
+          "score": 6,
+          "confidence": 0.2857,
+          "filename_score": 0,
+          "column_score": 6,
+          "matched_columns": [
+            "bank_id",
+            "emission_factor_source"
+          ],
+          "missing_signature_columns": [
+            "scope",
+            "methodology",
+            "calculation_method"
+          ]
+        },
+        {
+          "table_name": "banks",
+          "score": 3,
+          "confidence": 0.12,
+          "filename_score": 0,
+          "column_score": 3,
+          "matched_columns": [
+            "bank_id"
+          ],
+          "missing_signature_columns": [
+            "bank_name",
+            "total_assets_meur",
+            "reporting_currency",
+            "fiscal_year_end"
+          ]
+        },
+        {
+          "table_name": "financial_summary",
+          "score": 3,
+          "confidence": 0.0968,
+          "filename_score": 0,
+          "column_score": 3,
+          "matched_columns": [
+            "bank_id"
+          ],
+          "missing_signature_columns": [
+            "reporting_year",
+            "total_assets_meur",
+            "total_loans_meur",
+            "green_loans_meur",
+            "total_revenue_meur",
+            "net_profit_meur"
+          ]
+        },
+        {
+          "table_name": "governance",
+          "score": 3,
+          "confidence": 0.1034,
+          "filename_score": 0,
+          "column_score": 3,
+          "matched_columns": [
+            "bank_id"
+          ],
+          "missing_signature_columns": [
+            "reporting_year",
+            "board_size",
+            "esg_committee_exists",
+            "board_climate_expertise_pct",
+            "external_assurance",
+            "erm_integration_flag"
+          ]
+        }
+      ]
+    }
+  ],
+  "detected_tables": {
+    "banks": [
+      "banks.csv"
+    ],
+    "board_minutes_extract": [
+      "board_minutes_extract.csv"
+    ],
+    "carbon_credits": [
+      "carbon_credits.csv"
+    ],
+    "climate_financial_effects": [
+      "climate_financial_effects.csv"
+    ],
+    "climate_opportunities": [
+      "climate_opportunities.csv"
+    ],
+    "climate_risk_register": [
+      "climate_risk_register.csv"
+    ],
+    "climate_scenarios": [
+      "climate_scenarios.csv"
+    ],
+    "collateral": [
+      "collateral.csv"
+    ],
+    "counterparties": [
+      "counterparties.csv"
+    ],
+    "financial_summary": [
+      "counterparty_emissions.csv",
+      "financial_summary.csv"
+    ],
+    "employees": [
+      "employees.csv"
+    ],
+    "exposures": [
+      "exposures.csv"
+    ],
+    "facilities": [
+      "facilities.csv"
+    ],
+    "ghg_methodology": [
+      "ghg_methodology.csv"
+    ],
+    "governance": [
+      "governance.csv"
+    ],
+    "internal_carbon_price": [
+      "internal_carbon_price.csv"
+    ],
+    "investments": [
+      "investments.csv"
+    ],
+    "physical_risk_exposures": [
+      "physical_risk_exposures.csv"
+    ],
+    "rec_registry": [
+      "rec_registry.csv"
+    ],
+    "resilience_assessment": [
+      "resilience_assessment.csv"
+    ],
+    "scope12_consolidation": [
+      "scope12_consolidation.csv"
+    ],
+    "scope3_categories": [
+      "scope3_categories.csv",
+      "value_chain_map.csv"
+    ],
+    "source_systems": [
+      "source_systems.csv"
+    ],
+    "targets": [
+      "targets.csv"
+    ],
+    "transition_plan": [
+      "transition_plan.csv"
+    ],
+    "business_travel": [
+      "travel_records.csv"
+    ],
+    "utility_invoices": [
+      "utility_invoices.csv"
+    ],
+    "fleet_vehicles": [
+      "vehicles.csv"
+    ]
+  },
+  "duplicates": {
+    "financial_summary": [
+      "counterparty_emissions.csv",
+      "financial_summary.csv"
+    ],
+    "scope3_categories": [
+      "scope3_categories.csv",
+      "value_chain_map.csv"
+    ]
+  },
+  "needs_review": true
+}

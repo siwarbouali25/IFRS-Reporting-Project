@@ -1,0 +1,4 @@
+bank_id,reporting_year,total_assets_meur,total_loans_meur,green_loans_meur,green_loans_pct,total_revenue_meur,net_profit_meur,climate_capex_meur,climate_opex_meur,tier1_capital_meur,cet1_ratio_pct,carbon_intensity_tco2e_per_meur_lending,summary_id,total_undrawn_meur,net_interest_income_meur,return_on_equity_pct
+BANK01,2022,763922.8,31150.64,3335.75,10.71,25466.1,5759.9,322.2,420.32,95149.4,19.2,,FIN-BANK01-2022,6595.48,17579.1,6.05
+BANK01,2023,820167.2,31150.64,3335.75,10.71,27779.7,4731.7,373.91,509.21,143979.2,27.0,,FIN-BANK01-2023,6595.48,19263.8,3.29
+BANK01,2024,850000.0,31150.64,3335.75,10.71,24136.2,3356.1,476.95,219.32,151208.6,27.4,,FIN-BANK01-2024,6595.48,15947.7,2.22

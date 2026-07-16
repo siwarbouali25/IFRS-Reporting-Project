@@ -1,160 +1,287 @@
 <div class="dashboard">
-
   <header class="page-header">
     <div>
-      <h1>IFRS S1 / S2 — 2024 reporting</h1>
+      <p class="eyebrow">IFRS S1 / S2 · CSRD · Climate Disclosure</p>
+
+      <h1>
+        {{ dashboard?.bank_name || 'KPI Dashboard' }}
+        <span>· {{ bankId }}</span>
+      </h1>
+
       <p>
-        You're in the Generate phase. Review prepared data below, then start a draft when you're
-        ready. Four items still need sign-off before submission.
+        Dynamic sustainability dashboard generated from the prepared IFRS S1/S2 payloads
+        for reporting year {{ reportingYear }}.
       </p>
     </div>
 
     <div class="header-actions">
-      <span class="cycle-badge">Cycle closes Dec 31</span>
-      <button class="primary-btn">
-        <i class="pi pi-file-edit"></i>
-        Start draft
+      <span class="cycle-badge">{{ reportingYear }}</span>
+
+      <button class="primary-btn" (click)="loadDashboard()" [disabled]="loading">
+        <i class="pi pi-refresh"></i>
+        Refresh
       </button>
     </div>
   </header>
 
-  <section class="metrics-grid">
-    <article class="metric-card" *ngFor="let kpi of kpis">
-      <p>{{ kpi.title }}</p>
+  <section class="status-message" *ngIf="loading">
+    Loading KPI dashboard...
+  </section>
 
-      <h2>
-        {{ kpi.value }}
-        <small *ngIf="kpi.suffix">{{ kpi.suffix }}</small>
-      </h2>
+  <section class="status-message error" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </section>
 
-      <span [class]="kpi.deltaClass">
-        {{ kpi.change }}
+  <section class="kpi-showcase">
+    <div class="featured-kpis">
+      <article class="featured-kpi-card" *ngFor="let kpi of miniKpis | slice:0:2">
+        <div class="kpi-card-top">
+          <p>{{ kpi.label }}</p>
+          <span></span>
+        </div>
+
+        <h2>
+          {{ kpi.value !== null && kpi.value !== undefined ? kpi.value : '—' }}
+          <small>{{ kpi.unit }}</small>
+        </h2>
+
+        <div class="kpi-card-bottom">
+          <span
+            *ngIf="kpi.delta"
+            [class.good]="kpi.delta_type === 'good'"
+            [class.bad]="kpi.delta_type === 'bad'"
+            [class.neutral]="kpi.delta_type === 'neutral'">
+            {{ kpi.delta }}
+          </span>
+
+          <em *ngIf="kpi.note">{{ kpi.note }}</em>
+        </div>
+      </article>
+    </div>
+
+    <div class="support-kpis">
+      <article class="support-kpi-card" *ngFor="let kpi of miniKpis | slice:2">
+        <div class="kpi-card-top">
+          <p>{{ kpi.label }}</p>
+          <span></span>
+        </div>
+
+        <h2>
+          {{ kpi.value !== null && kpi.value !== undefined ? kpi.value : '—' }}
+          <small>{{ kpi.unit }}</small>
+        </h2>
+
+        <div class="kpi-card-bottom">
+          <span
+            *ngIf="kpi.delta"
+            [class.good]="kpi.delta_type === 'good'"
+            [class.bad]="kpi.delta_type === 'bad'"
+            [class.neutral]="kpi.delta_type === 'neutral'">
+            {{ kpi.delta }}
+          </span>
+
+          <em *ngIf="kpi.note">{{ kpi.note }}</em>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="materiality-card">
+    <div>
+      <p>Footprint composition</p>
+
+      <h3>
+        Financed emissions represent
+        <strong>{{ footprintFinancedPct }}%</strong>
+        of the total footprint.
+      </h3>
+
+      <span>
+        Own operations are {{ footprintOperations }} tCO₂e, while financed emissions
+        dominate the climate footprint.
       </span>
-    </article>
+    </div>
+
+    <div>
+      <div class="materiality-bar">
+        <div
+          class="bar-financed"
+          [style.width.%]="footprintFinancedPct === '—' ? 0 : footprintFinancedPct">
+        </div>
+
+        <div
+          class="bar-operations"
+          [style.width.%]="footprintOperationsPct === '—' ? 0 : footprintOperationsPct">
+        </div>
+      </div>
+
+      <div class="materiality-labels">
+        <span>Financed emissions</span>
+        <span>Own operations</span>
+      </div>
+    </div>
   </section>
 
   <section class="content-grid">
-
     <article class="panel">
       <div class="panel-header">
         <div>
-          <h3>Carbon emissions trend</h3>
-          <p>Monthly tCO₂e, 2024 reporting period</p>
-        </div>
-
-        <span class="quiet-badge">−33% YTD</span>
-      </div>
-
-      <div class="chart-wrap">
-        <p-chart
-          type="line"
-          [data]="carbonData"
-          [options]="carbonOptions">
-        </p-chart>
-      </div>
-    </article>
-
-    <article class="panel risk-panel">
-      <div class="panel-header">
-        <div>
-          <h3>Risk breakdown</h3>
-          <p>Open items by severity</p>
-        </div>
-      </div>
-
-      <div class="risk-chart-wrap">
-        <p-chart
-          type="doughnut"
-          [data]="riskData"
-          [options]="riskOptions">
-        </p-chart>
-      </div>
-
-      <div class="risk-legend">
-        <div>
-          <span class="legend-dot high"></span>
-          <p>High</p>
-          <strong>3</strong>
-        </div>
-
-        <div>
-          <span class="legend-dot medium"></span>
-          <p>Medium</p>
-          <strong>6</strong>
-        </div>
-
-        <div>
-          <span class="legend-dot low"></span>
-          <p>Low</p>
-          <strong>9</strong>
-        </div>
-      </div>
-    </article>
-
-    <article class="panel">
-      <div class="panel-header">
-        <div>
-          <h3>Where things stand</h3>
-          <p>Phase {{ currentPhase }} of 5 · in progress</p>
-        </div>
-      </div>
-
-      <div class="workflow">
-        <div class="workflow-step done">
-          <span class="dot"></span>
-          <div>
-            <h4>Upload</h4>
-            <p>All source files received and logged</p>
-          </div>
-        </div>
-
-        <div class="workflow-step done">
-          <span class="dot"></span>
-          <div>
-            <h4>Prepare</h4>
-            <p>Data structured, units normalised</p>
-          </div>
-        </div>
-
-        <div class="workflow-step active">
-          <span class="dot"></span>
-          <div>
-            <h4>Generate</h4>
-            <p>Draft sections being built — you are here</p>
-          </div>
-        </div>
-
-        <div class="workflow-step">
-          <span class="dot"></span>
-          <div>
-            <h4>Review</h4>
-            <p>Expert sign-off required</p>
-          </div>
-        </div>
-
-        <div class="workflow-step">
-          <span class="dot"></span>
-          <div>
-            <h4>Submit</h4>
-            <p>Final package to regulator</p>
-          </div>
-        </div>
-      </div>
-    </article>
-
-    <article class="panel">
-      <div class="panel-header">
-        <div>
-          <h3>KPI coverage by pillar</h3>
-          <p>How complete each disclosure section is</p>
+          <h3>Own-operations emissions</h3>
+          <p>Scope 1, Scope 2 market-based, business travel and location-based Scope 2.</p>
         </div>
       </div>
 
       <div class="chart-wrap">
         <p-chart
           type="bar"
-          [data]="kpiData"
-          [options]="kpiOptions">
+          [data]="operationsTrendData"
+          [options]="mixedOperationsOptions">
+        </p-chart>
+      </div>
+
+      <p class="panel-note">
+        Market-based emissions show the operational footprint after electricity procurement choices.
+      </p>
+    </article>
+
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <h3>Financed emissions and intensity</h3>
+          <p>Absolute financed emissions compared with lending carbon intensity.</p>
+        </div>
+      </div>
+
+      <div class="chart-wrap">
+        <p-chart
+          type="bar"
+          [data]="financedTrendData"
+          [options]="financedOptions">
+        </p-chart>
+      </div>
+
+      <p class="panel-note">
+        This highlights whether portfolio emissions are improving relative to the loan book.
+      </p>
+    </article>
+
+    <article class="panel wide">
+      <div class="panel-header">
+        <div>
+          <h3>Scope 3 upstream categories</h3>
+          <p>Largest upstream categories excluding financed emissions reported separately.</p>
+        </div>
+
+        <span class="quiet-badge">tCO₂e</span>
+      </div>
+
+      <div class="chart-wrap tall">
+        <p-chart
+          type="bar"
+          [data]="scope3CategoryData"
+          [options]="horizontalBarOptions">
+        </p-chart>
+      </div>
+
+      <p class="panel-note">
+        This view helps identify which indirect operational categories carry the largest footprint.
+      </p>
+    </article>
+
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <h3>Emissions data quality</h3>
+          <p>Share of financed-emissions inputs by source or calculation basis.</p>
+        </div>
+      </div>
+
+      <div class="donut-wrap">
+        <p-chart
+          type="doughnut"
+          [data]="dataQualityData"
+          [options]="doughnutOptions">
+        </p-chart>
+      </div>
+
+      <p class="panel-note">
+        A higher share of estimated or proxy data increases review attention.
+      </p>
+    </article>
+
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <h3>Climate risk register</h3>
+          <p>Likelihood × severity heat matrix using the prepared risk register.</p>
+        </div>
+      </div>
+
+      <div class="heatmatrix">
+        <ng-container *ngFor="let cell of riskMatrixCells">
+          <div
+            class="heat-cell"
+            [class.low]="cell.level === 'low'"
+            [class.medium]="cell.level === 'medium'"
+            [class.high]="cell.level === 'high'"
+            [class.empty]="cell.level === 'empty'">
+            <strong *ngIf="cell.count">{{ cell.count }}</strong>
+            <small *ngIf="cell.count">€{{ cell.impact }}m</small>
+          </div>
+        </ng-container>
+      </div>
+
+      <div class="heat-axis">
+        <span>S1</span>
+        <span>S2</span>
+        <span>S3</span>
+        <span>S4</span>
+        <span>S5</span>
+      </div>
+
+      <p class="panel-note">
+        Darker cells represent higher combined likelihood and severity.
+      </p>
+    </article>
+
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <h3>Scenario analysis</h3>
+          <p>Physical and transition risk loss by horizon.</p>
+        </div>
+
+        <span class="quiet-badge">%</span>
+      </div>
+
+      <div class="chart-wrap">
+        <p-chart
+          type="bar"
+          [data]="scenarioData"
+          [options]="percentBarOptions">
+        </p-chart>
+      </div>
+
+      <p class="panel-note">
+        Scenario outputs show the relative materiality of physical and transition risk.
+      </p>
+    </article>
+
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <h3>Physical risk by hazard</h3>
+          <p>Exposure distribution across climate hazards.</p>
+        </div>
+
+        <span class="quiet-badge">€m</span>
+      </div>
+
+      <div class="chart-wrap tall">
+        <p-chart
+          type="bar"
+          [data]="physicalHazardData"
+          [options]="horizontalBarOptions">
         </p-chart>
       </div>
     </article>
@@ -162,41 +289,93 @@
     <article class="panel">
       <div class="panel-header">
         <div>
-          <h3>Items needing attention</h3>
-          <p>Unresolved before draft can be finalised</p>
+          <h3>Top countries — exposure vs impact</h3>
+          <p>Country-level physical exposure and modelled impact.</p>
         </div>
       </div>
 
-      <div class="risk-list">
-        <div class="risk-item" *ngFor="let risk of risks">
-          <div>
-            <h4>{{ risk.name }}</h4>
-            <p>{{ risk.status }}</p>
-          </div>
-
-          <span [class]="'risk-tag ' + risk.level.toLowerCase()">
-            {{ risk.level }}
-          </span>
-        </div>
+      <div class="chart-wrap">
+        <p-chart
+          type="bar"
+          [data]="countryExposureData"
+          [options]="financedOptions">
+        </p-chart>
       </div>
     </article>
 
-    <article class="panel full">
+    <article class="panel">
       <div class="panel-header">
         <div>
-          <h3>Recent activity</h3>
-          <p>What's happened in the workspace</p>
+          <h3>Top climate opportunities</h3>
+          <p>Estimated revenue upside by climate opportunity type.</p>
         </div>
+
+        <span class="quiet-badge">€m</span>
       </div>
 
-      <div class="activity-list">
-        <div class="activity-item" *ngFor="let item of activities">
-          <span class="dot"></span>
-          <p>{{ item.text }}</p>
-          <time>{{ item.time }}</time>
-        </div>
+      <div class="chart-wrap tall">
+        <p-chart
+          type="bar"
+          [data]="opportunitiesData"
+          [options]="horizontalBarOptions">
+        </p-chart>
       </div>
     </article>
 
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <h3>Investment holdings by emissions</h3>
+          <p>Largest attributed emissions from investment holdings.</p>
+        </div>
+
+        <span class="quiet-badge">tCO₂e</span>
+      </div>
+
+      <div class="chart-wrap tall">
+        <p-chart
+          type="bar"
+          [data]="investmentEmissionsData"
+          [options]="horizontalBarOptions">
+        </p-chart>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <h3>Governance maturity</h3>
+          <p>Board, committee, assurance and remuneration indicators.</p>
+        </div>
+      </div>
+
+      <div class="governance-grid">
+        <div *ngFor="let tile of governanceTiles">
+          <strong>{{ tile.value }}{{ tile.unit || '' }}</strong>
+          <span>{{ tile.label }}</span>
+        </div>
+      </div>
+
+      <p class="panel-note">
+        Governance indicators help explain oversight and control maturity.
+      </p>
+    </article>
+
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <h3>Methodology notes</h3>
+          <p>Validation notes and interpretation limits from the prepared data.</p>
+        </div>
+      </div>
+
+      <div class="methodology-list">
+        <div *ngFor="let note of methodologyNotes">
+          <strong>{{ note.field }}</strong>
+          <p>{{ note.reason }}</p>
+          <span>Affected years: {{ note.years }}</span>
+        </div>
+      </div>
+    </article>
   </section>
 </div>

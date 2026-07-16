@@ -18,6 +18,8 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import include, path
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -28,5 +30,10 @@ urlpatterns = [
     path("api/", include("ifrs_assets.urls")),
     path("api/", include("report_generation.urls")),
     path("api/", include("report_artifacts.urls")),
+    path("api/data-preparation/", include("data_preparation.urls")),
+    path("api/kpi-dashboard/", include("kpi_dashboard.urls")),
 
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

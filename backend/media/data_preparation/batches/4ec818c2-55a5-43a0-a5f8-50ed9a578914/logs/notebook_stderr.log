@@ -1,0 +1,499 @@
+[NbConvertApp] Converting notebook C:\Users\HP\Documents\IFRS-Reporting-api\IFRS-Reporting\IFRS-Reporting\backend\data_preparation\notebooks\data_prep_pipeline.ipynb to notebook
+C:\Users\HP\Documents\IFRS-Reporting-api\IFRS-Reporting\IFRS-Reporting\backend\.venv\Lib\site-packages\zmq\_future.py:718: RuntimeWarning: Proactor event loop does not implement add_reader family of methods required for zmq. Registering an additional selector thread for add_reader support via tornado. Use `asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())` to avoid this warning.
+  self._get_loop()
+[IPKernelApp] WARNING | Kernel is running over TCP without encryption. All communication (including code and outputs) is sent in plain text and is susceptible to eavesdropping. Use IPC transport or launch with kernel manager-provisioned CurveZMQ keys to enable transport encryption.
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\HP\Documents\IFRS-Reporting-api\IFRS-Reporting\IFRS-Reporting\backend\.venv\Scripts\jupyter-nbconvert.EXE\__main__.py", line 5, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "C:\Users\HP\Documents\IFRS-Reporting-api\IFRS-Reporting\IFRS-Reporting\backend\.venv\Lib\site-packages\jupyter_core\application.py", line 284, in launch_instance
+    super().launch_instance(argv=argv, **kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Documents\IFRS-Reporting-api\IFRS-Reporting\IFRS-Reporting\backend\.venv\Lib\site-packages\traitlets\config\application.py", line 1082, in launch_instance
+    app.start()
+    ~~~~~~~~~^^
+  File "C:\Users\HP\Documents\IFRS-Reporting-api\IFRS-Reporting\IFRS-Reporting\backend\.venv\Lib\site-packages\nbconvert\nbconvertapp.py", line 420, in start
+    self.convert_notebooks()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\HP\Documents\IFRS-Reporting-api\IFRS-Reporting\IFRS-Reporting\backend\.venv\Lib\site-packages\nbconvert\nbconvertapp.py", line 597, in convert_notebooks
+    self.convert_single_notebook(notebook_filename)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Documents\IFRS-Reporting-api\IFRS-Reporting\IFRS-Reporting\backend\.venv\Lib\site-packages\nbconvert\nbconvertapp.py", line 563, in convert_single_notebook
+    output, resources = self.export_single_notebook(
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        notebook_filename, resources, input_buffer=input_buffer
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HP\Documents\IFRS-Reporting-api\IFRS-Reporting\IFRS-Reporting\backend\.venv\Lib\site-packages\nbconvert\nbconvertapp.py", line 487, in export_single_notebook
+    output, resources = self.exporter.from_filename(
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        notebook_filename, resources=resources
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HP\Documents\IFRS-Reporting-api\IFRS-Reporting\IFRS-Reporting\backend\.venv\Lib\site-packages\nbconvert\exporters\exporter.py", line 201, in from_filename
+    return self.from_file(f, resources=resources, **kw)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Documents\IFRS-Reporting-api\IFRS-Reporting\IFRS-Reporting\backend\.venv\Lib\site-packages\nbconvert\exporters\exporter.py", line 220, in from_file
+    return self.from_notebook_node(
+           ~~~~~~~~~~~~~~~~~~~~~~~^
+        nbformat.read(file_stream, as_version=4), resources=resources, **kw
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\HP\Documents\IFRS-Reporting-api\IFRS-Reporting\IFRS-Reporting\backend\.venv\Lib\site-packages\nbconvert\exporters\notebook.py", line 36, in from_notebook_node
+    nb_copy, resources = super().from_notebook_node(nb, resources, **kw)
+                         ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Documents\IFRS-Reporting-api\IFRS-Reporting\IFRS-Reporting\backend\.venv\Lib\site-packages\nbconvert\exporters\exporter.py", line 154, in from_notebook_node
+    nb_copy, resources = self._preprocess(nb_copy, resources)
+                         ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Documents\IFRS-Reporting-api\IFRS-Reporting\IFRS-Reporting\backend\.venv\Lib\site-packages\nbconvert\exporters\exporter.py", line 353, in _preprocess
+    nbc, resc = preprocessor(nbc, resc)
+                ~~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\HP\Documents\IFRS-Reporting-api\IFRS-Reporting\IFRS-Reporting\backend\.venv\Lib\site-packages\nbconvert\preprocessors\base.py", line 48, in __call__
+    return self.preprocess(nb, resources)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Documents\IFRS-Reporting-api\IFRS-Reporting\IFRS-Reporting\backend\.venv\Lib\site-packages\nbconvert\preprocessors\execute.py", line 103, in preprocess
+    self.preprocess_cell(cell, resources, index)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\Documents\IFRS-Reporting-api\IFRS-Reporting\IFRS-Reporting\backend\.venv\Lib\site-packages\nbconvert\preprocessors\execute.py", line 124, in preprocess_cell
+    cell = self.execute_cell(cell, index, store_history=True)
+  File "C:\Users\HP\Documents\IFRS-Reporting-api\IFRS-Reporting\IFRS-Reporting\backend\.venv\Lib\site-packages\jupyter_core\utils\__init__.py", line 165, in wrapped
+    return loop.run_until_complete(inner)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "C:\Users\HP\Documents\IFRS-Reporting-api\IFRS-Reporting\IFRS-Reporting\backend\.venv\Lib\site-packages\nbclient\client.py", line 1062, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "C:\Users\HP\Documents\IFRS-Reporting-api\IFRS-Reporting\IFRS-Reporting\backend\.venv\Lib\site-packages\nbclient\client.py", line 918, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+
+# ============================================================
+# 2. Shared helpers
+# ============================================================
+
+def safe_float(value):
+    try:
+        value = float(value)
+        return value if value == value else None
+    except Exception:
+        return None
+
+def clean_for_json(value):
+    if isinstance(value, dict):
+        return {k: clean_for_json(v) for k, v in value.items()}
+
+    if isinstance(value, list):
+        return [clean_for_json(v) for v in value]
+
+    if hasattr(value, "item") and not isinstance(value, (str, bytes)):
+        try:
+            value = value.item()
+        except Exception:
+            pass
+
+    try:
+        if pd.isna(value):
+            return None
+    except Exception:
+        pass
+
+    return value
+
+def dump_strict_json(obj, path: Path):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(clean_for_json(obj), f, indent=2, default=str, allow_nan=False, ensure_ascii=False)
+
+HIGH_CARBON_NACE = {"B06", "B07", "B08", "B09", "C19", "C20", "D35", "H49", "H50", "H51", "C24"}
+FOSSIL_FUEL_NACE = {"B06", "B07", "C19", "D35"}
+
+def is_high_carbon_nace(code):
+    code = str(code or "").upper()
+    return code in HIGH_CARBON_NACE
+
+def is_fossil_fuel_nace(code):
+    code = str(code or "").upper()
+    return code in FOSSIL_FUEL_NACE
+
+def bank_slice(df, bank_id):
+    if df is None or not hasattr(df, "columns") or getattr(df, "empty", False):
+        return []
+    if "bank_id" not in df.columns:
+        return df.to_dict("records")
+    return df[df["bank_id"] == bank_id].to_dict("records")
+
+def bank_slice_optional(tables, table_name, bank_id):
+    if table_name not in tables:
+        return []
+    return bank_slice(tables[table_name], bank_id)
+
+def compute_target_progress(row):
+    try:
+        baseline_year = int(row.get("baseline_year", 2019))
+        target_year = int(row.get("target_year", 2030))
+    except Exception:
+        baseline_year, target_year = None, None
+
+    schedule = None
+    if baseline_year is not None and target_year is not None and target_year > baseline_year:
+        schedule = round(min((REPORTING_YEAR - baseline_year) / (target_year - baseline_year) * 100, 100.0), 1)
+
+    actual = None  # do not fabricate achieved progress
+    if actual is not None:
+        basis = "actual_vs_baseline"
+    elif schedule is not None:
+        basis = "schedule_elapsed_only"
+    else:
+        basis = "unavailable"
+
+    return {
+        "schedule_elapsed_pct_2024": schedule,
+        "actual_progress_pct_2024": actual,
+        "progress_basis": basis,
+        "progress_is_schedule_proxy": actual is None and schedule is not None,
+    }
+
+
+# ============================================================
+# 3. Target preparation
+# ============================================================
+
+targets = tables["targets"].copy()
+
+if "interim_milestones_json" in targets.columns:
+    targets["milestones_parsed"] = targets["interim_milestones_json"].apply(
+        lambda x: json.loads(x) if pd.notna(x) and str(x).strip() else []
+    )
+else:
+    targets["milestones_parsed"] = [[] for _ in range(len(targets))]
+
+progress = targets.apply(compute_target_progress, axis=1, result_type="expand")
+for col in ["schedule_elapsed_pct_2024", "actual_progress_pct_2024", "progress_basis", "progress_is_schedule_proxy"]:
+    targets[col] = progress[col]
+
+targets["target_progress_pct_2024"] = targets["actual_progress_pct_2024"]
+
+display(targets[["target_id", "bank_id", "target_year", "schedule_elapsed_pct_2024", "target_progress_pct_2024", "progress_basis"]].head())
+
+
+# ============================================================
+# 4. Scope 1, 2 and Scope 3 travel
+# ============================================================
+
+travel = tables["travel_records"].copy()
+travel["travel_date"] = pd.to_datetime(travel["travel_date"])
+travel["reporting_year"] = travel["travel_date"].dt.year
+
+util = tables["utility_invoices"].copy()
+util["invoice_month"] = pd.to_datetime(util["invoice_month"])
+
+scope1_gas = (
+    util.groupby(["bank_id", "invoice_year"])["scope1_gas_tco2e"]
+    .sum()
+    .reset_index()
+    .rename(columns={"invoice_year": "reporting_year"})
+)
+
+vehicles = tables["vehicles"].copy()
+if "scope1_tco2e_2024_clean" not in vehicles.columns:
+    def recalc_fleet_scope1(row):
+        fuel_type = str(row.get("fuel_type", "")).lower()
+        fuel_litres = safe_float(row.get("annual_fuel_consumption_l")) or 0.0
+        if fuel_type == "electric" or fuel_litres <= 0:
+            return 0.0
+        return round(fuel_litres * FLEET_EMISSION_FACTOR_KGCO2_PER_LITRE / 1000, 6)
+    vehicles["scope1_tco2e_2024_clean"] = vehicles.apply(recalc_fleet_scope1, axis=1)
+
+scope1_fleet = (
+    vehicles.groupby("bank_id")["scope1_tco2e_2024_clean"]
+    .sum()
+    .reset_index()
+    .rename(columns={"scope1_tco2e_2024_clean": "scope1_fleet_tco2e"})
+)
+scope1_fleet["reporting_year"] = REPORTING_YEAR
+
+scope1 = scope1_gas.merge(scope1_fleet, on=["bank_id", "reporting_year"], how="left").fillna(0)
+scope1["scope1_total_tco2e"] = scope1["scope1_gas_tco2e"] + scope1["scope1_fleet_tco2e"]
+scope1["fleet_data_available"] = scope1["reporting_year"] == REPORTING_YEAR
+
+scope2 = (
+    util.groupby(["bank_id", "invoice_year"])
+    .agg(scope2_location_tco2e=("scope2_location_tco2e", "sum"), scope2_market_tco2e=("scope2_market_tco2e", "sum"))
+    .reset_index()
+    .rename(columns={"invoice_year": "reporting_year"})
+)
+
+scope2_check = scope2[scope2["reporting_year"] == REPORTING_YEAR]
+if not (scope2_check["scope2_market_tco2e"] <= scope2_check["scope2_location_tco2e"]).all():
+    print("WARNING: Some Scope 2 market-based values exceed location-based values. Check REC treatment.")
+
+scope3_travel = (
+    travel.groupby(["bank_id", "reporting_year"])["emissions_kg_co2e"]
+    .sum()
+    .div(1000)
+    .reset_index()
+    .rename(columns={"emissions_kg_co2e": "scope3_travel_tco2e"})
+)
+scope3_travel["travel_data_available"] = True
+
+display(scope1.head())
+display(scope2.head())
+display(scope3_travel.head())
+
+
+# ============================================================
+# 5. PCAF-style financed emissions for loans
+# ============================================================
+
+exp = tables["exposures"].copy()
+cp = tables["counterparties"].copy()
+cp_em = tables["counterparty_emissions"].copy()
+
+cp_em_enriched = cp_em.merge(
+    cp[["counterparty_id", "evic_meur", "ppp_adjusted_gdp_meur", "national_scope1_tco2e", "nace_code"]],
+    on="counterparty_id",
+    how="left",
+)
+
+financed_by_year_records = []
+loan_emissions_records = []
+
+for year in sorted(cp_em_enriched["reporting_year"].dropna().unique()):
+    cp_em_year = cp_em_enriched[cp_em_enriched["reporting_year"] == year].copy()
+
+    cols = ["counterparty_id", "total_ghg_tco2e", "evic_meur", "ppp_adjusted_gdp_meur", "national_scope1_tco2e", "nace_code"]
+    optional_cols = [c for c in ["pcaf_data_quality_score", "data_source"] if c in cp_em_year.columns]
+    exp_em_year = exp.merge(cp_em_year[cols + optional_cols], on="counterparty_id", how="left")
+
+    corporate_mask = exp_em_year["nace_code"].astype(str).str.upper() != "O84"
+    sovereign_mask = exp_em_year["nace_code"].astype(str).str.upper() == "O84"
+
+    exp_em_year["attributed_emissions_tco2e"] = np.nan
+    exp_em_year.loc[corporate_mask, "attributed_emissions_tco2e"] = (
+        exp_em_year.loc[corporate_mask, "outstanding_amount_meur"] / exp_em_year.loc[corporate_mask, "evic_meur"]
+    ) * exp_em_year.loc[corporate_mask, "total_ghg_tco2e"]
+
+    exp_em_year.loc[sovereign_mask, "attributed_emissions_tco2e"] = (
+        exp_em_year.loc[sovereign_mask, "outstanding_amount_meur"] / exp_em_year.loc[sovereign_mask, "ppp_adjusted_gdp_meur"]
+    ) * exp_em_year.loc[sovereign_mask, "national_scope1_tco2e"]
+
+    exp_em_year["reporting_year"] = int(year)
+    loan_emissions_records.append(exp_em_year)
+
+    totals = (
+        exp_em_year.groupby("bank_id")["attributed_emissions_tco2e"]
+        .sum()
+        .reset_index()
+        .rename(columns={"attributed_emissions_tco2e": "financed_em_loans_tco2e"})
+    )
+    totals["reporting_year"] = int(year)
+    financed_by_year_records.append(totals)
+
+loan_emissions_detail = pd.concat(loan_emissions_records, ignore_index=True)
+financed_by_year = pd.concat(financed_by_year_records, ignore_index=True)
+
+loan_denominators = tables["banks"][["bank_id", "total_loans_meur"]].copy()
+
+financed_by_year = financed_by_year.merge(loan_denominators, on="bank_id", how="left")
+financed_by_year["carbon_intensity_tco2e_per_meur_lending"] = (
+    financed_by_year["financed_em_loans_tco2e"] / financed_by_year["total_loans_meur"]
+).round(4)
+
+display(financed_by_year.head())
+
+
+# ============================================================
+# 6. Investment emissions
+# ============================================================
+
+inv = tables["investments"].copy()
+inv = inv[inv["reporting_year"] == REPORTING_YEAR].copy()
+
+listed_equity = inv[inv["asset_class"] == "listed_equity"].copy()
+sovereign_bonds = inv[inv["asset_class"] == "sovereign_bond"].copy()
+
+listed_equity["attribution_factor"] = listed_equity["market_value_meur"] / listed_equity["issuer_evic_meur"]
+listed_equity["attributed_emissions_proxy_tco2e"] = listed_equity["attribution_factor"] * listed_equity["issuer_revenue_meur"]
+listed_equity["attributed_emissions_tco2e"] = listed_equity["attributed_emissions_proxy_tco2e"]
+listed_equity["emissions_proxy_used"] = True
+listed_equity["proxy_basis"] = "issuer_revenue_meur"
+listed_equity["proxy_confidence"] = "low"
+listed_equity["proxy_reason"] = "Direct issuer emissions unavailable. Revenue used as PCAF B61 proxy. Do not treat as verified emissions."
+
+sovereign_reference = cp[cp["nace_code"].astype(str).str.upper() == "O84"][["country", "national_scope1_tco2e", "ppp_adjusted_gdp_meur"]].drop_duplicates()
+sovereign_bonds = sovereign_bonds.merge(sovereign_reference, on="country", how="left")
+sovereign_bonds["attribution_factor"] = sovereign_bonds["nominal_amount_meur"] / sovereign_bonds["ppp_gdp_meur"]
+sovereign_bonds["attributed_emissions_tco2e"] = sovereign_bonds["attribution_factor"] * sovereign_bonds["national_scope1_tco2e"]
+sovereign_bonds["pcaf_method"] = "PCAF B62A sovereign bonds"
+sovereign_bonds["emissions_proxy_used"] = False
+
+
+# ============================================================
+# 7. Financial summary update and KPIs
+# ============================================================
+
+fs = tables["financial_summary"].copy()
+fs = fs.drop(columns=[col for col in ["financed_em_loans_tco2e", "carbon_intensity_tco2e_per_meur_lending"] if col in fs.columns])
+fs = fs.merge(
+    financed_by_year[["bank_id", "reporting_year", "financed_em_loans_tco2e", "carbon_intensity_tco2e_per_meur_lending"]],
+    on=["bank_id", "reporting_year"],
+    how="left",
+)
+tables["financial_summary"] = fs
+
+def build_sector_kpis():
+    merged = exp.merge(cp[["counterparty_id", "nace_code"]], on="counterparty_id", how="left")
+    sector_kpis = {}
+    for bank_id, group in merged.groupby("bank_id"):
+        total = group["outstanding_amount_meur"].sum()
+        high = group[group["nace_code"].apply(is_high_carbon_nace)]["outstanding_amount_meur"].sum()
+        fossil = group[group["nace_code"].apply(is_fossil_fuel_nace)]["outstanding_amount_meur"].sum()
+        sector_kpis[bank_id] = {
+            "high_carbon_sector_exposure_pct": round(high / total * 100, 2) if total else None,
+            "fossil_fuel_exposure_pct": round(fossil / total * 100, 2) if total else None,
+            "high_carbon_sector_exposure_meur": round(high, 2),
+            "fossil_fuel_exposure_meur": round(fossil, 2),
+        }
+    return sector_kpis
+
+sector_kpis = build_sector_kpis()
+
+def build_data_quality_summary(bank_id):
+    bank_exp = exp.merge(cp[["counterparty_id", "data_source_type"]], on="counterparty_id", how="left")
+    bank_exp = bank_exp[bank_exp["bank_id"] == bank_id].copy()
+    total = bank_exp["outstanding_amount_meur"].sum()
+    if total == 0:
+        return {}
+    return (
+        bank_exp.groupby("data_source_type")["outstanding_amount_meur"]
+        .sum()
+        .div(total)
+        .mul(100)
+        .round(1)
+        .to_dict()
+    )
+
+def build_carbon_credit_summary(bank_id):
+    if "carbon_credits" not in tables:
+        return None
+    credits = tables["carbon_credits"]
+    bank_credits = credits[(credits["bank_id"] == bank_id) & (credits["reporting_year"] == REPORTING_YEAR)].copy()
+    if bank_credits.empty:
+        return None
+    total = bank_credits["tonnes_co2e"].sum()
+    retired = bank_credits[bank_credits["use"] == "retirement_against_emissions"] if "use" in bank_credits.columns else bank_credits
+    removal = bank_credits[bank_credits["credit_type"] == "carbon_removal"] if "credit_type" in bank_credits.columns else bank_credits.iloc[0:0]
+    high_perm = bank_credits[bank_credits["permanence_rating"] == "high"] if "permanence_rating" in bank_credits.columns else bank_credits.iloc[0:0]
+    add_verified = bank_credits[bank_credits["additionality_verified"] == True] if "additionality_verified" in bank_credits.columns else bank_credits.iloc[0:0]
+    return {
+        "total_credits_tco2e": int(total),
+        "retired_tco2e": int(retired["tonnes_co2e"].sum()) if not retired.empty else 0,
+        "removal_pct": round(removal["tonnes_co2e"].sum() / total * 100, 1) if total else 0,
+        "high_permanence_pct": round(high_perm["tonnes_co2e"].sum() / total * 100, 1) if total else 0,
+        "additionality_verified_pct": round(add_verified["tonnes_co2e"].sum() / total * 100, 1) if total else 0,
+    }
+
+def build_reporting_kpis(bank_id):
+    def get_2024_value(df, year_col, value_col):
+        rows = df[(df["bank_id"] == bank_id) & (df[year_col] == REPORTING_YEAR)]
+        if rows.empty:
+            return None
+        return rows.iloc[0][value_col]
+
+    def fs_val(col):
+        rows = fs[(fs["bank_id"] == bank_id) & (fs["reporting_year"] == REPORTING_YEAR)]
+        if rows.empty or col not in rows.columns:
+            return None
+        return rows.iloc[0][col]
+
+    gov_rows = tables["governance"][
+        (tables["governance"]["bank_id"] == bank_id) &
+        (tables["governance"]["reporting_year"] == REPORTING_YEAR)
+    ]
+    gov_row = gov_rows.iloc[0].to_dict() if not gov_rows.empty else {}
+    targets_bank = targets[targets["bank_id"] == bank_id].copy()
+
+    target_cols = [
+        "target_id", "target_type", "scope_coverage", "status", "target_year", "target_framework",
+        "target_progress_pct_2024", "schedule_elapsed_pct_2024", "progress_basis", "progress_is_schedule_proxy"
+    ]
+    target_cols = [c for c in target_cols if c in targets_bank.columns]
+
+    return clean_for_json({
+        "scope1_2024_tco2e": get_2024_value(scope1, "reporting_year", "scope1_total_tco2e"),
+        "scope2_location_2024_tco2e": get_2024_value(scope2, "reporting_year", "scope2_location_tco2e"),
+        "scope2_market_2024_tco2e": get_2024_value(scope2, "reporting_year", "scope2_market_tco2e"),
+        "scope3_travel_2024_tco2e": get_2024_value(scope3_travel, "reporting_year", "scope3_travel_tco2e"),
+        "financed_emissions_2024_tco2e": fs_val("financed_em_loans_tco2e"),
+        "carbon_intensity_2024_tco2e_per_meur": fs_val("carbon_intensity_tco2e_per_meur_lending"),
+        "green_loans_pct_2024": fs_val("green_loans_pct"),
+        "climate_capex_2024_meur": fs_val("climate_capex_meur"),
+        "climate_opex_2024_meur": fs_val("climate_opex_meur"),
+        "total_assets_2024_meur": fs_val("total_assets_meur"),
+        "total_loans_2024_meur": fs_val("total_loans_meur"),
+        "governance_maturity": {
+            "esg_committee_exists": gov_row.get("esg_committee_exists"),
+            "esg_committee_meetings": gov_row.get("esg_committee_meetings_per_year"),
+            "board_climate_expertise_pct": gov_row.get("board_climate_expertise_pct"),
+            "ceo_esg_compensation_pct": gov_row.get("ceo_esg_compensation_pct"),
+            "external_assurance": gov_row.get("external_assurance"),
+            "erm_integration": bool(gov_row.get("erm_integration_flag")) if gov_row.get("erm_integration_flag") is not None else None,
+        },
+        "target_summary": targets_bank[target_cols].rename(columns={"target_type": "type", "target_framework": "framework", "scope_coverage": "scope"}).to_dict("records") if target_cols else [],
+        **sector_kpis.get(bank_id, {}),
+        "emissions_data_quality_summary": build_data_quality_summary(bank_id),
+        "carbon_credit_summary": build_carbon_credit_summary(bank_id),
+        "scope1_fleet_included": True,
+        "scope3_travel_comparative_available": False,
+        "listed_equity_emissions_are_proxy": True,
+    })
+
+kpi_preview = pd.DataFrame([{"bank_id": bank_id, **build_reporting_kpis(bank_id)} for bank_id in tables["banks"]["bank_id"].unique()])
+display(kpi_preview[["bank_id", "scope1_2024_tco2e", "scope2_location_2024_tco2e", "scope2_market_2024_tco2e", "scope3_travel_2024_tco2e", "financed_emissions_2024_tco2e", "carbon_intensity_2024_tco2e_per_meur"]])
+
+# Visualisations from calculated metrics.
+plt.figure(figsize=(9, 5))
+for bank_id, group in fs.groupby("bank_id"):
+    group = group.sort_values("reporting_year")
+    plt.plot(group["reporting_year"], group["carbon_intensity_tco2e_per_meur_lending"], marker="o", label=bank_id)
+plt.title("Financed-emissions intensity by bank")
+plt.xlabel("Reporting year")
+plt.ylabel("tCO2e per EURm lending")
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+if "climate_risk_register" in tables:
+    risk_counts = tables["climate_risk_register"]["risk_rating"].value_counts().sort_index()
+    plt.figure(figsize=(7, 4))
+    plt.bar(risk_counts.index, risk_counts.values)
+    plt.title("Climate risk rating distribution")
+    plt.xlabel("Risk rating")
+    plt.ylabel("Count")
+    plt.tight_layout()
+    plt.show()
+
+------------------
+
+
+[31m---------------------------------------------------------------------------[39m
+[31mKeyError[39m                                  Traceback (most recent call last)
+[36mCell[39m[36m [39m[32mIn[4][39m[32m, line 181[39m
+[32m    177[39m [38;5;66;03m# ============================================================[39;00m
+[32m    178[39m 
+[32m    179[39m exp = tables[[33m"exposures"[39m].copy()
+[32m    180[39m cp = tables[[33m"counterparties"[39m].copy()
+[32m--> [39m[32m181[39m cp_em = tables[[33m"counterparty_emissions"[39m].copy()
+[32m    182[39m 
+[32m    183[39m cp_em_enriched = cp_em.merge(
+[32m    184[39m     cp[[[33m"counterparty_id"[39m, [33m"evic_meur"[39m, [33m"ppp_adjusted_gdp_meur"[39m, [33m"national_scope1_tco2e"[39m, [33m"nace_code"[39m]],
+
+[31mKeyError[39m: 'counterparty_emissions'
+

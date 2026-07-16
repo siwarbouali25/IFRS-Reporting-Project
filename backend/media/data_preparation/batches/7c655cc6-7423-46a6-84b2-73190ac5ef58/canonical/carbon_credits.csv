@@ -1,0 +1,6 @@
+credit_id,bank_id,reporting_year,credits_tco2e,tonnes_co2e,use,retired_flag,credit_type,permanence_years,permanence_rating,additionality_verified,retirement_year,registry,project_type,project_country,vintage_year,price_per_tonne_eur,total_cost_eur,purchase_date,underlying_mechanism,planned_flag,associated_target_id
+CC0001,BANK01,2024,21080,21080,retirement_against_emissions,,avoidance_reduction,,high,True,2024.0,Gold_Standard,renewable_energy,IN,2023,20.39,429843.34,2024-03-07,technology_based,False,TGT003
+CC0002,BANK01,2023,21297,21297,retirement_against_emissions,,avoidance_reduction,,high,True,2023.0,Gold_Standard,cookstoves,MX,2020,28.14,599202.0,2023-03-13,technology_based,False,TGT003
+CC0003,BANK01,2022,6966,6966,held_for_future_use,,avoidance_reduction,,high,True,,Gold_Standard,cookstoves,IN,2022,28.24,196693.42,2022-09-12,technology_based,False,
+CC0017,BANK01,2022,10353,10353,retirement_against_emissions,,carbon_removal,,medium,True,2022.0,ART_TREES,afforestation,MX,2021,12.03,124545.36,2022-02-01,nature_based,False,TGT003
+CC0018,BANK01,2023,18761,18761,held_for_future_use,,avoidance_reduction,,high,True,,Gold_Standard,cookstoves,PE,2022,14.9,279599.28,2023-06-15,technology_based,False,
