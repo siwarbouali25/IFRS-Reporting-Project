@@ -1,0 +1,23 @@
+
+# Virtual environments
+backend/.venv/
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Local database
+backend/db.sqlite3
+*.sqlite3
+
+# Generated files
+backend/media/
+media/
+debug_outputs/
+backend/debug_outputs/
+
+# Environment
+.env
+*.env

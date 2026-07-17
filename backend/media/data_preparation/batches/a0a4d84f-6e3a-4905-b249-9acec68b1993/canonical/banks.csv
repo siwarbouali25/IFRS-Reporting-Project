@@ -1,6 +1,0 @@
-bank_id,bank_name,total_assets_meur,total_loans_meur,archetype,country,headcount,established_year,reporting_currency,fiscal_year_end,target_intensity_tco2e_per_meur,lei_code,boundary_type,regulatory_regime,in_scope_esg_flag,tier1_capital_meur,cet1_ratio_pct,behavior
-BANK01,Eurolux Universal Bank AG,850000,31150.64,large_universal,DE,48000,1872,EUR,2024-12-31,20.0,DG0G0SOYM0MIP2WSDJ46,financial_control,CSRD,True,151208.6,27.4,average
-BANK02,Paribel Banque Universelle SA,620000,19638.7,large_universal,FR,36000,1889,EUR,2024-12-31,22.0,1BY1KE0M5Y2V5OQTMR46,financial_control,CSRD,True,87823.1,21.8,average
-BANK03,Banca Mediterranea Commerciale SpA,120000,24088.68,mid_size_commercial,IT,9500,1948,EUR,2024-12-31,15.0,BWRAUDJC46LFQG0GQP36,financial_control,CSRD,True,17899.1,22.9,average
-BANK04,Groene Toekomst Bank NV,18000,8890.58,specialized_green,NL,950,2008,EUR,2024-12-31,6.0,GFR5BIKC3Q8K3X8V9117,financial_control,CSRD,True,2406.8,20.6,leader
-BANK05,Iberian Corporate Finance SA,45000,9783.4,corporate_laggard,ES,2200,1976,EUR,2024-12-31,25.0,YIRW098L3J4WX4WHE129,financial_control,CSRD,True,7453.4,25.5,laggard

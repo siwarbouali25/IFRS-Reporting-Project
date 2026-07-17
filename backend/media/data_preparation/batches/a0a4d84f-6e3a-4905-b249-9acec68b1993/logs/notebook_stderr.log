@@ -1,5 +1,0 @@
-[NbConvertApp] Converting notebook C:\Users\HP\Documents\IFRS-Reporting-api\IFRS-Reporting\IFRS-Reporting\backend\data_preparation\notebooks\data_prep_pipeline.ipynb to notebook
-C:\Users\HP\Documents\IFRS-Reporting-api\IFRS-Reporting\IFRS-Reporting\backend\.venv\Lib\site-packages\zmq\_future.py:718: RuntimeWarning: Proactor event loop does not implement add_reader family of methods required for zmq. Registering an additional selector thread for add_reader support via tornado. Use `asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())` to avoid this warning.
-  self._get_loop()
-[IPKernelApp] WARNING | Kernel is running over TCP without encryption. All communication (including code and outputs) is sent in plain text and is susceptible to eavesdropping. Use IPC transport or launch with kernel manager-provisioned CurveZMQ keys to enable transport encryption.
-[NbConvertApp] Writing 361609 bytes to C:\Users\HP\Documents\IFRS-Reporting-api\IFRS-Reporting\IFRS-Reporting\backend\media\data_preparation\batches\a0a4d84f-6e3a-4905-b249-9acec68b1993\logs\executed_data_prep_pipeline.ipynb

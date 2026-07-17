@@ -1,4 +1,0 @@
-bank_id,reporting_year,icp_id,price_eur_per_tco2e,carbon_price_eur_per_tco2e,price_type,scope,application_scope,applies_to_lending_decisions,applies_to_financed_emissions,benchmark_reference,review_frequency,currency
-BANK01,2022,ICP-BANK01-2022,42.73,42.73,shadow_price,investment_decisions,investment_decisions,True,True,IEA_NZE,biennial,EUR
-BANK01,2023,ICP-BANK01-2023,48.73,48.73,shadow_price,product_pricing,product_pricing,False,False,IEA_NZE,annual,EUR
-BANK01,2024,ICP-BANK01-2024,54.73,54.73,internal_charge,investment_decisions,investment_decisions,True,False,internal_model,annual,EUR

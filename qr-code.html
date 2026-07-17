@@ -1,41 +1,103 @@
-import json
-from report_generation.models import ReportGenerationJob
-from report_generation.serializers import ReportGenerationJobSerializer
+from pathlib import Path
+from typing import BinaryIO, Optional
 
-job = ReportGenerationJob.objects.order_by("-created_at").first()
-
-print("JOB ID:", job.id)
-print("STATUS:", job.status)
-print()
-
-print(json.dumps(
-    ReportGenerationJobSerializer(job).data,
-    indent=2,
-    default=str,
-    ensure_ascii=False
-))
-
-from report_artifacts.models import ReportArtifact
-from report_artifacts.serializers import ReportArtifactSerializer
-
-artifacts = ReportArtifact.objects.filter(job=job).order_by("created_at")
-
-print("ARTIFACT COUNT:", artifacts.count())
-print()
-
-print(json.dumps(
-    ReportArtifactSerializer(artifacts, many=True).data,
-    indent=2,
-    default=str,
-    ensure_ascii=False
-))
+from django.conf import settings
+from minio import Minio
+from minio.error import S3Error
 
 
-final_markdown = artifacts.filter(artifact_type="final_markdown").first()
+def get_minio_client() -> Minio:
+    return Minio(
+        settings.MINIO_ENDPOINT,
+        access_key=settings.MINIO_ACCESS_KEY,
+        secret_key=settings.MINIO_SECRET_KEY,
+        secure=settings.MINIO_SECURE,
+    )
 
-print(json.dumps(
-    ReportArtifactSerializer(final_markdown).data,
-    indent=2,
-    default=str,
-    ensure_ascii=False
-))
+
+def ensure_bucket_exists() -> None:
+    client = get_minio_client()
+    bucket_name = settings.MINIO_BUCKET_NAME
+
+    if not client.bucket_exists(bucket_name):
+        client.make_bucket(bucket_name)
+
+
+def upload_file_to_minio(
+    local_file_path: str | Path,
+    object_name: str,
+    content_type: str = "application/octet-stream",
+) -> str:
+    """
+    Upload a local file to MinIO.
+
+    Example object_name:
+    batches/<batch_id>/payloads/payload_BANK01.json
+    """
+    client = get_minio_client()
+    ensure_bucket_exists()
+
+    local_file_path = Path(local_file_path)
+
+    if not local_file_path.exists():
+        raise FileNotFoundError(f"File not found: {local_file_path}")
+
+    client.fput_object(
+        bucket_name=settings.MINIO_BUCKET_NAME,
+        object_name=object_name,
+        file_path=str(local_file_path),
+        content_type=content_type,
+    )
+
+    return object_name
+
+
+def upload_bytes_to_minio(
+    data: bytes,
+    object_name: str,
+    content_type: str = "application/octet-stream",
+) -> str:
+    """
+    Upload bytes directly to MinIO.
+    """
+    from io import BytesIO
+
+    client = get_minio_client()
+    ensure_bucket_exists()
+
+    client.put_object(
+        bucket_name=settings.MINIO_BUCKET_NAME,
+        object_name=object_name,
+        data=BytesIO(data),
+        length=len(data),
+        content_type=content_type,
+    )
+
+    return object_name
+
+
+def get_presigned_url(object_name: str, expires_seconds: int = 3600) -> str:
+    """
+    Generate a temporary download URL.
+    """
+    from datetime import timedelta
+
+    client = get_minio_client()
+
+    return client.presigned_get_object(
+        bucket_name=settings.MINIO_BUCKET_NAME,
+        object_name=object_name,
+        expires=timedelta(seconds=expires_seconds),
+    )
+
+
+def delete_object_from_minio(object_name: str) -> None:
+    client = get_minio_client()
+
+    try:
+        client.remove_object(
+            bucket_name=settings.MINIO_BUCKET_NAME,
+            object_name=object_name,
+        )
+    except S3Error as exc:
+        raise RuntimeError(f"Failed to delete object from MinIO: {exc}") from exc
