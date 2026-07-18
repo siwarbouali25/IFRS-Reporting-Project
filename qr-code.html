@@ -1,34 +1,24 @@
-from pathlib import Path
-from typing import Any, Dict
+from ifrs_assets.models import IFRSAssetBundle, StyleAssetBundle
 
-from object_storage.artifact_uploader import upload_folder_to_minio
-
-
-def upload_batch_payloads(batch) -> Dict[str, Any]:
-    payload_folder = Path(batch.payload_folder)
-
-    if not payload_folder.exists():
-        raise FileNotFoundError(
-            f"Payload folder does not exist: {payload_folder}"
+print(
+    list(
+        IFRSAssetBundle.objects.values(
+            "id",
+            "version",
+            "status",
+            "minio_prefix",
         )
-
-    uploaded_files = upload_folder_to_minio(
-        local_folder=payload_folder,
-        object_prefix=f"batches/{batch.id}/payloads",
     )
+)
 
-    return {
-        "uploaded_count": len(uploaded_files),
-        "object_prefix": f"batches/{batch.id}/payloads",
-        "objects": uploaded_files,
-    }
-
-
-
-
-
-from object_storage.pipeline_storage import upload_batch_payloads
-
-
-
-minio_result = upload_batch_payloads(batch)
+print(
+    list(
+        StyleAssetBundle.objects.values(
+            "id",
+            "version",
+            "status",
+            "bank__code",
+            "minio_prefix",
+        )
+    )
+)
