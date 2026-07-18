@@ -1,7 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import {
+  DomSanitizer,
+  SafeResourceUrl,
+} from '@angular/platform-browser';
+import { Observable } from 'rxjs';
 
 import {
   GenerationJob,
@@ -10,29 +14,27 @@ import {
   PayloadManifestSummary,
   Report,
   ReportArtifact,
+  ReportVersion,
+  ReportVersionStatus,
   StartGenerationRequest,
 } from '../../core/services/report';
 
 @Component({
   selector: 'app-report-generation',
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './report-generation.html',
   styleUrl: './report-generation.css',
 })
 export class ReportGeneration implements OnInit, OnDestroy {
   bankCode =
-    localStorage.getItem('activeReportBankCode') ??
-    'BANK01';
+    localStorage.getItem('activeReportBankCode') ?? 'BANK01';
   reportingYear = Number(
-    localStorage.getItem('activeReportingYear') ??
-    2024
+    localStorage.getItem('activeReportingYear') ?? 2024
   );
   payloadManifestId = Number(
-    localStorage.getItem('activePayloadManifestId') ??
-    0
+    localStorage.getItem('activePayloadManifestId') ?? 0
   );
-  activePayloadManifest: PayloadManifestSummary | null =
-    null;
+  activePayloadManifest: PayloadManifestSummary | null = null;
   ifrsAssetVersion = 'ifrs_s1_s2_2024';
   styleAssetVersion = 'bank01_style_v1';
   maxRevisions = 2;
@@ -43,18 +45,29 @@ export class ReportGeneration implements OnInit, OnDestroy {
   artifacts: ReportArtifact[] = [];
 
   selectedPreviewArtifact: ReportArtifact | null = null;
-  previewText = '';
+  pdfPreviewUrl: SafeResourceUrl | null = null;
+  currentReportVersion: ReportVersion | null = null;
+  approvalComment = '';
 
   isStarting = false;
   isLoadingJobs = false;
   isPolling = false;
   isPreviewLoading = false;
+  isApprovalActionRunning = false;
   errorMessage = '';
 
   private pollingTimeout?: ReturnType<typeof setTimeout>;
   private pollingStartedAt = 0;
+  private progressTimer?: ReturnType<typeof setInterval>;
+  private pdfObjectUrl: string | null = null;
 
-  constructor(private reportService: Report) {}
+  uiNow = Date.now();
+  estimatedGenerationDurationMs = 35 * 60 * 1000;
+
+  constructor(
+    private reportService: Report,
+    private sanitizer: DomSanitizer
+  ) {}
 
   ngOnInit(): void {
     this.loadActivePayloadManifest();
@@ -64,6 +77,7 @@ export class ReportGeneration implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.stopPolling();
     this.stopProgressTimer();
+    this.clearPdfPreview();
   }
 
   generateDraft(): void {
@@ -71,14 +85,15 @@ export class ReportGeneration implements OnInit, OnDestroy {
 
     if (!this.payloadManifestId) {
       this.errorMessage =
-        'Generate payloads in Data Preparation before ' +
-        'starting report generation.';
+        'Generate payloads in Data Preparation before starting report generation.';
       return;
     }
+
     this.warnings = [];
     this.artifacts = [];
-    this.selectedPreviewArtifact = null;
-    this.previewText = '';
+    this.currentReportVersion = null;
+    this.approvalComment = '';
+    this.clearPdfPreview();
     this.isStarting = true;
 
     const payload: StartGenerationRequest = {
@@ -87,7 +102,7 @@ export class ReportGeneration implements OnInit, OnDestroy {
       payload_manifest_id: this.payloadManifestId,
       ifrs_asset_version: this.ifrsAssetVersion,
       style_asset_version: this.styleAssetVersion,
-      output_formats: ['markdown'],
+      output_formats: ['markdown', 'pdf'],
       max_revisions: this.maxRevisions,
     };
 
@@ -109,43 +124,19 @@ export class ReportGeneration implements OnInit, OnDestroy {
   }
 
   private loadActivePayloadManifest(): void {
-    if (this.payloadManifestId) {
-      this.reportService
-        .getPayloadManifests(
-          this.bankCode,
-          this.reportingYear
-        )
-        .subscribe({
-          next: (manifests) => {
-            const selected = manifests.find(
-              (manifest) =>
-                manifest.id === this.payloadManifestId
-            );
-
-            if (selected) {
-              this.applyPayloadManifest(selected);
-              return;
-            }
-
-            this.selectLatestPayloadManifest(manifests);
-          },
-          error: () => {
-            this.errorMessage =
-              'Could not validate the selected payload ' +
-              'manifest.';
-          },
-        });
-
-      return;
-    }
-
     this.reportService
-      .getPayloadManifests(
-        this.bankCode,
-        this.reportingYear
-      )
+      .getPayloadManifests(this.bankCode, this.reportingYear)
       .subscribe({
         next: (manifests) => {
+          const selected = manifests.find(
+            (manifest) => manifest.id === this.payloadManifestId
+          );
+
+          if (selected) {
+            this.applyPayloadManifest(selected);
+            return;
+          }
+
           this.selectLatestPayloadManifest(manifests);
         },
         error: () => {
@@ -159,9 +150,7 @@ export class ReportGeneration implements OnInit, OnDestroy {
     manifests: PayloadManifestSummary[]
   ): void {
     const available = manifests
-      .filter(
-        (manifest) => manifest.status === 'available'
-      )
+      .filter((manifest) => manifest.status === 'available')
       .sort(
         (left, right) =>
           new Date(right.created_at).getTime() -
@@ -227,18 +216,14 @@ export class ReportGeneration implements OnInit, OnDestroy {
     });
   }
 
-private progressTimer?: ReturnType<typeof setInterval>;
-uiNow = Date.now();
-estimatedGenerationDurationMs = 35 * 60 * 1000;
-
-
   selectJob(job: GenerationJob): void {
     this.stopPolling();
     this.currentJob = job;
     this.warnings = [];
     this.artifacts = [];
-    this.selectedPreviewArtifact = null;
-    this.previewText = '';
+    this.currentReportVersion = null;
+    this.approvalComment = '';
+    this.clearPdfPreview();
     this.errorMessage = '';
 
     this.refreshCurrentJob(false);
@@ -280,14 +265,11 @@ estimatedGenerationDurationMs = 35 * 60 * 1000;
 
   private startPolling(jobId: string): void {
     this.stopPolling();
-
     this.isPolling = true;
     this.pollingStartedAt = Date.now();
-
     this.startProgressTimer();
-
     this.pollJob(jobId);
-  } 
+  }
 
   private pollJob(jobId: string): void {
     this.reportService.getGenerationJob(jobId).subscribe({
@@ -301,11 +283,9 @@ estimatedGenerationDurationMs = 35 * 60 * 1000;
           return;
         }
 
-        const nextDelay = this.getPollingDelayMs();
-
         this.pollingTimeout = setTimeout(() => {
           this.pollJob(jobId);
-        }, nextDelay);
+        }, this.getPollingDelayMs());
       },
       error: (error) => {
         this.stopPolling();
@@ -319,28 +299,20 @@ estimatedGenerationDurationMs = 35 * 60 * 1000;
 
   private getPollingDelayMs(): number {
     const elapsedMs = Date.now() - this.pollingStartedAt;
+    return elapsedMs < 2 * 60 * 1000 ? 5000 : 60000;
+  }
 
-    // First 2 minutes: refresh every 5 seconds.
-    if (elapsedMs < 2 * 60 * 1000) {
-      return 5000;
+  private stopPolling(): void {
+    if (this.pollingTimeout) {
+      clearTimeout(this.pollingTimeout);
+      this.pollingTimeout = undefined;
     }
 
-    // After that: report generation is long-running, so reduce backend pressure.
-    return 60000;
+    this.stopProgressTimer();
+    this.isPolling = false;
   }
 
- private stopPolling(): void {
-  if (this.pollingTimeout) {
-    clearTimeout(this.pollingTimeout);
-    this.pollingTimeout = undefined;
-  }
-
-  this.stopProgressTimer();
-
-  this.isPolling = false;
-}
-
-   loadJobOutputs(jobId: string): void {
+  loadJobOutputs(jobId: string): void {
     this.loadWarnings(jobId);
     this.loadArtifacts(jobId);
   }
@@ -351,7 +323,8 @@ estimatedGenerationDurationMs = 35 * 60 * 1000;
         this.warnings = warnings;
       },
       error: () => {
-        this.errorMessage = 'Report generated, but warnings could not be loaded.';
+        this.errorMessage =
+          'Report generated, but warnings could not be loaded.';
       },
     });
   }
@@ -361,71 +334,187 @@ estimatedGenerationDurationMs = 35 * 60 * 1000;
       next: (artifacts) => {
         this.artifacts = artifacts;
 
-        const finalReport = this.finalReportArtifact;
+        if (this.finalPdfArtifact) {
+          this.previewPdfArtifact(this.finalPdfArtifact);
+        }
 
-        if (finalReport) {
-          this.previewArtifact(finalReport);
+        const reportVersionId =
+          this.finalPdfArtifact?.report_version ??
+          this.finalMarkdownArtifact?.report_version ??
+          this.currentJob?.report_version_id;
+
+        if (reportVersionId) {
+          this.loadReportVersion(reportVersionId);
         }
       },
       error: () => {
-        this.errorMessage = 'Report generated, but artifacts could not be loaded.';
+        this.errorMessage =
+          'Report generated, but final report files could not be loaded.';
       },
     });
   }
 
-  previewArtifact(artifact: ReportArtifact): void {
-    if (!this.canPreviewArtifact(artifact)) {
-      this.downloadArtifact(artifact);
+  private loadReportVersion(reportVersionId: string): void {
+    this.reportService.getReportVersion(reportVersionId).subscribe({
+      next: (version) => {
+        this.currentReportVersion = version;
+        this.approvalComment = version.review_comment ?? '';
+      },
+      error: () => {
+        this.errorMessage =
+          'The report files are ready, but approval information could not be loaded.';
+      },
+    });
+  }
+
+  previewPdfArtifact(artifact: ReportArtifact): void {
+    if (
+      artifact.artifact_type !== 'final_pdf' &&
+      artifact.content_type !== 'application/pdf'
+    ) {
       return;
     }
 
+    this.clearPdfPreview();
     this.selectedPreviewArtifact = artifact;
-    this.previewText = '';
     this.isPreviewLoading = true;
 
-    this.reportService.downloadArtifact(artifact.id).subscribe({
-      next: async (blob) => {
-        const text = await blob.text();
-
-        if (artifact.content_type === 'application/json' || artifact.object_key.endsWith('.json')) {
-          try {
-            this.previewText = JSON.stringify(JSON.parse(text), null, 2);
-          } catch {
-            this.previewText = text;
-          }
-        } else {
-          this.previewText = text;
-        }
-
+    this.reportService.downloadArtifact(artifact.id, true).subscribe({
+      next: (blob) => {
+        this.pdfObjectUrl = window.URL.createObjectURL(blob);
+        this.pdfPreviewUrl =
+          this.sanitizer.bypassSecurityTrustResourceUrl(
+            this.pdfObjectUrl
+          );
         this.isPreviewLoading = false;
       },
       error: () => {
         this.isPreviewLoading = false;
-        this.errorMessage = 'Could not preview artifact.';
+        this.errorMessage = 'Could not load the PDF preview.';
       },
     });
+  }
+
+  private clearPdfPreview(): void {
+    if (this.pdfObjectUrl) {
+      window.URL.revokeObjectURL(this.pdfObjectUrl);
+      this.pdfObjectUrl = null;
+    }
+
+    this.pdfPreviewUrl = null;
+    this.selectedPreviewArtifact = null;
   }
 
   downloadArtifact(artifact: ReportArtifact): void {
     this.reportService.downloadArtifact(artifact.id).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
-
         const link = document.createElement('a');
         link.href = url;
         link.download = this.getArtifactFilename(artifact);
         link.click();
-
         window.URL.revokeObjectURL(url);
       },
       error: () => {
-        this.errorMessage = 'Could not download artifact.';
+        this.errorMessage = 'Could not download the report file.';
+      },
+    });
+  }
+
+  submitForReview(): void {
+    if (!this.currentReportVersion) {
+      return;
+    }
+
+    this.runApprovalAction(
+      this.reportService.submitForReview(
+        this.currentReportVersion.id,
+        this.approvalComment
+      )
+    );
+  }
+
+  approveReport(): void {
+    if (!this.currentReportVersion) {
+      return;
+    }
+
+    this.runApprovalAction(
+      this.reportService.approveReport(
+        this.currentReportVersion.id,
+        this.approvalComment
+      )
+    );
+  }
+
+  requestChanges(): void {
+    if (!this.currentReportVersion) {
+      return;
+    }
+
+    if (!this.approvalComment.trim()) {
+      this.errorMessage =
+        'Add a review comment before requesting changes.';
+      return;
+    }
+
+    this.runApprovalAction(
+      this.reportService.requestChanges(
+        this.currentReportVersion.id,
+        this.approvalComment
+      )
+    );
+  }
+
+  rejectReport(): void {
+    if (!this.currentReportVersion) {
+      return;
+    }
+
+    if (!this.approvalComment.trim()) {
+      this.errorMessage =
+        'Add a rejection reason before rejecting the report.';
+      return;
+    }
+
+    if (!window.confirm('Reject this report version?')) {
+      return;
+    }
+
+    this.runApprovalAction(
+      this.reportService.rejectReport(
+        this.currentReportVersion.id,
+        this.approvalComment
+      )
+    );
+  }
+
+  private runApprovalAction(
+    request: Observable<ReportVersion>
+  ): void {
+    this.isApprovalActionRunning = true;
+    this.errorMessage = '';
+
+    request.subscribe({
+      next: (version) => {
+        this.currentReportVersion = version;
+        this.approvalComment = version.review_comment ?? '';
+        this.isApprovalActionRunning = false;
+      },
+      error: (error) => {
+        this.isApprovalActionRunning = false;
+        this.errorMessage = this.extractErrorMessage(
+          error,
+          'The approval action could not be completed.'
+        );
       },
     });
   }
 
   private upsertJob(job: GenerationJob): void {
-    const index = this.jobs.findIndex((item) => item.job_id === job.job_id);
+    const index = this.jobs.findIndex(
+      (item) => item.job_id === job.job_id
+    );
 
     if (index >= 0) {
       this.jobs[index] = job;
@@ -445,25 +534,38 @@ estimatedGenerationDurationMs = 35 * 60 * 1000;
     );
   }
 
-  get sortedArtifacts(): ReportArtifact[] {
+  get visibleArtifacts(): ReportArtifact[] {
     return [...this.artifacts].sort(
-      (a, b) => this.getArtifactPriority(a) - this.getArtifactPriority(b)
+      (left, right) =>
+        this.getArtifactPriority(left) -
+        this.getArtifactPriority(right)
+    );
+  }
+
+  get finalPdfArtifact(): ReportArtifact | null {
+    return (
+      this.artifacts.find(
+        (artifact) => artifact.artifact_type === 'final_pdf'
+      ) ?? null
+    );
+  }
+
+  get finalMarkdownArtifact(): ReportArtifact | null {
+    return (
+      this.artifacts.find(
+        (artifact) => artifact.artifact_type === 'final_markdown'
+      ) ?? null
     );
   }
 
   get finalReportArtifact(): ReportArtifact | null {
-    return (
-      this.artifacts.find((artifact) => artifact.artifact_type === 'final_markdown') ||
-      null
-    );
+    return this.finalPdfArtifact ?? this.finalMarkdownArtifact;
   }
 
   get statusLabel(): string {
-    if (!this.currentJob) {
-      return 'Not started';
-    }
-
-    return this.formatStatus(this.currentJob.status);
+    return this.currentJob
+      ? this.formatStatus(this.currentJob.status)
+      : 'Not started';
   }
 
   get canSubmitForApproval(): boolean {
@@ -480,6 +582,17 @@ estimatedGenerationDurationMs = 35 * 60 * 1000;
     );
   }
 
+  get canSubmitReportForReview(): boolean {
+    return (
+      this.currentReportVersion?.status === 'draft' ||
+      this.currentReportVersion?.status === 'changes_requested'
+    );
+  }
+
+  get isPendingReview(): boolean {
+    return this.currentReportVersion?.status === 'pending_review';
+  }
+
   get generationDuration(): string {
     if (!this.currentJob?.started_at) {
       return 'Not started';
@@ -489,102 +602,47 @@ estimatedGenerationDurationMs = 35 * 60 * 1000;
     const end = this.currentJob.completed_at
       ? new Date(this.currentJob.completed_at).getTime()
       : Date.now();
-
-    const totalSeconds = Math.max(0, Math.floor((end - start) / 1000));
+    const totalSeconds = Math.max(
+      0,
+      Math.floor((end - start) / 1000)
+    );
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
-
-    if (minutes <= 0) {
-      return `${seconds}s`;
-    }
-
-    return `${minutes}m ${seconds}s`;
+    return minutes <= 0 ? `${seconds}s` : `${minutes}m ${seconds}s`;
   }
 
   getArtifactFilename(artifact: ReportArtifact): string {
     const parts = artifact.object_key.split('/');
-    return parts[parts.length - 1] || `${artifact.artifact_type}.txt`;
+    return parts[parts.length - 1] || `${artifact.artifact_type}.file`;
   }
 
   getArtifactLabel(artifact: ReportArtifact): string {
+    if (artifact.artifact_type === 'final_pdf') {
+      return 'IFRS S1/S2 Report PDF';
+    }
     if (artifact.artifact_type === 'final_markdown') {
-      return 'Approved Report Markdown';
+      return 'Source Markdown';
     }
-
-    if (artifact.artifact_type === 'audit_summary') {
-      return 'Audit Summary';
-    }
-
-    if (
-      artifact.artifact_type === 'log' &&
-      artifact.object_key.includes('handoff_manifest')
-    ) {
-      return 'PDF Handoff Manifest';
-    }
-
-    if (artifact.artifact_type === 'warning_summary') {
-      return 'Final Generation Summary';
-    }
-
     return artifact.artifact_type
       .replaceAll('_', ' ')
-      .replace(/\b\w/g, (char) => char.toUpperCase());
+      .replace(/\b\w/g, (character) => character.toUpperCase());
   }
 
   getArtifactDescription(artifact: ReportArtifact): string {
-    if (artifact.artifact_type === 'final_markdown') {
-      return 'Final IFRS S1/S2 report ready for review and approval.';
+    if (artifact.artifact_type === 'final_pdf') {
+      return 'Final formatted report for review, approval, and download.';
     }
-
-    if (artifact.artifact_type === 'audit_summary') {
-      return 'Internal audit trail and generation summary.';
-    }
-
-    if (
-      artifact.artifact_type === 'log' &&
-      artifact.object_key.includes('handoff_manifest')
-    ) {
-      return 'Manifest used for PDF handoff and document assembly.';
-    }
-
-    if (artifact.artifact_type === 'warning_summary') {
-      return 'Final execution summary produced by the generation workflow.';
-    }
-
-    return artifact.object_key;
+    return 'Editable source version of the generated report.';
   }
 
   getArtifactPriority(artifact: ReportArtifact): number {
-    if (artifact.artifact_type === 'final_markdown') {
+    if (artifact.artifact_type === 'final_pdf') {
       return 1;
     }
-
-    if (artifact.artifact_type === 'audit_summary') {
+    if (artifact.artifact_type === 'final_markdown') {
       return 2;
     }
-
-    if (
-      artifact.artifact_type === 'log' &&
-      artifact.object_key.includes('handoff_manifest')
-    ) {
-      return 3;
-    }
-
-    if (artifact.artifact_type === 'warning_summary') {
-      return 4;
-    }
-
     return 99;
-  }
-
-  canPreviewArtifact(artifact: ReportArtifact): boolean {
-    return (
-      artifact.content_type?.startsWith('text/') ||
-      artifact.content_type === 'application/json' ||
-      artifact.object_key.endsWith('.md') ||
-      artifact.object_key.endsWith('.json') ||
-      artifact.object_key.endsWith('.txt')
-    );
   }
 
   formatStatus(status: string): string {
@@ -595,150 +653,131 @@ estimatedGenerationDurationMs = 35 * 60 * 1000;
     if (!status) {
       return 'neutral';
     }
-
     if (status === 'completed') {
       return 'success';
     }
-
     if (status === 'completed_with_warnings') {
       return 'warning';
     }
-
     if (status === 'failed' || status === 'cancelled') {
       return 'danger';
     }
-
     if (status === 'running' || status === 'queued') {
       return 'active';
     }
-
     return 'neutral';
+  }
+
+  getApprovalStatusClass(status?: ReportVersionStatus): string {
+    if (status === 'approved') {
+      return 'success';
+    }
+    if (status === 'changes_requested' || status === 'rejected') {
+      return 'danger';
+    }
+    if (status === 'pending_review') {
+      return 'warning';
+    }
+    return 'active';
   }
 
   formatBytes(bytes?: number): string {
     if (!bytes) {
       return '-';
     }
-
     if (bytes < 1024) {
       return `${bytes} B`;
     }
-
     if (bytes < 1024 * 1024) {
       return `${(bytes / 1024).toFixed(1)} KB`;
     }
-
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   }
 
-
-
- get displayProgressPercent(): number {
-  if (!this.currentJob) {
+  get displayProgressPercent(): number {
+    if (!this.currentJob) {
+      return 0;
+    }
+    if (
+      this.currentJob.status === 'completed' ||
+      this.currentJob.status === 'completed_with_warnings' ||
+      this.currentJob.status === 'failed'
+    ) {
+      return 100;
+    }
+    if (
+      this.currentJob.progress_percent &&
+      this.currentJob.progress_percent > 0
+    ) {
+      return this.currentJob.progress_percent;
+    }
+    if (this.currentJob.status === 'queued') {
+      return 6;
+    }
+    if (this.currentJob.status === 'running') {
+      const startTime = this.currentJob.started_at
+        ? new Date(this.currentJob.started_at).getTime()
+        : new Date(this.currentJob.created_at).getTime();
+      const elapsed = Math.max(0, this.uiNow - startTime);
+      const estimated = Math.round(
+        10 +
+          (elapsed / this.estimatedGenerationDurationMs) * 82
+      );
+      return Math.min(92, Math.max(10, estimated));
+    }
     return 0;
   }
 
-  if (
-    this.currentJob.status === 'completed' ||
-    this.currentJob.status === 'completed_with_warnings'
-  ) {
-    return 100;
-  }
-
-  if (this.currentJob.status === 'failed') {
-    return 100;
-  }
-
-  if (this.currentJob.progress_percent && this.currentJob.progress_percent > 0) {
-    return this.currentJob.progress_percent;
-  }
-
-  if (this.currentJob.status === 'queued') {
-    return 6;
-  }
-
-  if (this.currentJob.status === 'running') {
-    const startTime = this.currentJob.started_at
-      ? new Date(this.currentJob.started_at).getTime()
-      : new Date(this.currentJob.created_at).getTime();
-
-    const elapsed = Math.max(0, this.uiNow - startTime);
-
-    const estimated = Math.round(
-      10 + (elapsed / this.estimatedGenerationDurationMs) * 82
-    );
-
-    return Math.min(92, Math.max(10, estimated));
-  }
-
-  return 0;
-}
-
-
-private startProgressTimer(): void {
-  this.stopProgressTimer();
-
-  this.uiNow = Date.now();
-
-  this.progressTimer = setInterval(() => {
+  private startProgressTimer(): void {
+    this.stopProgressTimer();
     this.uiNow = Date.now();
-  }, 1000);
-}
-
-private stopProgressTimer(): void {
-  if (this.progressTimer) {
-    clearInterval(this.progressTimer);
-    this.progressTimer = undefined;
-  }
-}
-
-
-get userFriendlyStage(): string {
-  if (!this.currentJob) {
-    return 'Not started';
+    this.progressTimer = setInterval(() => {
+      this.uiNow = Date.now();
+    }, 1000);
   }
 
-  if (this.currentJob.status === 'queued') {
-    return 'Preparing your report request';
+  private stopProgressTimer(): void {
+    if (this.progressTimer) {
+      clearInterval(this.progressTimer);
+      this.progressTimer = undefined;
+    }
   }
 
-  if (this.currentJob.status === 'running') {
-    return 'Generating the IFRS S1/S2 report';
+  get userFriendlyStage(): string {
+    if (!this.currentJob) {
+      return 'Not started';
+    }
+    if (this.currentJob.status === 'queued') {
+      return 'Preparing your report request';
+    }
+    if (this.currentJob.status === 'running') {
+      return 'Generating the IFRS S1/S2 report';
+    }
+    if (this.currentJob.status === 'completed') {
+      return 'Report ready for review';
+    }
+    if (this.currentJob.status === 'completed_with_warnings') {
+      return 'Report ready with review notes';
+    }
+    if (this.currentJob.status === 'failed') {
+      return 'Report generation failed';
+    }
+    return this.formatStatus(this.currentJob.status);
   }
-
-  if (this.currentJob.status === 'completed') {
-    return 'Report ready for review';
-  }
-
-  if (this.currentJob.status === 'completed_with_warnings') {
-    return 'Report ready with review notes';
-  }
-
-  if (this.currentJob.status === 'failed') {
-    return 'Report generation failed';
-  }
-
-  return this.formatStatus(this.currentJob.status);
-}
 
   private extractErrorMessage(error: any, fallback: string): string {
     if (typeof error?.error === 'string') {
       return error.error;
     }
 
-    
     const apiError = error?.error;
-
     if (apiError && typeof apiError === 'object') {
       const firstField = Object.keys(apiError)[0];
-      const fieldValue = firstField
-        ? apiError[firstField]
-        : null;
+      const fieldValue = firstField ? apiError[firstField] : null;
 
       if (Array.isArray(fieldValue) && fieldValue.length > 0) {
         return String(fieldValue[0]);
       }
-
       if (typeof fieldValue === 'string') {
         return fieldValue;
       }

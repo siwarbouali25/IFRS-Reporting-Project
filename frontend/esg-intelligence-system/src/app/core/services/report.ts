@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpParams,
+} from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 
 export type GenerationJobStatus =
@@ -9,6 +12,14 @@ export type GenerationJobStatus =
   | 'completed_with_warnings'
   | 'failed'
   | 'cancelled';
+
+export type ReportVersionStatus =
+  | 'draft'
+  | 'pending_review'
+  | 'changes_requested'
+  | 'approved'
+  | 'rejected'
+  | 'failed';
 
 export interface PayloadManifestSummary {
   id: number;
@@ -31,7 +42,7 @@ export interface StartGenerationRequest {
   payload_manifest_id: number;
   ifrs_asset_version?: string;
   style_asset_version?: string;
-  output_formats: string[];
+  output_formats: Array<'markdown' | 'pdf'>;
   max_revisions: number;
 }
 
@@ -55,6 +66,8 @@ export interface GenerationJob {
   celery_task_id?: string;
   config: any;
   final_summary: any;
+  report_version_id?: string | null;
+  report_version_status?: ReportVersionStatus | null;
   created_at: string;
   started_at?: string;
   completed_at?: string;
@@ -74,7 +87,7 @@ export interface ReportArtifact {
   id: string;
   job: string;
   job_id: string;
-  report_version?: string;
+  report_version?: string | null;
   artifact_type: string;
   bucket: string;
   object_key: string;
@@ -84,13 +97,51 @@ export interface ReportArtifact {
   created_at: string;
 }
 
+export interface ReportApprovalAction {
+  id: string;
+  action:
+    | 'submitted'
+    | 'approved'
+    | 'changes_requested'
+    | 'rejected';
+  actor?: number | null;
+  actor_name?: string;
+  actor_email?: string;
+  comment: string;
+  created_at: string;
+}
+
+export interface ReportVersion {
+  id: string;
+  job: string;
+  job_id: string;
+  bank: number;
+  bank_code: string;
+  bank_name: string;
+  reporting_year: number;
+  version_number: number;
+  status: ReportVersionStatus;
+  created_by?: number | null;
+  created_by_name?: string;
+  submitted_by?: number | null;
+  submitted_by_name?: string;
+  submitted_at?: string | null;
+  reviewed_by?: number | null;
+  reviewed_by_name?: string;
+  reviewed_at?: string | null;
+  review_comment: string;
+  approval_actions: ReportApprovalAction[];
+  created_at: string;
+}
+
 type ListResponse<T> = T[] | { results: T[] };
 
 @Injectable({
   providedIn: 'root',
 })
 export class Report {
-  private apiUrl = 'http://127.0.0.1:8000/api';
+  private readonly apiUrl =
+    'http://127.0.0.1:8000/api';
 
   constructor(private http: HttpClient) {}
 
@@ -98,14 +149,20 @@ export class Report {
     bankCode?: string,
     reportingYear?: number
   ): Observable<PayloadManifestSummary[]> {
-    const params: Record<string, string> = {};
+    let params = new HttpParams();
 
     if (bankCode) {
-      params['bank_code'] = bankCode;
+      params = params.set(
+        'bank_code',
+        bankCode
+      );
     }
 
     if (reportingYear) {
-      params['reporting_year'] = String(reportingYear);
+      params = params.set(
+        'reporting_year',
+        String(reportingYear)
+      );
     }
 
     return this.http
@@ -122,43 +179,134 @@ export class Report {
       );
   }
 
-  startGenerationJob(payload: StartGenerationRequest): Observable<GenerationJob> {
+  startGenerationJob(
+    payload: StartGenerationRequest
+  ): Observable<GenerationJob> {
     return this.http.post<GenerationJob>(
       `${this.apiUrl}/report-generation/jobs/`,
       payload
     );
   }
 
-  getGenerationJobs(): Observable<GenerationJob[]> {
+  getGenerationJobs():
+    Observable<GenerationJob[]> {
     return this.http
-      .get<ListResponse<GenerationJob>>(`${this.apiUrl}/report-generation/jobs/`)
-      .pipe(map((response) => Array.isArray(response) ? response : response.results));
+      .get<ListResponse<GenerationJob>>(
+        `${this.apiUrl}/report-generation/jobs/`
+      )
+      .pipe(
+        map((response) =>
+          Array.isArray(response)
+            ? response
+            : response.results
+        )
+      );
   }
 
-  getGenerationJob(jobId: string): Observable<GenerationJob> {
+  getGenerationJob(
+    jobId: string
+  ): Observable<GenerationJob> {
     return this.http.get<GenerationJob>(
       `${this.apiUrl}/report-generation/jobs/${jobId}/`
     );
   }
 
-  getWarnings(jobId: string): Observable<GenerationWarning[]> {
+  getWarnings(
+    jobId: string
+  ): Observable<GenerationWarning[]> {
     return this.http.get<GenerationWarning[]>(
       `${this.apiUrl}/report-generation/jobs/${jobId}/warnings/`
     );
   }
 
-  getArtifacts(jobId: string): Observable<ReportArtifact[]> {
+  getArtifacts(
+    jobId: string,
+    includeInternal = false
+  ): Observable<ReportArtifact[]> {
+    let params = new HttpParams();
+
+    if (includeInternal) {
+      params = params.set(
+        'include_internal',
+        'true'
+      );
+    }
+
     return this.http.get<ReportArtifact[]>(
-      `${this.apiUrl}/report-generation/jobs/${jobId}/artifacts/`
+      `${this.apiUrl}/report-generation/jobs/${jobId}/artifacts/`,
+      { params }
     );
   }
 
-  downloadArtifact(artifactId: string): Observable<Blob> {
+  downloadArtifact(
+    artifactId: string,
+    inline = false
+  ): Observable<Blob> {
+    let params = new HttpParams();
+
+    if (inline) {
+      params = params.set(
+        'inline',
+        'true'
+      );
+    }
+
+    const options = {
+      params,
+      responseType: 'blob' as const,
+    };
+
     return this.http.get(
       `${this.apiUrl}/artifacts/${artifactId}/download/`,
-      {
-        responseType: 'blob',
-      }
+      options
+    );
+  }
+
+  getReportVersion(
+    reportVersionId: string
+  ): Observable<ReportVersion> {
+    return this.http.get<ReportVersion>(
+      `${this.apiUrl}/reports/${reportVersionId}/`
+    );
+  }
+
+  submitForReview(
+    reportVersionId: string,
+    comment = ''
+  ): Observable<ReportVersion> {
+    return this.http.post<ReportVersion>(
+      `${this.apiUrl}/reports/${reportVersionId}/submit-for-review/`,
+      { comment }
+    );
+  }
+
+  approveReport(
+    reportVersionId: string,
+    comment = ''
+  ): Observable<ReportVersion> {
+    return this.http.post<ReportVersion>(
+      `${this.apiUrl}/reports/${reportVersionId}/approve/`,
+      { comment }
+    );
+  }
+
+  requestChanges(
+    reportVersionId: string,
+    comment: string
+  ): Observable<ReportVersion> {
+    return this.http.post<ReportVersion>(
+      `${this.apiUrl}/reports/${reportVersionId}/request-changes/`,
+      { comment }
+    );
+  }
+
+  rejectReport(
+    reportVersionId: string,
+    comment: string
+  ): Observable<ReportVersion> {
+    return this.http.post<ReportVersion>(
+      `${this.apiUrl}/reports/${reportVersionId}/reject/`,
+      { comment }
     );
   }
 }

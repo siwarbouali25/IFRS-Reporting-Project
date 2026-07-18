@@ -10,66 +10,51 @@ class ReportGenerationJob(models.Model):
         QUEUED = "queued", "Queued"
         RUNNING = "running", "Running"
         COMPLETED = "completed", "Completed"
-        COMPLETED_WITH_WARNINGS = "completed_with_warnings", "Completed with warnings"
+        COMPLETED_WITH_WARNINGS = (
+            "completed_with_warnings",
+            "Completed with warnings",
+        )
         FAILED = "failed", "Failed"
         CANCELLED = "cancelled", "Cancelled"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-
     bank = models.ForeignKey("organizations.Bank", on_delete=models.CASCADE)
     reporting_year = models.IntegerField()
-
     payload_manifest = models.ForeignKey(
         "payloads.PayloadManifest",
         on_delete=models.PROTECT,
     )
-
     ifrs_asset_bundle = models.ForeignKey(
         "ifrs_assets.IFRSAssetBundle",
         on_delete=models.PROTECT,
         null=True,
         blank=True,
     )
-
     style_asset_bundle = models.ForeignKey(
         "ifrs_assets.StyleAssetBundle",
         on_delete=models.PROTECT,
         null=True,
         blank=True,
     )
-
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
     )
-
     status = models.CharField(
         max_length=40,
         choices=Status.choices,
         default=Status.QUEUED,
     )
-
     current_stage = models.CharField(max_length=100, default="queued")
     progress_percent = models.IntegerField(default=0)
-
     warning_count = models.IntegerField(default=0)
     error_message = models.TextField(blank=True)
-
     celery_task_id = models.CharField(max_length=255, blank=True)
     langgraph_thread_id = models.CharField(max_length=255, blank=True)
-
-    # Example:
-    # {
-    #   "output_formats": ["markdown", "pdf"],
-    #   "max_revisions": 2,
-    #   "final_failures_as_warnings": true
-    # }
     config = models.JSONField(default=dict)
-
     final_summary = models.JSONField(default=dict)
-
     created_at = models.DateTimeField(auto_now_add=True)
     started_at = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
@@ -115,18 +100,15 @@ class ReportGenerationJob(models.Model):
 
 class GenerationWarning(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-
     job = models.ForeignKey(
         ReportGenerationJob,
         on_delete=models.CASCADE,
         related_name="warnings",
     )
-
     stage = models.CharField(max_length=100)
     warning_type = models.CharField(max_length=100)
     message = models.TextField()
     details = models.JSONField(default=dict)
-
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -139,34 +121,50 @@ class GenerationWarning(models.Model):
 class ReportVersion(models.Model):
     class Status(models.TextChoices):
         DRAFT = "draft", "Draft"
+        PENDING_REVIEW = "pending_review", "Pending review"
+        CHANGES_REQUESTED = "changes_requested", "Changes requested"
         APPROVED = "approved", "Approved"
+        REJECTED = "rejected", "Rejected"
         FAILED = "failed", "Failed"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-
     job = models.OneToOneField(
         ReportGenerationJob,
         on_delete=models.CASCADE,
         related_name="report_version",
     )
-
     bank = models.ForeignKey("organizations.Bank", on_delete=models.CASCADE)
     reporting_year = models.IntegerField()
     version_number = models.IntegerField()
-
     status = models.CharField(
         max_length=30,
         choices=Status.choices,
         default=Status.DRAFT,
     )
-
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
+        related_name="created_report_versions",
     )
-
+    submitted_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="submitted_report_versions",
+    )
+    submitted_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="reviewed_report_versions",
+    )
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    review_comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -175,6 +173,37 @@ class ReportVersion(models.Model):
 
     def __str__(self):
         return f"{self.bank.code} - {self.reporting_year} - v{self.version_number}"
+
+
+class ReportApprovalAction(models.Model):
+    class Action(models.TextChoices):
+        SUBMITTED = "submitted", "Submitted for review"
+        APPROVED = "approved", "Approved"
+        CHANGES_REQUESTED = "changes_requested", "Changes requested"
+        REJECTED = "rejected", "Rejected"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    report_version = models.ForeignKey(
+        ReportVersion,
+        on_delete=models.CASCADE,
+        related_name="approval_actions",
+    )
+    action = models.CharField(max_length=40, choices=Action.choices)
+    actor = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="report_approval_actions",
+    )
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"{self.report_version_id} - {self.action}"
 
 
 class ReportSection(models.Model):
@@ -187,23 +216,19 @@ class ReportSection(models.Model):
         FAILED = "failed", "Failed"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-
     report_version = models.ForeignKey(
         ReportVersion,
         on_delete=models.CASCADE,
         related_name="sections",
     )
-
     section_key = models.CharField(max_length=100)
     status = models.CharField(
         max_length=50,
         choices=Status.choices,
         default=Status.GENERATED,
     )
-
     score = models.FloatField(null=True, blank=True)
     revision_count = models.IntegerField(default=0)
-
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

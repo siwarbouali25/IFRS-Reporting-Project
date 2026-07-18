@@ -628,3 +628,393 @@ h3 {
     align-items: flex-start;
   }
 }
+/* Final report deliverables */
+
+.deliverables-layout {
+  display: grid;
+  grid-template-columns: 0.78fr 1.22fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.deliverables-card,
+.pdf-preview-card,
+.approval-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 18px;
+}
+
+.deliverable-heading,
+.approval-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.deliverable-heading h3,
+.approval-title-row h3 {
+  font-size: 18px;
+}
+
+.deliverable-subtitle,
+.approval-description {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+  margin: 6px 0 0;
+}
+
+.deliverable-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  margin-bottom: 10px;
+}
+
+.deliverable-item.primary-deliverable {
+  border-color: var(--acid-border);
+  background: linear-gradient(
+    135deg,
+    rgba(214, 240, 0, 0.12),
+    rgba(214, 240, 0, 0.035)
+  );
+}
+
+.deliverable-item.selected {
+  box-shadow: inset 0 0 0 1px var(--purple-border);
+}
+
+.file-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  color: var(--acid);
+  background: rgba(214, 240, 0, 0.09);
+  border: 1px solid var(--acid-border);
+  font-size: 18px;
+}
+
+.deliverable-info strong {
+  font-size: 13px;
+}
+
+.deliverable-info p {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
+  margin: 5px 0;
+}
+
+.deliverable-info small {
+  color: var(--purple-light);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.pdf-preview-card {
+  min-height: 680px;
+  display: flex;
+  flex-direction: column;
+}
+
+.pdf-frame {
+  width: 100%;
+  flex: 1;
+  min-height: 610px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #202020;
+}
+
+.pdf-loading,
+.pdf-empty {
+  min-height: 610px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  color: var(--muted);
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.025);
+  text-align: center;
+}
+
+.pdf-empty i {
+  color: var(--purple-light);
+  font-size: 34px;
+}
+
+.pdf-empty strong {
+  color: var(--text);
+  font-size: 14px;
+}
+
+.pdf-empty p {
+  max-width: 340px;
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* Approval workflow */
+
+.approval-card {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 22px;
+  padding: 22px;
+  border-color: var(--purple-border);
+}
+
+.approval-summary,
+.approval-form {
+  min-width: 0;
+}
+
+.approval-metadata {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.approval-metadata > div {
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.approval-metadata small {
+  display: block;
+  color: var(--muted);
+  font-size: 9px;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+}
+
+.approval-metadata strong {
+  display: block;
+  color: var(--text);
+  font-size: 11px;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.approval-placeholder {
+  color: var(--muted);
+  border: 1px dashed var(--border);
+  border-radius: 13px;
+  padding: 18px;
+  font-size: 12px;
+  line-height: 1.5;
+  margin-top: 16px;
+}
+
+.approval-form label {
+  display: block;
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.approval-form textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 118px;
+  box-sizing: border-box;
+  padding: 13px;
+  border-radius: 13px;
+  border: 1px solid var(--border);
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.035);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.5;
+  outline: none;
+}
+
+.approval-form textarea:focus {
+  border-color: var(--purple-border);
+  box-shadow: 0 0 0 3px rgba(155, 92, 255, 0.08);
+}
+
+.approval-form textarea:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.approval-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.request-btn {
+  color: var(--warning);
+  border-color: rgba(255, 209, 102, 0.3);
+}
+
+.reject-btn {
+  color: var(--danger);
+  border-color: rgba(255, 123, 123, 0.3);
+}
+
+.action-progress {
+  color: var(--muted);
+  font-size: 11px;
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+}
+
+.decision-message {
+  display: flex;
+  gap: 11px;
+  padding: 13px;
+  border-radius: 13px;
+  margin-top: 14px;
+}
+
+.decision-message i {
+  margin-top: 2px;
+}
+
+.decision-message strong {
+  font-size: 12px;
+}
+
+.decision-message p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.decision-message.approved {
+  border: 1px solid var(--acid-border);
+  background: var(--acid-bg);
+}
+
+.decision-message.approved i {
+  color: var(--acid);
+}
+
+.decision-message.rejected {
+  border: 1px solid rgba(255, 123, 123, 0.35);
+  background: rgba(255, 123, 123, 0.09);
+}
+
+.decision-message.rejected i {
+  color: var(--danger);
+}
+
+.decision-message.changes {
+  border: 1px solid rgba(255, 209, 102, 0.35);
+  background: rgba(255, 209, 102, 0.09);
+}
+
+.decision-message.changes i {
+  color: var(--warning);
+}
+
+.approval-history {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.approval-history h4 {
+  margin: 0 0 12px;
+  font-size: 12px;
+}
+
+.history-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  padding-bottom: 13px;
+}
+
+.history-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 4px;
+  background: var(--purple);
+  box-shadow: 0 0 0 4px rgba(155, 92, 255, 0.1);
+}
+
+.history-item strong {
+  display: block;
+  font-size: 11px;
+  text-transform: capitalize;
+}
+
+.history-item p {
+  color: var(--muted);
+  margin: 3px 0;
+  font-size: 10px;
+}
+
+.history-item small {
+  display: block;
+  color: var(--purple-light);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+@media (max-width: 1300px) {
+  .deliverables-layout,
+  .approval-card {
+    grid-template-columns: 1fr;
+  }
+
+  .pdf-preview-card {
+    min-height: 620px;
+  }
+
+  .pdf-frame,
+  .pdf-loading,
+  .pdf-empty {
+    min-height: 550px;
+  }
+}
+
+@media (max-width: 700px) {
+  .deliverable-item {
+    grid-template-columns: auto 1fr;
+  }
+
+  .deliverable-item .artifact-actions {
+    grid-column: 1 / -1;
+  }
+
+  .approval-metadata {
+    grid-template-columns: 1fr;
+  }
+
+  .approval-actions {
+    align-items: stretch;
+  }
+
+  .approval-actions button {
+    width: 100%;
+  }
+}

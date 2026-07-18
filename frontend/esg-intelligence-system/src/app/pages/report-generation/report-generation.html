@@ -283,18 +283,50 @@
   </section>
 
   <div class="section-label" *ngIf="artifacts.length > 0">
-    Report Files
+    Final Report
   </div>
 
-  <section class="artifacts-layout" *ngIf="artifacts.length > 0">
-    <div class="artifacts-card">
+  <section class="deliverables-layout" *ngIf="artifacts.length > 0">
+    <div class="deliverables-card">
+      <div class="deliverable-heading">
+        <div>
+          <p class="eyebrow">Report Files</p>
+          <h3>IFRS S1/S2 Report</h3>
+          <p class="deliverable-subtitle">
+            {{ bankCode }} · {{ reportingYear }}
+            <span *ngIf="currentReportVersion">
+              · Version {{ currentReportVersion.version_number }}
+            </span>
+          </p>
+        </div>
+
+        <span
+          class="status-pill"
+          *ngIf="currentReportVersion"
+          [ngClass]="getApprovalStatusClass(currentReportVersion.status)"
+        >
+          {{ formatStatus(currentReportVersion.status) }}
+        </span>
+      </div>
+
       <div
-        class="artifact-item"
-        *ngFor="let artifact of sortedArtifacts"
-        [class.final-artifact]="artifact.artifact_type === 'final_markdown'"
+        class="deliverable-item"
+        *ngFor="let artifact of visibleArtifacts"
+        [class.primary-deliverable]="artifact.artifact_type === 'final_pdf'"
         [class.selected]="selectedPreviewArtifact?.id === artifact.id"
       >
-        <div>
+        <div class="file-icon">
+          <i
+            class="pi"
+            [ngClass]="
+              artifact.artifact_type === 'final_pdf'
+                ? 'pi-file-pdf'
+                : 'pi-file-edit'
+            "
+          ></i>
+        </div>
+
+        <div class="deliverable-info">
           <strong>{{ getArtifactLabel(artifact) }}</strong>
           <p>{{ getArtifactDescription(artifact) }}</p>
           <small>
@@ -307,10 +339,10 @@
           <button
             class="secondary-btn"
             type="button"
-            (click)="previewArtifact(artifact)"
-            *ngIf="canPreviewArtifact(artifact)"
+            *ngIf="artifact.artifact_type === 'final_pdf'"
+            (click)="previewPdfArtifact(artifact)"
           >
-            Preview
+            Preview PDF
           </button>
 
           <button
@@ -323,136 +355,251 @@
           </button>
         </div>
       </div>
+
+      <div
+        class="empty-state"
+        *ngIf="!finalPdfArtifact && !finalMarkdownArtifact"
+      >
+        No final report file is available for this generation.
+      </div>
     </div>
 
-    <div class="preview-card">
+    <div class="pdf-preview-card">
       <div class="preview-header">
         <div>
-          <p class="eyebrow">Preview</p>
+          <p class="eyebrow">PDF Preview</p>
           <h3>
-            {{
-              selectedPreviewArtifact
-                ? getArtifactLabel(selectedPreviewArtifact)
-                : 'No file selected'
-            }}
+            {{ finalPdfArtifact ? 'IFRS S1/S2 Report' : 'PDF not available' }}
           </h3>
         </div>
 
         <button
           class="download-btn"
           type="button"
-          *ngIf="selectedPreviewArtifact"
-          (click)="downloadArtifact(selectedPreviewArtifact)"
+          *ngIf="finalPdfArtifact"
+          (click)="downloadArtifact(finalPdfArtifact)"
         >
-          Download
+          <i class="pi pi-download"></i>
+          Download PDF
         </button>
       </div>
 
-      <div class="preview-body" *ngIf="isPreviewLoading">
-        Loading preview...
+      <div class="pdf-loading" *ngIf="isPreviewLoading">
+        <i class="pi pi-spin pi-spinner"></i>
+        Loading PDF preview...
       </div>
 
-      <pre
-        class="preview-body"
-        *ngIf="!isPreviewLoading && previewText"
-      >{{ previewText }}</pre>
+      <iframe
+        class="pdf-frame"
+        *ngIf="!isPreviewLoading && pdfPreviewUrl"
+        [src]="pdfPreviewUrl"
+        title="IFRS S1/S2 report PDF preview"
+      ></iframe>
 
       <div
-        class="preview-body empty-state"
-        *ngIf="!isPreviewLoading && !previewText"
+        class="pdf-empty"
+        *ngIf="!isPreviewLoading && !pdfPreviewUrl"
       >
-        Select a report file to preview it here.
+        <i class="pi pi-file-pdf"></i>
+        <strong>PDF preview unavailable</strong>
+        <p>Generate a new report with PDF output enabled.</p>
       </div>
     </div>
   </section>
 
-  <div class="section-label">Approval Readiness</div>
+  <div class="section-label">Approval</div>
 
-  <section class="validation-card">
-    <div>
-      <p class="eyebrow">Final Report Status</p>
-
-      <h3 *ngIf="!currentJob">
-        No report request selected yet
-      </h3>
-
-      <h3 *ngIf="isRunningJob">
-        Report generation is running
-      </h3>
-
-      <h3 *ngIf="currentJob?.status === 'completed'">
-        Report generated successfully
-      </h3>
-
-      <h3 *ngIf="currentJob?.status === 'completed_with_warnings'">
-        Report generated with review notes
-      </h3>
-
-      <h3 *ngIf="currentJob?.status === 'failed'">
-        Report generation failed
-      </h3>
-
-      <div class="check-list">
-        <div class="check">
-          <i class="pi pi-check-circle"></i>
-          <span>Report request submitted successfully</span>
+  <section class="approval-card">
+    <div class="approval-summary">
+      <div class="approval-title-row">
+        <div>
+          <p class="eyebrow">Review Workflow</p>
+          <h3>Report Approval</h3>
+          <p class="approval-description">
+            Submit the generated report for review, record reviewer feedback,
+            and preserve the decision history.
+          </p>
         </div>
 
-        <div class="check">
-          <i class="pi pi-check-circle"></i>
-          <span>Generation runs in the background</span>
+        <span
+          class="status-pill"
+          *ngIf="currentReportVersion"
+          [ngClass]="getApprovalStatusClass(currentReportVersion.status)"
+        >
+          {{ formatStatus(currentReportVersion.status) }}
+        </span>
+      </div>
+
+      <div class="approval-metadata" *ngIf="currentReportVersion">
+        <div>
+          <small>Version</small>
+          <strong>v{{ currentReportVersion.version_number }}</strong>
         </div>
 
-        <div class="check">
-          <i class="pi pi-check-circle"></i>
-          <span>Report quality checks are applied before final delivery</span>
+        <div>
+          <small>Submitted by</small>
+          <strong>
+            {{ currentReportVersion.submitted_by_name || 'Not submitted' }}
+          </strong>
         </div>
 
-        <div class="check">
-          <i class="pi pi-check-circle"></i>
-          <span>Final report file is ready</span>
+        <div>
+          <small>Submitted on</small>
+          <strong>
+            {{
+              currentReportVersion.submitted_at
+                ? (currentReportVersion.submitted_at | date:'medium')
+                : '—'
+            }}
+          </strong>
+        </div>
+
+        <div>
+          <small>Reviewed by</small>
+          <strong>
+            {{ currentReportVersion.reviewed_by_name || 'Not reviewed' }}
+          </strong>
+        </div>
+
+        <div>
+          <small>Decision date</small>
+          <strong>
+            {{
+              currentReportVersion.reviewed_at
+                ? (currentReportVersion.reviewed_at | date:'medium')
+                : '—'
+            }}
+          </strong>
+        </div>
+      </div>
+
+      <div class="approval-placeholder" *ngIf="!currentReportVersion">
+        Generate a report to start the approval workflow.
+      </div>
+
+      <div
+        class="decision-message approved"
+        *ngIf="currentReportVersion?.status === 'approved'"
+      >
+        <i class="pi pi-check-circle"></i>
+        <div>
+          <strong>Report approved</strong>
+          <p>
+            {{
+              currentReportVersion?.review_comment ||
+              'The report was approved without an additional comment.'
+            }}
+          </p>
+        </div>
+      </div>
+
+      <div
+        class="decision-message rejected"
+        *ngIf="currentReportVersion?.status === 'rejected'"
+      >
+        <i class="pi pi-times-circle"></i>
+        <div>
+          <strong>Report rejected</strong>
+          <p>{{ currentReportVersion?.review_comment }}</p>
+        </div>
+      </div>
+
+      <div
+        class="decision-message changes"
+        *ngIf="currentReportVersion?.status === 'changes_requested'"
+      >
+        <i class="pi pi-exclamation-circle"></i>
+        <div>
+          <strong>Changes requested</strong>
+          <p>{{ currentReportVersion?.review_comment }}</p>
         </div>
       </div>
     </div>
 
-    <div class="approval-box">
-      <span
-        class="pending"
-        *ngIf="!canSubmitForApproval"
-      >
-        Not Ready
-      </span>
+    <div class="approval-form" *ngIf="currentReportVersion">
+      <label for="approvalComment">Review comment</label>
 
-      <span
-        class="pending warning"
-        *ngIf="currentJob?.status === 'completed_with_warnings'"
-      >
-        Review Notes
-      </span>
+      <textarea
+        id="approvalComment"
+        rows="5"
+        [(ngModel)]="approvalComment"
+        [disabled]="
+          isApprovalActionRunning ||
+          currentReportVersion.status === 'approved' ||
+          currentReportVersion.status === 'rejected'
+        "
+        placeholder="Add an optional note for submission or approval. A comment is required when requesting changes or rejecting."
+      ></textarea>
 
-      <span
-        class="pending success"
-        *ngIf="currentJob?.status === 'completed'"
-      >
-        Ready
-      </span>
+      <div class="approval-actions">
+        <button
+          class="primary-btn"
+          type="button"
+          *ngIf="canSubmitReportForReview"
+          [disabled]="isApprovalActionRunning"
+          (click)="submitForReview()"
+        >
+          <i class="pi pi-send"></i>
+          Submit for Review
+        </button>
 
-      <button
-        class="primary-btn"
-        routerLink="/approval"
-        [disabled]="!canSubmitForApproval"
-      >
-        Submit for Approval
-      </button>
+        <ng-container *ngIf="isPendingReview">
+          <button
+            class="secondary-btn request-btn"
+            type="button"
+            [disabled]="isApprovalActionRunning"
+            (click)="requestChanges()"
+          >
+            Request Changes
+          </button>
 
-      <button
-        class="download-btn"
-        type="button"
-        *ngIf="finalReportArtifact"
-        (click)="downloadArtifact(finalReportArtifact)"
+          <button
+            class="secondary-btn reject-btn"
+            type="button"
+            [disabled]="isApprovalActionRunning"
+            (click)="rejectReport()"
+          >
+            Reject
+          </button>
+
+          <button
+            class="primary-btn"
+            type="button"
+            [disabled]="isApprovalActionRunning"
+            (click)="approveReport()"
+          >
+            <i class="pi pi-check"></i>
+            Approve Report
+          </button>
+        </ng-container>
+
+        <span class="action-progress" *ngIf="isApprovalActionRunning">
+          <i class="pi pi-spin pi-spinner"></i>
+          Saving decision...
+        </span>
+      </div>
+
+      <div
+        class="approval-history"
+        *ngIf="currentReportVersion.approval_actions.length > 0"
       >
-        Download Final Report
-      </button>
+        <h4>Decision History</h4>
+
+        <div
+          class="history-item"
+          *ngFor="let action of currentReportVersion.approval_actions"
+        >
+          <span class="history-dot"></span>
+          <div>
+            <strong>{{ formatStatus(action.action) }}</strong>
+            <p>
+              {{ action.actor_name || action.actor_email || 'System user' }}
+              · {{ action.created_at | date:'medium' }}
+            </p>
+            <small *ngIf="action.comment">{{ action.comment }}</small>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 </div>

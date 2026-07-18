@@ -1,27 +1,20 @@
 from django.db.models import Q
 from rest_framework import serializers
 
-from ifrs_assets.models import (
-    IFRSAssetBundle,
-    StyleAssetBundle,
-)
+from ifrs_assets.models import IFRSAssetBundle, StyleAssetBundle
 from payloads.models import PayloadManifest
-from payloads.services import (
-    PayloadStorageError,
-    resolve_payload_directory,
-)
+from payloads.services import PayloadStorageError, resolve_payload_directory
 
 from .models import (
     GenerationWarning,
+    ReportApprovalAction,
     ReportGenerationJob,
     ReportSection,
     ReportVersion,
 )
 
 
-class GenerationWarningSerializer(
-    serializers.ModelSerializer
-):
+class GenerationWarningSerializer(serializers.ModelSerializer):
     class Meta:
         model = GenerationWarning
         fields = [
@@ -35,21 +28,27 @@ class GenerationWarningSerializer(
         ]
 
 
-class ReportGenerationJobSerializer(
-    serializers.ModelSerializer
-):
-    job_id = serializers.UUIDField(
-        source="id",
-        read_only=True,
-    )
-    bank_code = serializers.CharField(
-        source="bank.code",
-        read_only=True,
-    )
-    bank_name = serializers.CharField(
-        source="bank.name",
-        read_only=True,
-    )
+class ReportApprovalActionSerializer(serializers.ModelSerializer):
+    actor_name = serializers.CharField(source="actor.full_name", read_only=True)
+    actor_email = serializers.EmailField(source="actor.email", read_only=True)
+
+    class Meta:
+        model = ReportApprovalAction
+        fields = [
+            "id",
+            "action",
+            "actor",
+            "actor_name",
+            "actor_email",
+            "comment",
+            "created_at",
+        ]
+
+
+class ReportGenerationJobSerializer(serializers.ModelSerializer):
+    job_id = serializers.UUIDField(source="id", read_only=True)
+    bank_code = serializers.CharField(source="bank.code", read_only=True)
+    bank_name = serializers.CharField(source="bank.name", read_only=True)
     payload_manifest_version = serializers.CharField(
         source="payload_manifest.version",
         read_only=True,
@@ -62,6 +61,20 @@ class ReportGenerationJobSerializer(
         source="style_asset_bundle.version",
         read_only=True,
     )
+    report_version_id = serializers.SerializerMethodField()
+    report_version_status = serializers.SerializerMethodField()
+
+    def get_report_version_id(self, obj):
+        try:
+            return str(obj.report_version.id)
+        except ReportVersion.DoesNotExist:
+            return None
+
+    def get_report_version_status(self, obj):
+        try:
+            return obj.report_version.status
+        except ReportVersion.DoesNotExist:
+            return None
 
     class Meta:
         model = ReportGenerationJob
@@ -85,19 +98,18 @@ class ReportGenerationJobSerializer(
             "celery_task_id",
             "config",
             "final_summary",
+            "report_version_id",
+            "report_version_status",
             "created_at",
             "started_at",
             "completed_at",
         ]
 
 
-class StartReportGenerationJobSerializer(
-    serializers.Serializer
-):
+class StartReportGenerationJobSerializer(serializers.Serializer):
     bank_code = serializers.CharField()
     reporting_year = serializers.IntegerField()
     payload_manifest_id = serializers.IntegerField()
-
     ifrs_asset_version = serializers.CharField(
         required=False,
         allow_blank=True,
@@ -108,24 +120,13 @@ class StartReportGenerationJobSerializer(
         allow_blank=True,
         allow_null=True,
     )
-
     output_formats = serializers.ListField(
-        child=serializers.ChoiceField(
-            choices=["markdown", "pdf"]
-        ),
-        default=["markdown"],
+        child=serializers.ChoiceField(choices=["markdown", "pdf"]),
+        default=["markdown", "pdf"],
     )
+    max_revisions = serializers.IntegerField(default=2, min_value=0, max_value=5)
 
-    max_revisions = serializers.IntegerField(
-        default=2,
-        min_value=0,
-        max_value=5,
-    )
-
-    def _resolve_ifrs_asset_bundle(
-        self,
-        version: str | None,
-    ) -> IFRSAssetBundle:
+    def _resolve_ifrs_asset_bundle(self, version: str | None) -> IFRSAssetBundle:
         queryset = IFRSAssetBundle.objects.filter(
             status=IFRSAssetBundle.Status.ACTIVE
         )
@@ -135,23 +136,14 @@ class StartReportGenerationJobSerializer(
                 return queryset.get(version=version)
             except IFRSAssetBundle.DoesNotExist as exc:
                 raise serializers.ValidationError(
-                    {
-                        "ifrs_asset_version": (
-                            "IFRS asset bundle not found "
-                            "or inactive."
-                        )
-                    }
+                    {"ifrs_asset_version": "IFRS asset bundle not found or inactive."}
                 ) from exc
 
         bundle = queryset.order_by("-created_at").first()
 
         if bundle is None:
             raise serializers.ValidationError(
-                {
-                    "ifrs_asset_version": (
-                        "No active IFRS asset bundle exists."
-                    )
-                }
+                {"ifrs_asset_version": "No active IFRS asset bundle exists."}
             )
 
         return bundle
@@ -165,8 +157,7 @@ class StartReportGenerationJobSerializer(
         queryset = StyleAssetBundle.objects.filter(
             status=StyleAssetBundle.Status.ACTIVE
         ).filter(
-            Q(bank=payload_manifest.bank)
-            | Q(bank__isnull=True)
+            Q(bank=payload_manifest.bank) | Q(bank__isnull=True)
         )
 
         if version:
@@ -176,16 +167,14 @@ class StartReportGenerationJobSerializer(
                 raise serializers.ValidationError(
                     {
                         "style_asset_version": (
-                            "Style asset bundle not found, "
-                            "inactive, or assigned to another "
-                            "bank."
+                            "Style asset bundle not found, inactive, or assigned "
+                            "to another bank."
                         )
                     }
                 ) from exc
 
         bank_specific_bundle = (
-            queryset
-            .filter(bank=payload_manifest.bank)
+            queryset.filter(bank=payload_manifest.bank)
             .order_by("-created_at")
             .first()
         )
@@ -194,8 +183,7 @@ class StartReportGenerationJobSerializer(
             return bank_specific_bundle
 
         generic_bundle = (
-            queryset
-            .filter(bank__isnull=True)
+            queryset.filter(bank__isnull=True)
             .order_by("-created_at")
             .first()
         )
@@ -204,8 +192,7 @@ class StartReportGenerationJobSerializer(
             raise serializers.ValidationError(
                 {
                     "style_asset_version": (
-                        "No active bank-specific or generic "
-                        "style asset bundle exists."
+                        "No active bank-specific or generic style asset bundle exists."
                     )
                 }
             )
@@ -215,32 +202,22 @@ class StartReportGenerationJobSerializer(
     def validate(self, attrs):
         bank_code = attrs["bank_code"].strip().upper()
         reporting_year = attrs["reporting_year"]
-        payload_manifest_id = attrs[
-            "payload_manifest_id"
-        ]
+        payload_manifest_id = attrs["payload_manifest_id"]
 
         try:
             payload_manifest = (
-                PayloadManifest.objects
-                .select_related(
-                    "bank",
-                    "source_batch",
-                )
-                .get(
+                PayloadManifest.objects.select_related("bank", "source_batch").get(
                     id=payload_manifest_id,
                     bank__code__iexact=bank_code,
                     reporting_year=reporting_year,
-                    status=(
-                        PayloadManifest.Status.AVAILABLE
-                    ),
+                    status=PayloadManifest.Status.AVAILABLE,
                 )
             )
         except PayloadManifest.DoesNotExist as exc:
             raise serializers.ValidationError(
                 {
                     "payload_manifest_id": (
-                        "No available payload manifest "
-                        "matches this bank and reporting year."
+                        "No available payload manifest matches this bank and reporting year."
                     )
                 }
             ) from exc
@@ -249,64 +226,35 @@ class StartReportGenerationJobSerializer(
             resolve_payload_directory(payload_manifest)
         except PayloadStorageError as exc:
             raise serializers.ValidationError(
-                {
-                    "payload_manifest_id": str(exc),
-                }
+                {"payload_manifest_id": str(exc)}
             ) from exc
-
-        ifrs_asset_bundle = (
-            self._resolve_ifrs_asset_bundle(
-                attrs.get("ifrs_asset_version")
-            )
-        )
-
-        style_asset_bundle = (
-            self._resolve_style_asset_bundle(
-                payload_manifest=payload_manifest,
-                version=attrs.get(
-                    "style_asset_version"
-                ),
-            )
-        )
 
         attrs["bank_code"] = bank_code
         attrs["payload_manifest"] = payload_manifest
         attrs["bank"] = payload_manifest.bank
-        attrs["ifrs_asset_bundle"] = (
-            ifrs_asset_bundle
+        attrs["ifrs_asset_bundle"] = self._resolve_ifrs_asset_bundle(
+            attrs.get("ifrs_asset_version")
         )
-        attrs["style_asset_bundle"] = (
-            style_asset_bundle
+        attrs["style_asset_bundle"] = self._resolve_style_asset_bundle(
+            payload_manifest=payload_manifest,
+            version=attrs.get("style_asset_version"),
         )
-
         return attrs
 
     def create(self, validated_data):
         request = self.context["request"]
-
         output_formats = validated_data.get(
             "output_formats",
-            ["markdown"],
+            ["markdown", "pdf"],
         )
-        max_revisions = validated_data.get(
-            "max_revisions",
-            2,
-        )
+        max_revisions = validated_data.get("max_revisions", 2)
 
         return ReportGenerationJob.objects.create(
             bank=validated_data["bank"],
-            reporting_year=validated_data[
-                "reporting_year"
-            ],
-            payload_manifest=validated_data[
-                "payload_manifest"
-            ],
-            ifrs_asset_bundle=validated_data[
-                "ifrs_asset_bundle"
-            ],
-            style_asset_bundle=validated_data[
-                "style_asset_bundle"
-            ],
+            reporting_year=validated_data["reporting_year"],
+            payload_manifest=validated_data["payload_manifest"],
+            ifrs_asset_bundle=validated_data["ifrs_asset_bundle"],
+            style_asset_bundle=validated_data["style_asset_bundle"],
             created_by=request.user,
             status=ReportGenerationJob.Status.QUEUED,
             current_stage="queued",
@@ -319,21 +267,20 @@ class StartReportGenerationJobSerializer(
         )
 
 
-class ReportVersionSerializer(
-    serializers.ModelSerializer
-):
-    bank_code = serializers.CharField(
-        source="bank.code",
+class ReportVersionSerializer(serializers.ModelSerializer):
+    bank_code = serializers.CharField(source="bank.code", read_only=True)
+    bank_name = serializers.CharField(source="bank.name", read_only=True)
+    job_id = serializers.UUIDField(source="job.id", read_only=True)
+    created_by_name = serializers.CharField(source="created_by.full_name", read_only=True)
+    submitted_by_name = serializers.CharField(
+        source="submitted_by.full_name",
         read_only=True,
     )
-    bank_name = serializers.CharField(
-        source="bank.name",
+    reviewed_by_name = serializers.CharField(
+        source="reviewed_by.full_name",
         read_only=True,
     )
-    job_id = serializers.UUIDField(
-        source="job.id",
-        read_only=True,
-    )
+    approval_actions = ReportApprovalActionSerializer(many=True, read_only=True)
 
     class Meta:
         model = ReportVersion
@@ -348,13 +295,29 @@ class ReportVersionSerializer(
             "version_number",
             "status",
             "created_by",
+            "created_by_name",
+            "submitted_by",
+            "submitted_by_name",
+            "submitted_at",
+            "reviewed_by",
+            "reviewed_by_name",
+            "reviewed_at",
+            "review_comment",
+            "approval_actions",
             "created_at",
         ]
 
 
-class ReportSectionSerializer(
-    serializers.ModelSerializer
-):
+class ReportReviewCommentSerializer(serializers.Serializer):
+    comment = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        trim_whitespace=True,
+        max_length=5000,
+    )
+
+
+class ReportSectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReportSection
         fields = [
