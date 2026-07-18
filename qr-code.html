@@ -1,653 +1,12 @@
-MINIO_PRESIGNED_URL_EXPIRY_SECONDS=3600
-
-# Store report-generation artifacts in MinIO
-ARTIFACT_STORAGE_BACKEND=minio
-
-
-
-
-
-
-MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT", "127.0.0.1:9100")
-MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
-MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minioadmin")
-MINIO_BUCKET = os.getenv("MINIO_BUCKET", "ifrs-platform")
-MINIO_SECURE = os.getenv("MINIO_SECURE", "false").lower() == "true"
-
-MINIO_PRESIGNED_URL_EXPIRY_SECONDS = int(
-    os.getenv("MINIO_PRESIGNED_URL_EXPIRY_SECONDS", "3600")
-)
-
-# Supported values: "local" or "minio".
-ARTIFACT_STORAGE_BACKEND = os.getenv(
-    "ARTIFACT_STORAGE_BACKEND",
-    "minio",
-).strip().lower()
-
-# Local fallback used only when ARTIFACT_STORAGE_BACKEND=local.
-ARTIFACT_LOCAL_ROOT = BASE_DIR / "generated_artifacts"
-
-# ReportArtifact.bucket stores the real MinIO bucket name.
-ARTIFACT_BUCKET_NAME = MINIO_BUCKET
-
-GENERATION_INPUT_ROOT = BASE_DIR / "generation_inputs"
-IFRS_NOTEBOOK_PATH = BASE_DIR / "notebooks" / "05_final_report.ipynb"
-
-
-
-
-
-
-
-import hashlib
-import json
-import mimetypes
-from pathlib import Path
-from typing import Any
-
-from django.conf import settings
-from minio.error import S3Error
-
-from object_storage.minio_client import (
-    ensure_bucket_exists,
-    get_minio_client,
-    get_presigned_url,
-    upload_bytes_to_minio,
-)
-
-from .models import ReportArtifact
-
-
-class ArtifactStorageError(Exception):
-    """Raised when a report artifact cannot be stored or retrieved."""
-
-
-IGNORED_DIRECTORY_NAMES = {
-    ".git",
-    ".ipynb_checkpoints",
-    "__pycache__",
-}
-
-IGNORED_FILE_SUFFIXES = {
-    ".pyc",
-    ".pyo",
-    ".tmp",
-}
-
-
-def _storage_backend() -> str:
-    backend = str(
-        getattr(settings, "ARTIFACT_STORAGE_BACKEND", "minio")
-    ).strip().lower()
-
-    if backend not in {"local", "minio"}:
-        raise ArtifactStorageError(
-            "ARTIFACT_STORAGE_BACKEND must be either "
-            "'local' or 'minio'."
-        )
-
-    return backend
-
-
-def _artifact_bucket_name() -> str:
-    return str(
-        getattr(
-            settings,
-            "ARTIFACT_BUCKET_NAME",
-            getattr(settings, "MINIO_BUCKET", "ifrs-platform"),
-        )
-    )
-
-
-def _get_local_root() -> Path:
-    root = Path(settings.ARTIFACT_LOCAL_ROOT)
-    root.mkdir(parents=True, exist_ok=True)
-    return root
-
-
-def _calculate_checksum(content: bytes) -> str:
-    return hashlib.sha256(content).hexdigest()
-
-
-def _write_local_file(object_key: str, content: bytes) -> Path:
-    file_path = _get_local_root() / object_key
-    file_path.parent.mkdir(parents=True, exist_ok=True)
-    file_path.write_bytes(content)
-    return file_path
-
-
-def _persist_artifact_record(
-    *,
-    job,
-    report_version,
-    artifact_type: str,
-    object_key: str,
-    content_type: str,
-    size_bytes: int,
-    checksum: str,
-) -> ReportArtifact:
-    artifact, _created = ReportArtifact.objects.update_or_create(
-        job=job,
-        object_key=object_key,
-        defaults={
-            "report_version": report_version,
-            "artifact_type": artifact_type,
-            "bucket": _artifact_bucket_name(),
-            "content_type": content_type,
-            "size_bytes": size_bytes,
-            "checksum": checksum,
-        },
-    )
-
-    return artifact
-
-
-def save_bytes_artifact(
-    *,
-    job,
-    artifact_type: str,
-    object_key: str,
-    content: bytes,
-    content_type: str = "application/octet-stream",
-    report_version=None,
-) -> ReportArtifact:
-    object_key = object_key.replace("\\", "/").lstrip("/")
-
-    if not object_key:
-        raise ArtifactStorageError(
-            "An artifact object key is required."
-        )
-
-    try:
-        if _storage_backend() == "local":
-            _write_local_file(object_key, content)
-        else:
-            ensure_bucket_exists()
-            upload_bytes_to_minio(
-                data=content,
-                object_name=object_key,
-                content_type=content_type,
-            )
-    except Exception as exc:
-        raise ArtifactStorageError(
-            f"Could not store artifact '{object_key}': {exc}"
-        ) from exc
-
-    return _persist_artifact_record(
-        job=job,
-        report_version=report_version,
-        artifact_type=artifact_type,
-        object_key=object_key,
-        content_type=content_type,
-        size_bytes=len(content),
-        checksum=_calculate_checksum(content),
-    )
-
-
-def save_text_artifact(
-    *,
-    job,
-    artifact_type: str,
-    object_key: str,
-    text: str,
-    content_type: str = "text/plain",
-    report_version=None,
-) -> ReportArtifact:
-    return save_bytes_artifact(
-        job=job,
-        report_version=report_version,
-        artifact_type=artifact_type,
-        object_key=object_key,
-        content=text.encode("utf-8"),
-        content_type=content_type,
-    )
-
-
-def save_json_artifact(
-    *,
-    job,
-    artifact_type: str,
-    object_key: str,
-    data: Any,
-    report_version=None,
-) -> ReportArtifact:
-    text = json.dumps(
-        data,
-        indent=2,
-        ensure_ascii=False,
-        default=str,
-    )
-
-    return save_text_artifact(
-        job=job,
-        report_version=report_version,
-        artifact_type=artifact_type,
-        object_key=object_key,
-        text=text,
-        content_type="application/json",
-    )
-
-
-def save_file_artifact(
-    *,
-    job,
-    artifact_type: str,
-    object_key: str,
-    local_file_path: str | Path,
-    content_type: str | None = None,
-    report_version=None,
-) -> ReportArtifact:
-    file_path = Path(local_file_path)
-
-    if not file_path.exists() or not file_path.is_file():
-        raise ArtifactStorageError(
-            f"Artifact source file was not found: {file_path}"
-        )
-
-    resolved_content_type = (
-        content_type
-        or mimetypes.guess_type(file_path.name)[0]
-        or "application/octet-stream"
-    )
-
-    return save_bytes_artifact(
-        job=job,
-        report_version=report_version,
-        artifact_type=artifact_type,
-        object_key=object_key,
-        content=file_path.read_bytes(),
-        content_type=resolved_content_type,
-    )
-
-
-def infer_artifact_type(file_path: Path) -> str:
-    normalized = file_path.as_posix().lower()
-    filename = file_path.name.lower()
-
-    if file_path.suffix.lower() == ".pdf":
-        return ReportArtifact.ArtifactType.FINAL_PDF
-
-    if "approved_report_markdown" in filename:
-        return ReportArtifact.ArtifactType.FINAL_MARKDOWN
-
-    if "evidence_map" in normalized:
-        return ReportArtifact.ArtifactType.EVIDENCE_MAP
-
-    if "coverage" in normalized:
-        return ReportArtifact.ArtifactType.COVERAGE
-
-    if "missing" in normalized and "requirement" in normalized:
-        return ReportArtifact.ArtifactType.MISSING_REQUIREMENTS
-
-    if "disclosure_plan" in normalized:
-        return ReportArtifact.ArtifactType.DISCLOSURE_PLAN
-
-    if "claims_register" in normalized:
-        return ReportArtifact.ArtifactType.CLAIMS_REGISTER
-
-    if "approved_section" in normalized:
-        return ReportArtifact.ArtifactType.APPROVED_SECTION
-
-    if "draft" in normalized and "section" in normalized:
-        return ReportArtifact.ArtifactType.DRAFT_SECTION
-
-    if any(
-        token in normalized
-        for token in (
-            "validation",
-            "deterministic_gate",
-            "judge",
-            "quality",
-            "connectivity",
-        )
-    ):
-        return ReportArtifact.ArtifactType.VALIDATION_RESULT
-
-    if "audit" in normalized:
-        return ReportArtifact.ArtifactType.AUDIT_SUMMARY
-
-    if "warning" in normalized:
-        return ReportArtifact.ArtifactType.WARNING_SUMMARY
-
-    if file_path.suffix.lower() == ".log" or "log" in normalized:
-        return ReportArtifact.ArtifactType.LOG
-
-    return ReportArtifact.ArtifactType.LOG
-
-
-def upload_output_directory(
-    *,
-    job,
-    report_version,
-    local_directory: str | Path,
-    object_prefix: str,
-) -> list[ReportArtifact]:
-    root = Path(local_directory)
-
-    if not root.exists() or not root.is_dir():
-        raise ArtifactStorageError(
-            f"Report output directory was not found: {root}"
-        )
-
-    uploaded_artifacts: list[ReportArtifact] = []
-
-    for file_path in sorted(root.rglob("*")):
-        if not file_path.is_file():
-            continue
-
-        relative_path = file_path.relative_to(root)
-
-        if any(
-            part in IGNORED_DIRECTORY_NAMES
-            for part in relative_path.parts
-        ):
-            continue
-
-        if file_path.suffix.lower() in IGNORED_FILE_SUFFIXES:
-            continue
-
-        object_key = (
-            f"{object_prefix.rstrip('/')}/"
-            f"{relative_path.as_posix()}"
-        )
-
-        uploaded_artifacts.append(
-            save_file_artifact(
-                job=job,
-                report_version=report_version,
-                artifact_type=infer_artifact_type(relative_path),
-                object_key=object_key,
-                local_file_path=file_path,
-            )
-        )
-
-    return uploaded_artifacts
-
-
-def read_artifact(object_key: str) -> bytes:
-    object_key = object_key.replace("\\", "/").lstrip("/")
-
-    if _storage_backend() == "local":
-        file_path = _get_local_root() / object_key
-
-        if not file_path.exists():
-            raise ArtifactStorageError(
-                f"Artifact not found: {object_key}"
-            )
-
-        return file_path.read_bytes()
-
-    client = get_minio_client()
-
-    try:
-        response = client.get_object(
-            bucket_name=_artifact_bucket_name(),
-            object_name=object_key,
-        )
-        try:
-            return response.read()
-        finally:
-            response.close()
-            response.release_conn()
-    except S3Error as exc:
-        raise ArtifactStorageError(
-            f"Artifact not found in MinIO: {object_key}"
-        ) from exc
-
-
-def get_artifact_download_url(
-    object_key: str,
-    expires_seconds: int | None = None,
-) -> str:
-    if _storage_backend() != "minio":
-        raise ArtifactStorageError(
-            "Presigned URLs are available only when "
-            "ARTIFACT_STORAGE_BACKEND=minio."
-        )
-
-    resolved_expiry = (
-        expires_seconds
-        if expires_seconds is not None
-        else int(
-            getattr(
-                settings,
-                "MINIO_PRESIGNED_URL_EXPIRY_SECONDS",
-                3600,
-            )
-        )
-    )
-
-    try:
-        return get_presigned_url(
-            object_name=object_key,
-            expires_seconds=resolved_expiry,
-        )
-    except Exception as exc:
-        raise ArtifactStorageError(
-            f"Could not generate a download URL for "
-            f"'{object_key}': {exc}"
-        ) from exc
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-from django.conf import settings
-from django.core.files.base import ContentFile
-from django.http import FileResponse, Http404, HttpResponseRedirect
-from rest_framework import status, viewsets
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-
-from .models import ReportArtifact
-from .serializers import ReportArtifactSerializer
-from .storage import (
-    ArtifactStorageError,
-    get_artifact_download_url,
-    read_artifact,
-)
-
-
-class ReportArtifactViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = ReportArtifactSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        queryset = (
-            ReportArtifact.objects
-            .select_related(
-                "job",
-                "job__bank",
-                "report_version",
-            )
-            .all()
-            .order_by("-created_at")
-        )
-
-        job_id = self.request.query_params.get("job_id")
-        report_version_id = self.request.query_params.get(
-            "report_version_id"
-        )
-        artifact_type = self.request.query_params.get(
-            "artifact_type"
-        )
-
-        if job_id:
-            queryset = queryset.filter(job_id=job_id)
-
-        if report_version_id:
-            queryset = queryset.filter(
-                report_version_id=report_version_id
-            )
-
-        if artifact_type:
-            queryset = queryset.filter(
-                artifact_type=artifact_type
-            )
-
-        return queryset
-
-    @action(detail=True, methods=["get"], url_path="download")
-    def download(self, request, pk=None):
-        artifact = self.get_object()
-
-        if (
-            str(
-                getattr(
-                    settings,
-                    "ARTIFACT_STORAGE_BACKEND",
-                    "local",
-                )
-            ).lower()
-            == "minio"
-        ):
-            try:
-                return HttpResponseRedirect(
-                    get_artifact_download_url(
-                        artifact.object_key
-                    )
-                )
-            except ArtifactStorageError as exc:
-                raise Http404(
-                    "Artifact file was not found in MinIO."
-                ) from exc
-
-        try:
-            content = read_artifact(artifact.object_key)
-        except ArtifactStorageError as exc:
-            raise Http404(
-                "Artifact file was not found."
-            ) from exc
-
-        response = FileResponse(
-            ContentFile(content),
-            content_type=(
-                artifact.content_type
-                or "application/octet-stream"
-            ),
-        )
-
-        filename = artifact.object_key.split("/")[-1]
-        response["Content-Disposition"] = (
-            f'attachment; filename="{filename}"'
-        )
-
-        return response
-
-    @action(
-        detail=True,
-        methods=["get"],
-        url_path="presigned-url",
-    )
-    def presigned_url(self, request, pk=None):
-        artifact = self.get_object()
-
-        raw_expiry = request.query_params.get("expires")
-
-        if raw_expiry is None:
-            expires_seconds = int(
-                getattr(
-                    settings,
-                    "MINIO_PRESIGNED_URL_EXPIRY_SECONDS",
-                    3600,
-                )
-            )
-        else:
-            try:
-                expires_seconds = int(raw_expiry)
-            except ValueError:
-                return Response(
-                    {
-                        "detail": (
-                            "The expires query parameter must "
-                            "be an integer."
-                        )
-                    },
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-        if expires_seconds <= 0:
-            return Response(
-                {
-                    "detail": (
-                        "The expires query parameter must be "
-                        "greater than zero."
-                    )
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        try:
-            url = get_artifact_download_url(
-                artifact.object_key,
-                expires_seconds=expires_seconds,
-            )
-        except ArtifactStorageError as exc:
-            return Response(
-                {"detail": str(exc)},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        return Response(
-            {
-                "artifact_id": str(artifact.id),
-                "filename": artifact.object_key.split("/")[-1],
-                "download_url": url,
-                "expires_seconds": expires_seconds,
-            }
-        )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 from pathlib import Path
 
 from celery import shared_task
-from django.conf import settings
 
 from generation_engine.graph.workflow import run_ifrs_report_graph
 from payloads.services import resolve_payload_directory
 from report_artifacts.models import ReportArtifact
 from report_artifacts.storage import (
+    save_bytes_artifact,
     save_json_artifact,
     save_text_artifact,
     upload_output_directory,
@@ -657,232 +16,179 @@ from report_generation.models import (
     ReportGenerationJob,
     ReportVersion,
 )
+from report_generation.pdf_renderer import render_markdown_to_pdf_bytes
 
 
-def _next_report_version_number(
-    job: ReportGenerationJob,
-) -> int:
+def _next_report_version_number(job: ReportGenerationJob) -> int:
     latest_version = (
-        ReportVersion.objects
-        .filter(
+        ReportVersion.objects.filter(
             bank=job.bank,
             reporting_year=job.reporting_year,
         )
         .order_by("-version_number")
         .first()
     )
-
-    if latest_version is None:
-        return 1
-
-    return latest_version.version_number + 1
+    return 1 if latest_version is None else latest_version.version_number + 1
 
 
 def _resolve_notebook_output_directory(
     final_state: dict,
     final_summary: dict,
-) -> Path:
+) -> Path | None:
     candidate = (
         final_state.get("notebook_full_output_dir")
         or final_summary.get("output_dir")
         or final_state.get("artifacts", {}).get("output_dir")
     )
-
     if not candidate:
-        raise ValueError(
-            "The report-generation graph did not return "
-            "an output directory."
-        )
-
+        return None
     output_directory = Path(candidate).resolve()
-
-    if not output_directory.exists():
-        raise FileNotFoundError(
-            "The report output directory does not exist: "
-            f"{output_directory}"
-        )
-
-    return output_directory
+    return output_directory if output_directory.exists() else None
 
 
 @shared_task
 def run_real_report_generation_job(job_id: str):
     job = (
-        ReportGenerationJob.objects
-        .select_related(
+        ReportGenerationJob.objects.select_related(
             "bank",
             "payload_manifest",
             "payload_manifest__source_batch",
             "ifrs_asset_bundle",
             "style_asset_bundle",
             "created_by",
-        )
-        .get(id=job_id)
+        ).get(id=job_id)
     )
 
     job.mark_running()
 
     try:
         if job.ifrs_asset_bundle is None:
-            raise ValueError(
-                "This report job has no IFRS asset bundle."
-            )
-
+            raise ValueError("This report job has no IFRS asset bundle.")
         if job.style_asset_bundle is None:
-            raise ValueError(
-                "This report job has no style asset bundle."
-            )
+            raise ValueError("This report job has no style asset bundle.")
 
-        payload_dir = resolve_payload_directory(
-            job.payload_manifest
-        )
-
+        payload_dir = resolve_payload_directory(job.payload_manifest)
         initial_state = {
             "job_id": str(job.id),
             "bank_code": job.bank.code,
             "bank_name": job.bank.name,
             "reporting_year": job.reporting_year,
             "payload_dir": str(payload_dir),
-            "ifrs_asset_prefix": (
-                job.ifrs_asset_bundle.minio_prefix
-            ),
-            "style_asset_prefix": (
-                job.style_asset_bundle.minio_prefix
-            ),
+            "ifrs_asset_prefix": job.ifrs_asset_bundle.minio_prefix,
+            "style_asset_prefix": job.style_asset_bundle.minio_prefix,
             "writer_mode": "llm",
         }
 
         final_state = run_ifrs_report_graph(initial_state)
-
-        final_markdown = final_state.get(
-            "final_markdown",
-            "",
-        )
-        final_summary = dict(
-            final_state.get("final_summary", {})
-        )
-        audit_summary = final_state.get(
-            "audit_summary",
-            {},
-        )
-        handoff_manifest = final_state.get(
-            "handoff_manifest",
-            {},
-        )
+        final_markdown = final_state.get("final_markdown", "")
+        final_summary = dict(final_state.get("final_summary", {}))
+        audit_summary = final_state.get("audit_summary", {})
+        handoff_manifest = final_state.get("handoff_manifest", {})
         warnings = final_state.get("warnings", [])
 
-        output_directory = _resolve_notebook_output_directory(
-            final_state,
-            final_summary,
-        )
-
+        version_number = _next_report_version_number(job)
         version = ReportVersion.objects.create(
             job=job,
             bank=job.bank,
             reporting_year=job.reporting_year,
-            version_number=(
-                _next_report_version_number(job)
-            ),
-            status=ReportVersion.Status.APPROVED,
+            version_number=version_number,
+            status=ReportVersion.Status.DRAFT,
             created_by=job.created_by,
         )
 
-        base_key = (
-            f"reports/{job.bank.code}/"
-            f"{job.reporting_year}/{job.id}"
+        base_key = f"reports/{job.bank.code}/{job.reporting_year}/{job.id}"
+        filename_base = (
+            f"ifrs_s1_s2_report_{job.bank.code}_"
+            f"{job.reporting_year}_v{version_number}"
         )
 
         markdown_artifact = save_text_artifact(
             job=job,
             report_version=version,
-            artifact_type=(
-                ReportArtifact.ArtifactType.FINAL_MARKDOWN
-            ),
-            object_key=(
-                f"{base_key}/final/"
-                "approved_report_markdown.md"
-            ),
+            artifact_type=ReportArtifact.ArtifactType.FINAL_MARKDOWN,
+            object_key=f"{base_key}/final/{filename_base}.md",
             text=final_markdown,
             content_type="text/markdown",
         )
 
+        output_formats = set(
+            job.config.get("output_formats", ["markdown", "pdf"])
+        )
+        pdf_artifact = None
+
+        if "pdf" in output_formats:
+            pdf_bytes = render_markdown_to_pdf_bytes(
+                final_markdown,
+                title="IFRS S1/S2 Sustainability-Related Financial Disclosures",
+                bank_name=job.bank.name,
+                reporting_year=job.reporting_year,
+                version_number=version_number,
+            )
+            pdf_artifact = save_bytes_artifact(
+                job=job,
+                report_version=version,
+                artifact_type=ReportArtifact.ArtifactType.FINAL_PDF,
+                object_key=f"{base_key}/final/{filename_base}.pdf",
+                content=pdf_bytes,
+                content_type="application/pdf",
+            )
+
         save_json_artifact(
             job=job,
             report_version=version,
-            artifact_type=(
-                ReportArtifact.ArtifactType.AUDIT_SUMMARY
-            ),
-            object_key=(
-                f"{base_key}/audit/audit_summary.json"
-            ),
+            artifact_type=ReportArtifact.ArtifactType.AUDIT_SUMMARY,
+            object_key=f"{base_key}/audit/audit_summary.json",
             data=audit_summary,
         )
-
         save_json_artifact(
             job=job,
             report_version=version,
             artifact_type=ReportArtifact.ArtifactType.LOG,
-            object_key=(
-                f"{base_key}/handoff/handoff_manifest.json"
-            ),
+            object_key=f"{base_key}/handoff/handoff_manifest.json",
             data=handoff_manifest,
         )
 
-        notebook_artifacts = upload_output_directory(
-            job=job,
-            report_version=version,
-            local_directory=output_directory,
-            object_prefix=f"{base_key}/notebook-output",
+        output_directory = _resolve_notebook_output_directory(
+            final_state,
+            final_summary,
         )
-
-        storage_backend = str(
-            getattr(
-                settings,
-                "ARTIFACT_STORAGE_BACKEND",
-                "local",
+        notebook_artifacts = []
+        if output_directory is not None:
+            notebook_artifacts = upload_output_directory(
+                job=job,
+                report_version=version,
+                local_directory=output_directory,
+                object_prefix=f"{base_key}/notebook-output",
             )
-        ).lower()
 
         final_summary.update(
             {
-                "artifact_storage_backend": storage_backend,
+                "report_version_id": str(version.id),
+                "report_version_number": version_number,
+                "approval_status": version.status,
+                "final_markdown_artifact_id": str(markdown_artifact.id),
+                "final_pdf_artifact_id": (
+                    str(pdf_artifact.id) if pdf_artifact else None
+                ),
                 "artifact_bucket": markdown_artifact.bucket,
                 "artifact_prefix": base_key,
-                "notebook_artifact_count": len(
-                    notebook_artifacts
-                ),
-                "final_markdown_artifact_id": str(
-                    markdown_artifact.id
-                ),
+                "notebook_artifact_count": len(notebook_artifacts),
             }
         )
 
         save_json_artifact(
             job=job,
             report_version=version,
-            artifact_type=(
-                ReportArtifact.ArtifactType.WARNING_SUMMARY
-            ),
-            object_key=(
-                f"{base_key}/summary/final_summary.json"
-            ),
+            artifact_type=ReportArtifact.ArtifactType.WARNING_SUMMARY,
+            object_key=f"{base_key}/summary/final_summary.json",
             data=final_summary,
         )
 
         for warning in warnings:
             if isinstance(warning, dict):
-                stage = warning.get(
-                    "stage",
-                    "generation",
-                )
-                warning_type = warning.get(
-                    "warning_type",
-                    "warning",
-                )
-                message = warning.get(
-                    "message",
-                    str(warning),
-                )
+                stage = warning.get("stage", "generation")
+                warning_type = warning.get("warning_type", "warning")
+                message = warning.get("message", str(warning))
                 details = warning.get("details", {})
             else:
                 stage = "generation"
@@ -900,23 +206,17 @@ def run_real_report_generation_job(job_id: str):
 
         job.final_summary = final_summary
         job.save(update_fields=["final_summary"])
-
-        job.mark_completed(
-            warning_count=len(warnings)
-        )
+        job.mark_completed(warning_count=len(warnings))
 
         return {
             "status": "completed",
             "job_id": str(job.id),
             "report_version_id": str(version.id),
-            "final_markdown_artifact_id": str(
-                markdown_artifact.id
+            "final_markdown_artifact_id": str(markdown_artifact.id),
+            "final_pdf_artifact_id": (
+                str(pdf_artifact.id) if pdf_artifact else None
             ),
-            "notebook_artifact_count": len(
-                notebook_artifacts
-            ),
-            "artifact_bucket": markdown_artifact.bucket,
-            "artifact_prefix": base_key,
+            "notebook_artifact_count": len(notebook_artifacts),
             "final_summary": final_summary,
         }
 
