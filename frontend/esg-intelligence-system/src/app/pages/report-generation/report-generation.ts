@@ -7,6 +7,7 @@ import {
   GenerationJob,
   GenerationJobStatus,
   GenerationWarning,
+  PayloadManifestSummary,
   Report,
   ReportArtifact,
   StartGenerationRequest,
@@ -19,9 +20,19 @@ import {
   styleUrl: './report-generation.css',
 })
 export class ReportGeneration implements OnInit, OnDestroy {
-  bankCode = 'BANK01';
-  reportingYear = 2024;
-  payloadManifestId = 1;
+  bankCode =
+    localStorage.getItem('activeReportBankCode') ??
+    'BANK01';
+  reportingYear = Number(
+    localStorage.getItem('activeReportingYear') ??
+    2024
+  );
+  payloadManifestId = Number(
+    localStorage.getItem('activePayloadManifestId') ??
+    0
+  );
+  activePayloadManifest: PayloadManifestSummary | null =
+    null;
   ifrsAssetVersion = 'ifrs_s1_s2_2024';
   styleAssetVersion = 'bank01_style_v1';
   maxRevisions = 2;
@@ -46,6 +57,7 @@ export class ReportGeneration implements OnInit, OnDestroy {
   constructor(private reportService: Report) {}
 
   ngOnInit(): void {
+    this.loadActivePayloadManifest();
     this.loadJobs();
   }
 
@@ -56,6 +68,13 @@ export class ReportGeneration implements OnInit, OnDestroy {
 
   generateDraft(): void {
     this.errorMessage = '';
+
+    if (!this.payloadManifestId) {
+      this.errorMessage =
+        'Generate payloads in Data Preparation before ' +
+        'starting report generation.';
+      return;
+    }
     this.warnings = [];
     this.artifacts = [];
     this.selectedPreviewArtifact = null;
@@ -87,6 +106,101 @@ export class ReportGeneration implements OnInit, OnDestroy {
         );
       },
     });
+  }
+
+  private loadActivePayloadManifest(): void {
+    if (this.payloadManifestId) {
+      this.reportService
+        .getPayloadManifests(
+          this.bankCode,
+          this.reportingYear
+        )
+        .subscribe({
+          next: (manifests) => {
+            const selected = manifests.find(
+              (manifest) =>
+                manifest.id === this.payloadManifestId
+            );
+
+            if (selected) {
+              this.applyPayloadManifest(selected);
+              return;
+            }
+
+            this.selectLatestPayloadManifest(manifests);
+          },
+          error: () => {
+            this.errorMessage =
+              'Could not validate the selected payload ' +
+              'manifest.';
+          },
+        });
+
+      return;
+    }
+
+    this.reportService
+      .getPayloadManifests(
+        this.bankCode,
+        this.reportingYear
+      )
+      .subscribe({
+        next: (manifests) => {
+          this.selectLatestPayloadManifest(manifests);
+        },
+        error: () => {
+          this.errorMessage =
+            'No prepared payload manifest could be loaded.';
+        },
+      });
+  }
+
+  private selectLatestPayloadManifest(
+    manifests: PayloadManifestSummary[]
+  ): void {
+    const available = manifests
+      .filter(
+        (manifest) => manifest.status === 'available'
+      )
+      .sort(
+        (left, right) =>
+          new Date(right.created_at).getTime() -
+          new Date(left.created_at).getTime()
+      );
+
+    if (available.length === 0) {
+      this.activePayloadManifest = null;
+      this.payloadManifestId = 0;
+      return;
+    }
+
+    this.applyPayloadManifest(available[0]);
+  }
+
+  private applyPayloadManifest(
+    manifest: PayloadManifestSummary
+  ): void {
+    this.activePayloadManifest = manifest;
+    this.payloadManifestId = manifest.id;
+    this.bankCode = manifest.bank_code;
+    this.reportingYear = manifest.reporting_year;
+
+    localStorage.setItem(
+      'activePayloadManifestId',
+      String(manifest.id)
+    );
+    localStorage.setItem(
+      'activeReportBankCode',
+      manifest.bank_code
+    );
+    localStorage.setItem(
+      'activeReportingYear',
+      String(manifest.reporting_year)
+    );
+    localStorage.setItem(
+      'activePayloadManifestVersion',
+      manifest.version
+    );
   }
 
   loadJobs(): void {
@@ -613,6 +727,23 @@ get userFriendlyStage(): string {
     }
 
     
+    const apiError = error?.error;
+
+    if (apiError && typeof apiError === 'object') {
+      const firstField = Object.keys(apiError)[0];
+      const fieldValue = firstField
+        ? apiError[firstField]
+        : null;
+
+      if (Array.isArray(fieldValue) && fieldValue.length > 0) {
+        return String(fieldValue[0]);
+      }
+
+      if (typeof fieldValue === 'string') {
+        return fieldValue;
+      }
+    }
+
     return (
       error?.error?.detail ||
       error?.error?.non_field_errors?.[0] ||

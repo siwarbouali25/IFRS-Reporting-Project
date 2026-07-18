@@ -61,6 +61,15 @@ export interface CanonicalValidationResult {
   validations?: any[];
 }
 
+export interface GeneratedPayloadManifest {
+  id: number;
+  bank_code: string;
+  bank_name: string;
+  reporting_year: number;
+  version: string;
+  storage_backend: string;
+}
+
 export interface PayloadGenerationResult {
   batch_id: string;
   job_id?: string;
@@ -71,6 +80,7 @@ export interface PayloadGenerationResult {
   manifest_path?: string;
   executed_notebook_path?: string;
   stderr_log?: string;
+  payload_manifests: GeneratedPayloadManifest[];
 }
 
 @Injectable({
@@ -79,7 +89,7 @@ export interface PayloadGenerationResult {
 export class DataPreparation {
   private readonly http = inject(HttpClient);
 
-  private readonly baseUrl = 'http://127.0.0.1:8000/api/data-preparation/batches';;
+  private readonly baseUrl = 'http://127.0.0.1:8000/api/data-preparation/batches';
 
   listBatches(): Observable<DataUploadBatch[]> {
     return this.http.get<DataUploadBatch[]>(`${this.baseUrl}/`);

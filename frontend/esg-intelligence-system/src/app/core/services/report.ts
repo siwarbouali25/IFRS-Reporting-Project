@@ -10,6 +10,21 @@ export type GenerationJobStatus =
   | 'failed'
   | 'cancelled';
 
+export interface PayloadManifestSummary {
+  id: number;
+  bank: number;
+  bank_code: string;
+  bank_name: string;
+  source_batch_id?: string | null;
+  reporting_year: number;
+  version: string;
+  storage_backend: string;
+  minio_prefix: string;
+  status: string;
+  checksum: string;
+  created_at: string;
+}
+
 export interface StartGenerationRequest {
   bank_code: string;
   reporting_year: number;
@@ -78,6 +93,34 @@ export class Report {
   private apiUrl = 'http://127.0.0.1:8000/api';
 
   constructor(private http: HttpClient) {}
+
+  getPayloadManifests(
+    bankCode?: string,
+    reportingYear?: number
+  ): Observable<PayloadManifestSummary[]> {
+    const params: Record<string, string> = {};
+
+    if (bankCode) {
+      params['bank_code'] = bankCode;
+    }
+
+    if (reportingYear) {
+      params['reporting_year'] = String(reportingYear);
+    }
+
+    return this.http
+      .get<ListResponse<PayloadManifestSummary>>(
+        `${this.apiUrl}/payload-manifests/`,
+        { params }
+      )
+      .pipe(
+        map((response) =>
+          Array.isArray(response)
+            ? response
+            : response.results
+        )
+      );
+  }
 
   startGenerationJob(payload: StartGenerationRequest): Observable<GenerationJob> {
     return this.http.post<GenerationJob>(

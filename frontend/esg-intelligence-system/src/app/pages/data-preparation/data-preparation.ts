@@ -161,6 +161,7 @@ export class DataPreparation {
 
   createBatch(): void {
     this.resetMessages();
+    this.clearActivePayloadManifest();
     this.setStepStatus('create', 'running');
     this.loading = true;
 
@@ -295,13 +296,61 @@ export class DataPreparation {
         next: (result) => {
           this.payloadResult = result;
           this.setStepStatus('payloads', 'completed');
-          this.successMessage = `Payload generation completed. ${result.payload_count} payloads generated.`;
+          this.storeActivePayloadManifest(result);
+          this.successMessage =
+            `Payload generation completed. ` +
+            `${result.payload_count} payloads generated.`;
         },
         error: (error) => {
           this.setStepStatus('payloads', 'failed');
           this.errorMessage = this.getErrorMessage(error);
         },
       });
+  }
+
+  private storeActivePayloadManifest(
+    result: PayloadGenerationResult
+  ): void {
+    const manifests = result.payload_manifests ?? [];
+
+    if (manifests.length === 0) {
+      this.clearActivePayloadManifest();
+      return;
+    }
+
+    const preferredManifest =
+      manifests.find(
+        (manifest) => manifest.bank_code === 'BANK01'
+      ) ?? manifests[0];
+
+    localStorage.setItem(
+      'activePayloadManifestId',
+      String(preferredManifest.id)
+    );
+    localStorage.setItem(
+      'activeReportBankCode',
+      preferredManifest.bank_code
+    );
+    localStorage.setItem(
+      'activeReportingYear',
+      String(preferredManifest.reporting_year)
+    );
+    localStorage.setItem(
+      'activePayloadManifestVersion',
+      preferredManifest.version
+    );
+    localStorage.setItem(
+      'activeDataPreparationBatchId',
+      result.batch_id
+    );
+  }
+
+  private clearActivePayloadManifest(): void {
+    localStorage.removeItem('activePayloadManifestId');
+    localStorage.removeItem('activeReportBankCode');
+    localStorage.removeItem('activeReportingYear');
+    localStorage.removeItem('activePayloadManifestVersion');
+    localStorage.removeItem('activeDataPreparationBatchId');
   }
 
   private failStep(stepKey: PrepStep['key'], error: unknown): void {

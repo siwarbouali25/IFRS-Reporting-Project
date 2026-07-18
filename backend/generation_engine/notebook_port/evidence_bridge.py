@@ -463,7 +463,7 @@ def _execute_notebook_until_marker(
     *,
     notebook_path: Path,
     input_root: Path,
-    payload_prefix: str,
+    payload_dir: Path,
     ifrs_asset_prefix: str,
     style_asset_prefix: str,
     output_dir: Path,
@@ -473,7 +473,7 @@ def _execute_notebook_until_marker(
     input_root = Path(input_root).resolve()
     output_dir = Path(output_dir).resolve()
 
-    payload_dir = _prefix_to_path(input_root, payload_prefix)
+    payload_dir = Path(payload_dir).resolve()
     requirements_dir = _prefix_to_path(input_root, ifrs_asset_prefix)
     style_system_dir = _prefix_to_path(input_root, style_asset_prefix)
 
@@ -561,7 +561,7 @@ def run_notebook_evidence_stage(
     *,
     notebook_path: Path,
     input_root: Path,
-    payload_prefix: str,
+    payload_dir: Path,
     ifrs_asset_prefix: str,
     style_asset_prefix: str,
     output_dir: Path,
@@ -574,7 +574,7 @@ def run_notebook_evidence_stage(
     namespace, executed_cells = _execute_notebook_until_marker(
         notebook_path=notebook_path,
         input_root=input_root,
-        payload_prefix=payload_prefix,
+        payload_dir=payload_dir,
         ifrs_asset_prefix=ifrs_asset_prefix,
         style_asset_prefix=style_asset_prefix,
         output_dir=output_dir,
@@ -637,7 +637,7 @@ def run_notebook_full_generation_stage(
     *,
     notebook_path: Path,
     input_root: Path,
-    payload_prefix: str,
+    payload_dir: Path,
     ifrs_asset_prefix: str,
     style_asset_prefix: str,
     output_dir: Path,
@@ -654,7 +654,7 @@ def run_notebook_full_generation_stage(
     namespace, executed_cells = _execute_notebook_until_marker(
         notebook_path=notebook_path,
         input_root=input_root,
-        payload_prefix=payload_prefix,
+        payload_dir=payload_dir,
         ifrs_asset_prefix=ifrs_asset_prefix,
         style_asset_prefix=style_asset_prefix,
         output_dir=output_dir,
