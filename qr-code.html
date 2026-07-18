@@ -1,204 +1,34 @@
-from datetime import timedelta
-from io import BytesIO
 from pathlib import Path
-from typing import Optional
+from typing import Any, Dict
 
-from django.conf import settings
-from minio import Minio
-from minio.error import S3Error
-
-
-def get_minio_client() -> Minio:
-    return Minio(
-        endpoint=settings.MINIO_ENDPOINT,
-        access_key=settings.MINIO_ACCESS_KEY,
-        secret_key=settings.MINIO_SECRET_KEY,
-        secure=settings.MINIO_SECURE,
-    )
-
-
-def ensure_bucket_exists() -> None:
-    client = get_minio_client()
-    bucket_name = settings.MINIO_BUCKET_NAME
-
-    if not client.bucket_exists(bucket_name):
-        client.make_bucket(bucket_name)
-
-
-def upload_file_to_minio(
-    local_file_path: str | Path,
-    object_name: str,
-    content_type: str = "application/octet-stream",
-) -> str:
-    client = get_minio_client()
-    ensure_bucket_exists()
-
-    local_file_path = Path(local_file_path)
-
-    if not local_file_path.exists():
-        raise FileNotFoundError(f"File not found: {local_file_path}")
-
-    client.fput_object(
-        bucket_name=settings.MINIO_BUCKET_NAME,
-        object_name=object_name,
-        file_path=str(local_file_path),
-        content_type=content_type,
-    )
-
-    return object_name
-
-
-def upload_bytes_to_minio(
-    data: bytes,
-    object_name: str,
-    content_type: str = "application/octet-stream",
-) -> str:
-    client = get_minio_client()
-    ensure_bucket_exists()
-
-    client.put_object(
-        bucket_name=settings.MINIO_BUCKET_NAME,
-        object_name=object_name,
-        data=BytesIO(data),
-        length=len(data),
-        content_type=content_type,
-    )
-
-    return object_name
-
-
-def get_presigned_url(
-    object_name: str,
-    expires_seconds: int = 3600,
-) -> str:
-    client = get_minio_client()
-
-    return client.presigned_get_object(
-        bucket_name=settings.MINIO_BUCKET_NAME,
-        object_name=object_name,
-        expires=timedelta(seconds=expires_seconds),
-    )
-
-
-def delete_object_from_minio(object_name: str) -> None:
-    client = get_minio_client()
-
-    try:
-        client.remove_object(
-            bucket_name=settings.MINIO_BUCKET_NAME,
-            object_name=object_name,
-        )
-    except S3Error as exc:
-        raise RuntimeError(f"Failed to delete object from MinIO: {exc}") from exc
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-from pathlib import Path
-from typing import Dict, List
-
-from object_storage.minio_client import upload_file_to_minio
-
-
-CONTENT_TYPES = {
-    ".json": "application/json",
-    ".csv": "text/csv",
-    ".txt": "text/plain",
-    ".log": "text/plain",
-    ".md": "text/markdown",
-    ".pdf": "application/pdf",
-    ".zip": "application/zip",
-}
-
-
-def guess_content_type(file_path: Path) -> str:
-    return CONTENT_TYPES.get(
-        file_path.suffix.lower(),
-        "application/octet-stream",
-    )
-
-
-def upload_folder_to_minio(
-    local_folder: str | Path,
-    object_prefix: str,
-) -> List[Dict]:
-    """
-    Upload all files from a local folder to MinIO.
-
-    Example:
-    local_folder = media/data_preparation/batches/<batch_id>/payloads
-    object_prefix = batches/<batch_id>/payloads
-    """
-    local_folder = Path(local_folder)
-
-    if not local_folder.exists():
-        raise FileNotFoundError(f"Folder not found: {local_folder}")
-
-    uploaded = []
-
-    for file_path in local_folder.rglob("*"):
-        if not file_path.is_file():
-            continue
-
-        relative_path = file_path.relative_to(local_folder).as_posix()
-        object_name = f"{object_prefix.rstrip('/')}/{relative_path}"
-
-        upload_file_to_minio(
-            local_file_path=file_path,
-            object_name=object_name,
-            content_type=guess_content_type(file_path),
-        )
-
-        uploaded.append(
-            {
-                "local_path": str(file_path),
-                "object_name": object_name,
-                "filename": file_path.name,
-                "content_type": guess_content_type(file_path),
-                "size_bytes": file_path.stat().st_size,
-            }
-        )
-
-    return uploaded
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-from data_preparation.models import DataUploadBatch
 from object_storage.artifact_uploader import upload_folder_to_minio
 
-batch = DataUploadBatch.objects.get(id="a0a4d84f-6e3a-4905-b249-9acec68b1993")
 
-payload_folder = batch.payload_folder
+def upload_batch_payloads(batch) -> Dict[str, Any]:
+    payload_folder = Path(batch.payload_folder)
 
-uploaded = upload_folder_to_minio(
-    local_folder=payload_folder,
-    object_prefix=f"batches/{batch.id}/payloads",
-)
+    if not payload_folder.exists():
+        raise FileNotFoundError(
+            f"Payload folder does not exist: {payload_folder}"
+        )
 
-print(len(uploaded))
-print(uploaded[:3])
+    uploaded_files = upload_folder_to_minio(
+        local_folder=payload_folder,
+        object_prefix=f"batches/{batch.id}/payloads",
+    )
+
+    return {
+        "uploaded_count": len(uploaded_files),
+        "object_prefix": f"batches/{batch.id}/payloads",
+        "objects": uploaded_files,
+    }
+
+
+
+
+
+from object_storage.pipeline_storage import upload_batch_payloads
+
+
+
+minio_result = upload_batch_payloads(batch)
