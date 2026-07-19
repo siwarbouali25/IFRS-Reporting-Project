@@ -1,219 +1,495 @@
 <div class="prep-page">
   <section class="hero">
     <div>
-      <p class="eyebrow">Data Preparation Center</p>
-      <h1>Prepare ESG data for <em>IFRS S1/S2 reporting</em></h1>
+      <p class="eyebrow">
+        Data Preparation
+      </p>
+
+      <h1>
+        Prepare sustainability data for
+        <em>IFRS S1/S2 reporting</em>
+      </h1>
+
       <p class="subtitle">
-        Upload client datasets, normalize them into canonical tables, validate data quality,
-        and generate structured JSON payloads for report generation.
+        Upload the institution's source information.
+        The platform prepares, checks, and structures it
+        automatically before report generation.
       </p>
     </div>
 
-    <button class="primary-btn" routerLink="/report-generation" [disabled]="!payloadResult">
+    <button
+      class="primary-btn"
+      routerLink="/report-generation"
+      [disabled]="!preparationCompleted"
+    >
       Continue to Report Generation
     </button>
   </section>
 
-  <section class="alert success" *ngIf="successMessage">
+  <section
+    class="alert success"
+    *ngIf="successMessage"
+  >
     <i class="pi pi-check-circle"></i>
     <span>{{ successMessage }}</span>
   </section>
 
-  <section class="alert error" *ngIf="errorMessage">
-    <i class="pi pi-times-circle"></i>
+  <section
+    class="alert error"
+    *ngIf="errorMessage"
+  >
+    <i class="pi pi-exclamation-circle"></i>
     <span>{{ errorMessage }}</span>
   </section>
 
-  <div class="section-label">Preparation Overview</div>
+  <div class="section-label">
+    Upload Source Data
+  </div>
 
-  <section class="kpi-grid">
-    <div class="kpi-card" *ngFor="let item of overview">
-      <div class="icon">
-        <i [class]="item.icon"></i>
-      </div>
-      <p>{{ item.label }}</p>
-      <h2>{{ item.value }}</h2>
-    </div>
-  </section>
-
-  <div class="section-label">Upload Dataset</div>
-
-  <section class="workflow-card">
-    <div class="batch-form">
-      <div>
-        <label>Batch name</label>
-        <input type="text" [(ngModel)]="batchName" placeholder="BANK01 Dataset" />
-      </div>
-
-      <button class="secondary-btn" (click)="createBatch()" [disabled]="loading || !batchName">
-        Create Batch
-      </button>
-    </div>
-
-    <div class="batch-info" *ngIf="currentBatch">
-      <span>Current batch</span>
-      <strong>{{ currentBatch.name }}</strong>
-      <small>{{ currentBatch.id }}</small>
-    </div>
-
-    <div class="upload-box">
-      <i class="pi pi-cloud-upload"></i>
-      <h3>Upload ZIP or CSV files</h3>
-      <p>Use a ZIP containing all CSV tables, or select multiple CSV files.</p>
-
+  <section class="upload-card">
+    <div
+      class="upload-zone"
+      [class.dragging]="isDragging"
+      [class.has-files]="selectedFiles.length > 0"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)"
+    >
       <input
+        #fileInput
+        class="hidden-file-input"
         type="file"
         multiple
-        accept=".zip,.csv"
+        accept=".csv,.zip"
         (change)="onFilesSelected($event)"
       />
 
-      <div class="selected-files" *ngIf="selectedFiles.length">
-        <strong>{{ selectedFiles.length }} file(s) selected</strong>
-        <span *ngFor="let file of selectedFiles">{{ file.name }}</span>
+      <div class="upload-icon">
+        <i class="pi pi-cloud-upload"></i>
       </div>
 
-      <button class="primary-btn" (click)="uploadFiles()" [disabled]="!canUpload">
-        Upload Dataset
-      </button>
+      <div class="upload-copy">
+        <h2>
+          {{
+            selectedFiles.length > 0
+              ? 'Source data selected'
+              : 'Drop source data here'
+          }}
+        </h2>
+
+        <p *ngIf="selectedFiles.length === 0">
+          Upload CSV files or a ZIP archive containing
+          financial, ESG, governance, risk, and
+          operational information.
+        </p>
+
+        <div
+          class="selection-summary"
+          *ngIf="selectedFiles.length > 0"
+        >
+          <strong>
+            {{ selectedFileCount }}
+            {{
+              selectedFileCount === 1
+                ? 'source file'
+                : 'source files'
+            }}
+          </strong>
+
+          <span>
+            {{ selectedFileTypeLabel }}
+            ·
+            {{ formatBytes(selectedFileSize) }}
+          </span>
+
+          <span class="ready-text">
+            Ready to prepare
+          </span>
+        </div>
+      </div>
+
+      <div class="upload-actions">
+        <button
+          class="secondary-btn"
+          type="button"
+          [disabled]="loading"
+          (click)="fileInput.click()"
+        >
+          {{
+            selectedFiles.length > 0
+              ? 'Change Files'
+              : 'Choose Files'
+          }}
+        </button>
+
+        <button
+          class="primary-btn"
+          type="button"
+          [disabled]="!canStartPreparation"
+          (click)="startPreparation()"
+        >
+          <i
+            class="pi"
+            [ngClass]="
+              loading
+                ? 'pi-spin pi-spinner'
+                : 'pi-play'
+            "
+          ></i>
+
+          {{
+            loading
+              ? 'Preparing Data...'
+              : 'Start Preparation'
+          }}
+        </button>
+      </div>
+    </div>
+
+    <div class="assurance-grid">
+      <div class="assurance-item">
+        <i class="pi pi-lock"></i>
+        <div>
+          <strong>Controlled processing</strong>
+          <p>
+            Source data remains inside the platform's
+            preparation workflow.
+          </p>
+        </div>
+      </div>
+
+      <div class="assurance-item">
+        <i class="pi pi-sync"></i>
+        <div>
+          <strong>Automatic standardisation</strong>
+          <p>
+            The system adapts source structures without
+            exposing technical mapping steps.
+          </p>
+        </div>
+      </div>
+
+      <div class="assurance-item">
+        <i class="pi pi-check-square"></i>
+        <div>
+          <strong>Quality controlled</strong>
+          <p>
+            Blocking issues are checked before disclosure
+            information is prepared.
+          </p>
+        </div>
+      </div>
     </div>
   </section>
 
-  <div class="section-label">Preparation Workflow</div>
+  <ng-container *ngIf="preparationStarted">
+    <div class="section-label">
+      Preparation Progress
+    </div>
 
-  <section class="workflow-card">
-    <div class="stepper">
-      <div class="step" *ngFor="let step of steps" [class]="step.status">
-        <div class="step-icon">
-          <i
-            [class]="
-              step.status === 'completed'
-                ? 'pi pi-check'
-                : step.status === 'running'
-                ? 'pi pi-spin pi-spinner'
-                : step.status === 'failed'
-                ? 'pi pi-times'
-                : 'pi pi-circle'
-            "
-          ></i>
+    <section class="progress-card">
+      <div class="progress-heading">
+        <div>
+          <p class="eyebrow">
+            Automatic Preparation
+          </p>
+          <h2>{{ currentActivity }}</h2>
+        </div>
+
+        <span
+          class="status-pill"
+          [class.success]="preparationCompleted"
+          [class.running]="loading"
+          [class.error-pill]="
+            currentStatusLabel === 'Needs attention'
+          "
+        >
+          {{ currentStatusLabel }}
+        </span>
+      </div>
+
+      <div class="progress-track">
+        <div
+          class="progress-fill"
+          [style.width.%]="progressPercent"
+        ></div>
+      </div>
+
+      <div class="progress-meta">
+        <span>
+          {{ progressPercent }}% complete
+        </span>
+
+        <span *ngIf="completedAt">
+          Completed
+          {{ completedAt | date:'medium' }}
+        </span>
+      </div>
+
+      <div class="stepper">
+        <div
+          class="step"
+          *ngFor="let step of steps"
+          [ngClass]="step.status"
+        >
+          <div class="step-icon">
+            <i [class]="getStepIcon(step.status)"></i>
+          </div>
+
+          <div>
+            <h3>{{ step.label }}</h3>
+            <p>{{ step.description }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </ng-container>
+
+  <ng-container *ngIf="activeManifest">
+    <div class="section-label">
+      Reporting Entity
+    </div>
+
+    <section class="entity-card">
+      <div class="entity-identity">
+        <div class="entity-logo">
+          <i class="pi pi-building"></i>
         </div>
 
         <div>
-          <h3>{{ step.label }}</h3>
-          <p>{{ step.description }}</p>
+          <p class="eyebrow">
+            Prepared Institution
+          </p>
+          <h2>{{ entityName }}</h2>
+          <p>
+            Reporting year {{ reportingYear }}
+            · IFRS S1/S2 disclosure preparation
+          </p>
         </div>
+      </div>
+
+      <div class="entity-metrics">
+        <div>
+          <small>Source files</small>
+          <strong>{{ filesProcessedCount }}</strong>
+        </div>
+
+        <div>
+          <small>Reporting year</small>
+          <strong>{{ reportingYear }}</strong>
+        </div>
+
+        <div>
+          <small>Preparation status</small>
+          <strong class="ready-value">
+            Ready
+          </strong>
+        </div>
+      </div>
+    </section>
+
+    <section
+      class="entity-selector"
+      *ngIf="reportingEntities.length > 1"
+    >
+      <p>
+        Multiple reporting entities were prepared.
+        Select the institution to continue with.
+      </p>
+
+      <div class="entity-options">
+        <button
+          type="button"
+          class="entity-option"
+          *ngFor="let entity of reportingEntities"
+          [class.selected]="
+            activeManifest?.id === entity.id
+          "
+          (click)="selectManifest(entity)"
+        >
+          <strong>{{ entity.bank_name }}</strong>
+          <span>
+            Reporting year {{ entity.reporting_year }}
+          </span>
+        </button>
+      </div>
+    </section>
+  </ng-container>
+
+  <ng-container *ngIf="validationResult">
+    <div class="section-label">
+      Data Quality
+    </div>
+
+    <section class="quality-grid">
+      <div class="quality-card">
+        <p>Files processed</p>
+        <strong>{{ filesProcessedCount }}</strong>
+        <span>
+          Source information prepared successfully
+        </span>
+      </div>
+
+      <div class="quality-card">
+        <p>Blocking issues</p>
+        <strong>{{ blockingIssueCount }}</strong>
+        <span>
+          {{
+            blockingIssueCount === 0
+              ? 'No blocking issues found'
+              : 'Action is required before continuing'
+          }}
+        </span>
+      </div>
+
+      <div class="quality-card">
+        <p>Review notes</p>
+        <strong>{{ reviewNoteCount }}</strong>
+        <span>
+          {{
+            reviewNoteCount === 0
+              ? 'No additional review notes'
+              : 'Non-blocking items are available for review'
+          }}
+        </span>
+      </div>
+
+      <div
+        class="quality-card quality-status"
+        [class.ready]="validationResult.is_valid"
+        [class.not-ready]="!validationResult.is_valid"
+      >
+        <p>Quality status</p>
+        <strong>
+          {{
+            validationResult.is_valid
+              ? 'Ready'
+              : 'Needs attention'
+          }}
+        </strong>
+        <span>
+          {{
+            validationResult.is_valid
+              ? 'Quality checks completed'
+              : 'Blocking items must be resolved'
+          }}
+        </span>
+      </div>
+    </section>
+
+    <section
+      class="review-notes"
+      *ngIf="visibleReviewNotes.length > 0"
+    >
+      <h3>Items to review</h3>
+
+      <div
+        class="review-note"
+        *ngFor="let issue of visibleReviewNotes"
+      >
+        <i class="pi pi-info-circle"></i>
+        <span>{{ getIssueMessage(issue) }}</span>
+      </div>
+    </section>
+  </ng-container>
+
+  <ng-container *ngIf="payloadResult">
+    <div class="section-label">
+      Disclosure Readiness
+    </div>
+
+    <section class="disclosure-section">
+      <div class="disclosure-heading">
+        <div>
+          <p class="eyebrow">
+            Information Ready
+          </p>
+          <h2>
+            Sustainability disclosure areas prepared
+          </h2>
+          <p>
+            The institution's information has been
+            structured for each IFRS S1/S2 reporting area.
+          </p>
+        </div>
+
+        <span class="status-pill success">
+          5 areas ready
+        </span>
+      </div>
+
+      <div class="disclosure-grid">
+        <div
+          class="disclosure-card"
+          *ngFor="let area of disclosureAreas"
+        >
+          <div class="disclosure-icon">
+            <i [class]="area.icon"></i>
+          </div>
+
+          <div>
+            <strong>{{ area.name }}</strong>
+            <p>{{ area.description }}</p>
+          </div>
+
+          <i class="pi pi-check-circle ready-check"></i>
+        </div>
+      </div>
+    </section>
+  </ng-container>
+
+  <section
+    class="completion-card"
+    *ngIf="preparationCompleted"
+  >
+    <div>
+      <p class="eyebrow">
+        Preparation Completed
+      </p>
+
+      <h2>
+        {{ entityName }} is ready for reporting
+      </h2>
+
+      <p>
+        The source information has been prepared,
+        quality-checked, and organised into the five
+        IFRS S1/S2 disclosure areas.
+      </p>
+
+      <div class="completion-facts">
+        <span>
+          <i class="pi pi-check"></i>
+          {{ filesProcessedCount }} source files processed
+        </span>
+
+        <span>
+          <i class="pi pi-check"></i>
+          5 disclosure areas prepared
+        </span>
+
+        <span>
+          <i class="pi pi-check"></i>
+          {{ blockingIssueCount }} blocking issues
+        </span>
       </div>
     </div>
 
-    <div class="workflow-actions">
-      <button class="primary-btn" (click)="runFullPreparation()" [disabled]="!canRunPipeline">
-        Start Preparation
+    <div class="completion-actions">
+      <button
+        class="secondary-btn"
+        type="button"
+        (click)="startNewPreparation()"
+      >
+        Start New Preparation
       </button>
 
       <button
         class="primary-btn"
-        (click)="runPayloadGeneration()"
-        [disabled]="!validationPassed || loading"
+        routerLink="/report-generation"
       >
-        Generate Payloads
+        Continue to Report Generation
       </button>
     </div>
-  </section>
-
-  <div class="section-label" *ngIf="detectionResult">Table Detection</div>
-
-  <section class="result-card" *ngIf="detectionResult">
-    <h3>Detected tables</h3>
-    <p>
-      {{ detectionResult.total_detected_files || detectionResult.detections?.length || 0 }}
-      files detected.
-    </p>
-
-    <div class="simple-table" *ngIf="detectionResult.detections?.length">
-      <div class="table-row header">
-        <span>File</span>
-        <span>Detected table</span>
-        <span>Confidence</span>
-        <span>Status</span>
-      </div>
-
-      <div class="table-row" *ngFor="let item of detectionResult.detections">
-        <span>{{ item.filename || item.file_name || '-' }}</span>
-        <span>{{ item.detected_table || '-' }}</span>
-        <span>{{ item.confidence ?? '-' }}</span>
-        <span>
-          <b [class.warning]="item.needs_review">
-            {{ item.needs_review ? 'Needs review' : 'Ready' }}
-          </b>
-        </span>
-      </div>
-    </div>
-  </section>
-
-  <div class="section-label" *ngIf="mappingResult">Column Mapping</div>
-
-  <section class="result-card" *ngIf="mappingResult">
-    <h3>Column mapping completed</h3>
-    <p>
-      {{ mappingResult.total_mapped_files || mappingResult.mappings?.length || 0 }}
-      files mapped.
-    </p>
-
-    <div class="status-pill" [class.warning]="mappingResult.needs_review">
-      {{ mappingResult.needs_review ? 'Review required' : 'No required mapping gaps' }}
-    </div>
-  </section>
-
-  <div class="section-label" *ngIf="canonicalResult">Canonical Dataset</div>
-
-  <section class="result-card" *ngIf="canonicalResult">
-    <h3>Canonical CSV files generated</h3>
-    <p>{{ canonicalResult.total_canonical_files || 0 }} canonical files created.</p>
-    <small>{{ canonicalResult.canonical_folder }}</small>
-  </section>
-
-  <div class="section-label" *ngIf="validationResult">Validation</div>
-
-  <section class="result-card" *ngIf="validationResult">
-    <h3>
-      {{ validationResult.is_valid ? 'Validation passed' : 'Validation failed' }}
-    </h3>
-
-    <p>
-      {{ validationResult.total_validated_files || 0 }} files validated.
-      {{ validationResult.issues?.length || 0 }} issue(s) found.
-    </p>
-
-    <div class="status-pill" [class.success]="validationResult.is_valid" [class.error-pill]="!validationResult.is_valid">
-      {{ validationResult.is_valid ? 'Ready for payload generation' : 'Blocking issues found' }}
-    </div>
-
-    <div class="issues" *ngIf="validationResult.issues?.length">
-      <div class="issue" *ngFor="let issue of validationResult.issues">
-        <strong>{{ issue.code }}</strong>
-        <span>{{ issue.message }}</span>
-      </div>
-    </div>
-  </section>
-
-  <div class="section-label" *ngIf="payloadResult">Generated Payloads</div>
-
-  <section class="result-card" *ngIf="payloadResult">
-    <h3>Payload generation completed</h3>
-    <p>{{ payloadResult.payload_count }} payload files generated.</p>
-
-    <div class="payload-list">
-      <div class="payload-item" *ngFor="let payload of payloadFiles">
-        <div>
-          <strong>{{ payload.filename }}</strong>
-          <span>{{ payload.size_bytes }} bytes</span>
-        </div>
-        <i class="pi pi-file"></i>
-      </div>
-    </div>
-
-    <button class="primary-btn" routerLink="/report-generation">
-      Continue to Report Generation
-    </button>
   </section>
 </div>
