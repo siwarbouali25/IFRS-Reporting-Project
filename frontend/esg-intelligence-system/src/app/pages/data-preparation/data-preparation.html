@@ -303,7 +303,7 @@
           class="entity-option"
           *ngFor="let entity of reportingEntities"
           [class.selected]="
-            activeManifest?.id === entity.id
+            activeManifest.id === entity.id
           "
           (click)="selectManifest(entity)"
         >

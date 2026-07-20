@@ -1,1 +1,7 @@
-python -m json.tool "C:\Users\BV426BP\Documents\ESG-Platform\IFRS-Reporting-Project\backend\debug_outputs\langgraph_full_notebook\BANK01\2024\6c421389-ad99-4cc8-8207-9369acff63d1\13_final_quality\final_quality_reconciliation_result.json"
+python manage.py dumpdata `
+  --natural-foreign `
+  --natural-primary `
+  --exclude contenttypes `
+  --exclude auth.permission `
+  --indent 2 `
+  --output sqlite_data_backup.json
