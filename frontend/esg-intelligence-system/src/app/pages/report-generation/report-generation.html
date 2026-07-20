@@ -222,7 +222,7 @@
 
     <div
       class="job-row"
-      *ngFor="let job of jobs; let i = index"
+      *ngFor="let job of recentJobs; let i = index"
       [class.selected]="currentJob?.job_id === job.job_id"
       (click)="selectJob(job)"
     >
@@ -282,127 +282,193 @@
     </div>
   </section>
 
-  <div class="section-label" *ngIf="artifacts.length > 0">
+  <div
+    class="section-label"
+    *ngIf="artifacts.length > 0"
+  >
     Final Report
   </div>
 
-  <section class="deliverables-layout" *ngIf="artifacts.length > 0">
-    <div class="deliverables-card">
-      <div class="deliverable-heading">
+  <section
+    class="final-report-card"
+    *ngIf="artifacts.length > 0"
+  >
+    <div class="final-report-header">
+      <div class="final-report-identity">
+        <div class="final-report-icon">
+          <i class="pi pi-file-pdf"></i>
+        </div>
+
         <div>
-          <p class="eyebrow">Report Files</p>
+          <p class="eyebrow">Final Deliverable</p>
           <h3>IFRS S1/S2 Report</h3>
-          <p class="deliverable-subtitle">
-            {{ bankCode }} · {{ reportingYear }}
+
+          <p class="report-file-meta">
+            {{
+              currentJob?.bank_name ||
+              activePayloadManifest?.bank_name ||
+              bankCode
+            }}
+            · Reporting year {{ reportingYear }}
+
             <span *ngIf="currentReportVersion">
-              · Version {{ currentReportVersion.version_number }}
+              · Version
+              {{ currentReportVersion.version_number }}
+            </span>
+
+            <span *ngIf="finalPdfArtifact">
+              ·
+              {{
+                formatBytes(
+                  finalPdfArtifact.size_bytes
+                )
+              }}
             </span>
           </p>
         </div>
+      </div>
 
+      <div class="final-report-header-actions">
         <span
           class="status-pill"
           *ngIf="currentReportVersion"
-          [ngClass]="getApprovalStatusClass(currentReportVersion.status)"
+          [ngClass]="
+            getApprovalStatusClass(
+              currentReportVersion.status
+            )
+          "
         >
-          {{ formatStatus(currentReportVersion.status) }}
+          {{
+            formatStatus(
+              currentReportVersion.status
+            )
+          }}
         </span>
-      </div>
 
-      <div
-        class="deliverable-item"
-        *ngFor="let artifact of visibleArtifacts"
-        [class.primary-deliverable]="artifact.artifact_type === 'final_pdf'"
-        [class.selected]="selectedPreviewArtifact?.id === artifact.id"
-      >
-        <div class="file-icon">
-          <i
-            class="pi"
-            [ngClass]="
-              artifact.artifact_type === 'final_pdf'
-                ? 'pi-file-pdf'
-                : 'pi-file-edit'
-            "
-          ></i>
-        </div>
-
-        <div class="deliverable-info">
-          <strong>{{ getArtifactLabel(artifact) }}</strong>
-          <p>{{ getArtifactDescription(artifact) }}</p>
-          <small>
-            {{ artifact.content_type || 'file' }}
-            · {{ formatBytes(artifact.size_bytes) }}
-          </small>
-        </div>
-
-        <div class="artifact-actions">
-          <button
-            class="secondary-btn"
-            type="button"
-            *ngIf="artifact.artifact_type === 'final_pdf'"
-            (click)="previewPdfArtifact(artifact)"
-          >
-            Preview PDF
-          </button>
-
-          <button
-            class="download-btn"
-            type="button"
-            (click)="downloadArtifact(artifact)"
-          >
-            <i class="pi pi-download"></i>
-            Download
-          </button>
-        </div>
-      </div>
-
-      <div
-        class="empty-state"
-        *ngIf="!finalPdfArtifact && !finalMarkdownArtifact"
-      >
-        No final report file is available for this generation.
-      </div>
-    </div>
-
-    <div class="pdf-preview-card">
-      <div class="preview-header">
-        <div>
-          <p class="eyebrow">PDF Preview</p>
-          <h3>
-            {{ finalPdfArtifact ? 'IFRS S1/S2 Report' : 'PDF not available' }}
-          </h3>
-        </div>
+        <button
+          class="secondary-btn"
+          type="button"
+          *ngIf="finalMarkdownArtifact"
+          (click)="
+            downloadArtifact(
+              finalMarkdownArtifact
+            )
+          "
+        >
+          <i class="pi pi-file-edit"></i>
+          Download Markdown
+        </button>
 
         <button
           class="download-btn"
           type="button"
           *ngIf="finalPdfArtifact"
-          (click)="downloadArtifact(finalPdfArtifact)"
+          (click)="
+            downloadArtifact(
+              finalPdfArtifact
+            )
+          "
         >
           <i class="pi pi-download"></i>
           Download PDF
         </button>
       </div>
+    </div>
 
-      <div class="pdf-loading" *ngIf="isPreviewLoading">
-        <i class="pi pi-spin pi-spinner"></i>
+    <div
+      class="secondary-format"
+      *ngIf="finalMarkdownArtifact"
+    >
+      <div>
+        <i class="pi pi-file-edit"></i>
+
+        <span>
+          <strong>Source Markdown</strong>
+          ·
+          {{
+            formatBytes(
+              finalMarkdownArtifact.size_bytes
+            )
+          }}
+          · Editable source version
+        </span>
+      </div>
+
+      <button
+        type="button"
+        (click)="
+          downloadArtifact(
+            finalMarkdownArtifact
+          )
+        "
+      >
+        Download
+      </button>
+    </div>
+
+    <div class="pdf-preview-container">
+      <div class="pdf-preview-toolbar">
+        <div>
+          <p class="eyebrow">PDF Preview</p>
+          <h4>
+            {{
+              finalPdfArtifact
+                ? 'Review the generated report'
+                : 'PDF not available'
+            }}
+          </h4>
+        </div>
+
+        <button
+          class="secondary-btn"
+          type="button"
+          *ngIf="finalPdfArtifact"
+          (click)="
+            previewPdfArtifact(
+              finalPdfArtifact
+            )
+          "
+        >
+          <i class="pi pi-refresh"></i>
+          Reload Preview
+        </button>
+      </div>
+
+      <div
+        class="pdf-loading"
+        *ngIf="isPreviewLoading"
+      >
+        <i
+          class="pi pi-spin pi-spinner"
+        ></i>
         Loading PDF preview...
       </div>
 
       <iframe
         class="pdf-frame"
-        *ngIf="!isPreviewLoading && pdfPreviewUrl"
+        *ngIf="
+          !isPreviewLoading &&
+          pdfPreviewUrl
+        "
         [src]="pdfPreviewUrl"
         title="IFRS S1/S2 report PDF preview"
       ></iframe>
 
       <div
         class="pdf-empty"
-        *ngIf="!isPreviewLoading && !pdfPreviewUrl"
+        *ngIf="
+          !isPreviewLoading &&
+          !pdfPreviewUrl
+        "
       >
         <i class="pi pi-file-pdf"></i>
-        <strong>PDF preview unavailable</strong>
-        <p>Generate a new report with PDF output enabled.</p>
+        <strong>
+          PDF preview unavailable
+        </strong>
+        <p>
+          Generate a new report with PDF
+          output enabled.
+        </p>
       </div>
     </div>
   </section>

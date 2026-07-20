@@ -534,6 +534,11 @@ export class ReportGeneration implements OnInit, OnDestroy {
     );
   }
 
+
+  get recentJobs(): GenerationJob[] {
+    return this.jobs.slice(0, 3);
+  }
+
   get visibleArtifacts(): ReportArtifact[] {
     return [...this.artifacts].sort(
       (left, right) =>
