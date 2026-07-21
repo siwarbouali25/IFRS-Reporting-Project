@@ -2,10 +2,10 @@
   --acid: #d6f000;
   --acid-bg: rgba(214, 240, 0, 0.12);
   --acid-border: rgba(214, 240, 0, 0.3);
-  --purple: #9b5cff;
-  --purple-bg: rgba(155, 92, 255, 0.12);
-  --purple-border: rgba(155, 92, 255, 0.3);
-  --purple-light: #c09fff;
+  --accent: #4d9fff;
+  --accent-bg: rgba(77, 159, 255, 0.12);
+  --accent-border: rgba(77, 159, 255, 0.3);
+  --accent-light: #9ec7ff;
   --card: rgba(19, 19, 19, 0.95);
   --border: rgba(255, 255, 255, 0.09);
   --muted: #7a7a8a;
@@ -20,7 +20,7 @@
   padding: 24px;
   color: var(--text);
   background:
-    radial-gradient(ellipse 50% 35% at 0% 0%, rgba(155, 92, 255, 0.18), transparent),
+    radial-gradient(ellipse 50% 35% at 0% 0%, rgba(77, 159, 255, 0.18), transparent),
     radial-gradient(ellipse 40% 28% at 100% 0%, rgba(214, 240, 0, 0.11), transparent),
     #000;
   box-sizing: border-box;
@@ -56,7 +56,7 @@
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--purple-light);
+  color: var(--accent-light);
   margin: 0 0 8px;
 }
 
@@ -238,9 +238,9 @@ h3 {
 }
 
 .status-pill.active {
-  color: var(--purple-light);
-  border: 1px solid var(--purple-border);
-  background: var(--purple-bg);
+  color: var(--accent-light);
+  border: 1px solid var(--accent-border);
+  background: var(--accent-bg);
 }
 
 .status-pill.neutral {
@@ -293,8 +293,8 @@ h3 {
 
 .running-note {
   color: var(--muted);
-  background: rgba(155, 92, 255, 0.08);
-  border: 1px solid var(--purple-border);
+  background: rgba(77, 159, 255, 0.08);
+  border: 1px solid var(--accent-border);
   padding: 12px;
   border-radius: 13px;
   font-size: 12px;
@@ -356,12 +356,12 @@ h3 {
 }
 
 .pipeline-step.active {
-  border-color: var(--purple-border);
-  background: rgba(155, 92, 255, 0.06);
+  border-color: var(--accent-border);
+  background: rgba(77, 159, 255, 0.06);
 }
 
 .pipeline-step.active span {
-  background: var(--purple);
+  background: var(--accent);
   color: #fff;
 }
 
@@ -433,7 +433,7 @@ h3 {
 }
 
 .warning-item span {
-  color: var(--purple-light);
+  color: var(--accent-light);
   font-size: 10px;
   font-weight: 900;
   text-transform: uppercase;
@@ -465,7 +465,7 @@ h3 {
 }
 
 .artifact-item.selected {
-  border-color: var(--purple-border);
+  border-color: var(--accent-border);
 }
 
 .artifact-item strong {
@@ -481,7 +481,7 @@ h3 {
 }
 
 .artifact-item small {
-  color: var(--purple-light);
+  color: var(--accent-light);
   font-size: 10px;
   font-weight: 700;
 }
@@ -557,9 +557,9 @@ h3 {
 }
 
 .pending {
-  color: var(--purple-light);
-  background: var(--purple-bg);
-  border: 1px solid var(--purple-border);
+  color: var(--accent-light);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
   padding: 7px 11px;
   border-radius: 999px;
   text-align: center;
@@ -690,7 +690,7 @@ h3 {
 }
 
 .deliverable-item.selected {
-  box-shadow: inset 0 0 0 1px var(--purple-border);
+  box-shadow: inset 0 0 0 1px var(--accent-border);
 }
 
 .file-icon {
@@ -717,7 +717,7 @@ h3 {
 }
 
 .deliverable-info small {
-  color: var(--purple-light);
+  color: var(--accent-light);
   font-size: 10px;
   font-weight: 700;
 }
@@ -752,7 +752,7 @@ h3 {
 }
 
 .pdf-empty i {
-  color: var(--purple-light);
+  color: var(--accent-light);
   font-size: 34px;
 }
 
@@ -775,7 +775,7 @@ h3 {
   grid-template-columns: 0.9fr 1.1fr;
   gap: 22px;
   padding: 22px;
-  border-color: var(--purple-border);
+  border-color: var(--accent-border);
 }
 
 .approval-summary,
@@ -849,8 +849,8 @@ h3 {
 }
 
 .approval-form textarea:focus {
-  border-color: var(--purple-border);
-  box-shadow: 0 0 0 3px rgba(155, 92, 255, 0.08);
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 3px rgba(77, 159, 255, 0.08);
 }
 
 .approval-form textarea:disabled {
@@ -957,8 +957,8 @@ h3 {
   height: 8px;
   border-radius: 50%;
   margin-top: 4px;
-  background: var(--purple);
-  box-shadow: 0 0 0 4px rgba(155, 92, 255, 0.1);
+  background: var(--accent);
+  box-shadow: 0 0 0 4px rgba(77, 159, 255, 0.1);
 }
 
 .history-item strong {
@@ -975,7 +975,7 @@ h3 {
 
 .history-item small {
   display: block;
-  color: var(--purple-light);
+  color: var(--accent-light);
   font-size: 10px;
   line-height: 1.45;
 }
@@ -1103,7 +1103,7 @@ h3 {
 }
 
 .secondary-format i {
-  color: var(--purple-light);
+  color: var(--accent-light);
 }
 
 .secondary-format strong {
@@ -1114,7 +1114,7 @@ h3 {
   flex-shrink: 0;
   padding: 4px;
   border: 0;
-  color: var(--purple-light);
+  color: var(--accent-light);
   background: transparent;
   font: inherit;
   font-weight: 900;

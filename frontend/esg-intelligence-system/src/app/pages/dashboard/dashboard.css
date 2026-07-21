@@ -14,10 +14,11 @@
   --accent-soft: rgba(200, 223, 48, 0.075);
   --accent-border: rgba(200, 223, 48, 0.18);
 
-  --blue: #4f8fbf;
-  --blue-hover: #65a3cf;
-  --blue-soft: rgba(79, 143, 191, 0.1);
-  --blue-border: rgba(79, 143, 191, 0.2);
+  --blue: #4d9fff;
+  --blue-hover: #6badff;
+  --blue-soft: rgba(77, 159, 255, 0.12);
+  --blue-border: rgba(77, 159, 255, 0.3);
+  --blue-light: var(--blue-light);
 
   --red: #d97070;
   --red-soft: rgba(217, 112, 112, 0.09);
@@ -62,7 +63,7 @@ strong,
   min-height: 100vh;
   background:
     radial-gradient(ellipse 45% 28% at 100% 0%, rgba(200, 223, 48, 0.08), transparent),
-    radial-gradient(ellipse 38% 24% at 0% 10%, rgba(79, 143, 191, 0.045), transparent),
+    radial-gradient(ellipse 38% 24% at 0% 10%, rgba(77, 159, 255, 0.08), transparent),
     var(--bg);
   color: var(--text);
   padding: 34px 30px 54px;
@@ -206,7 +207,7 @@ strong,
 
 .featured-kpi-card:nth-child(2) {
   background:
-    radial-gradient(circle at 100% 0%, rgba(79, 143, 191, 0.08), transparent 35%),
+    radial-gradient(circle at 100% 0%, rgba(77, 159, 255, 0.12), transparent 35%),
     rgba(22, 24, 25, 0.96);
 }
 
@@ -338,7 +339,7 @@ strong,
   border-radius: 14px;
   background:
     radial-gradient(circle at 100% 0%, rgba(200, 223, 48, 0.085), transparent 34%),
-    radial-gradient(circle at 0% 100%, rgba(79, 143, 191, 0.045), transparent 34%),
+    radial-gradient(circle at 0% 100%, rgba(77, 159, 255, 0.08), transparent 34%),
     var(--surface);
 }
 
@@ -449,7 +450,7 @@ strong,
   padding: 3px 9px;
   border-radius: 20px;
   background: var(--blue-soft);
-  color: #8fbde0;
+  color: #9ec7ff;
   font-size: 11.5px;
   font-weight: 700;
   white-space: nowrap;

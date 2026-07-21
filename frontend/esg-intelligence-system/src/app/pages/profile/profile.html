@@ -2,11 +2,21 @@
   <section class="hero">
     <div>
       <p class="eyebrow">User Profile</p>
-      <h1>Internal <em>Auditor</em></h1>
-      <p class="subtitle">Manage account information, role access and local demo preferences.</p>
+
+      <h1>
+        Internal <em>Auditor</em>
+      </h1>
+
+      <p class="subtitle">
+        Manage your account information. Your platform role is assigned by an
+        administrator and cannot be changed from this page.
+      </p>
     </div>
 
-    <button class="primary-btn">
+    <button
+      class="primary-btn"
+      type="button"
+    >
       <i class="pi pi-save"></i>
       Save Changes
     </button>
@@ -14,31 +24,98 @@
 
   <section class="profile-grid">
     <div class="glass-card profile-card">
-      <div class="avatar-large">IA</div>
+      <div class="avatar-large">
+        IA
+      </div>
+
       <h2>Internal Auditor</h2>
       <p>auditor@company.com</p>
-      <span class="status-pill">Active account</span>
+
+      <span class="status-pill">
+        <i class="pi pi-check-circle"></i>
+        Active account
+      </span>
     </div>
 
-    <div class="glass-card">
-      <p class="eyebrow">Account Details</p>
+    <div class="glass-card details-card">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Account Details</p>
+          <h2>Personal information</h2>
+        </div>
+
+        <span class="managed-badge">
+          <i class="pi pi-shield"></i>
+          Administrator managed
+        </span>
+      </div>
 
       <form>
-        <label>Full name</label>
-        <input value="Internal Auditor" />
+        <div class="field-group">
+          <label for="fullName">
+            Full name
+          </label>
 
-        <label>Email</label>
-        <input value="auditor@company.com" />
+          <input
+            id="fullName"
+            type="text"
+            value="Internal Auditor"
+            autocomplete="name"
+          />
+        </div>
 
-        <label>Role</label>
-        <select>
-          <option>Internal Auditor</option>
-          <option>Expert Reviewer</option>
-          <option>Admin</option>
-        </select>
+        <div class="field-group">
+          <label for="email">
+            Email
+          </label>
 
-        <label>Department</label>
-        <input value="Audit & ESG Reporting" />
+          <input
+            id="email"
+            type="email"
+            value="auditor@company.com"
+            autocomplete="email"
+          />
+        </div>
+
+        <div class="field-group">
+          <label>
+            Role
+          </label>
+
+          <div
+            class="locked-field"
+            aria-label="Assigned role: Internal Auditor"
+          >
+            <div>
+              <i class="pi pi-id-card"></i>
+
+              <span>
+                Internal Auditor
+              </span>
+            </div>
+
+            <i
+              class="pi pi-lock lock-icon"
+              aria-hidden="true"
+            ></i>
+          </div>
+
+          <small class="field-help">
+            Only a platform administrator can change account roles.
+          </small>
+        </div>
+
+        <div class="field-group">
+          <label for="department">
+            Department
+          </label>
+
+          <input
+            id="department"
+            type="text"
+            value="Audit & ESG Reporting"
+          />
+        </div>
       </form>
     </div>
   </section>
