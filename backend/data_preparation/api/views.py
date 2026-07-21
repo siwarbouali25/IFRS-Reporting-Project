@@ -36,6 +36,7 @@ from data_preparation.services.report_generation_bridge import (
 )
 from data_preparation.services.table_detector import detect_tables_for_batch
 from data_preparation.services.upload_extractor import extract_uploaded_sources
+from payloads.serializers import PayloadManifestSerializer
 
 from .serializers import (
     DataUploadBatchCreateSerializer,
@@ -777,17 +778,12 @@ class DataUploadBatchRunNotebookPipelineAPIView(APIView):
                     "executed_notebook_path"
                 ],
                 "stderr_log": manifest["stderr_log"],
-                "payload_manifests": [
-                    {
-                        "id": item.id,
-                        "bank_code": item.bank.code,
-                        "bank_name": item.bank.name,
-                        "reporting_year": item.reporting_year,
-                        "version": item.version,
-                        "storage_backend": item.storage_backend,
-                    }
-                    for item in payload_manifests
-                ],
+                "payload_manifests": (
+                    PayloadManifestSerializer(
+                        payload_manifests,
+                        many=True,
+                    ).data
+                ),
             },
             status=status.HTTP_200_OK,
         )
