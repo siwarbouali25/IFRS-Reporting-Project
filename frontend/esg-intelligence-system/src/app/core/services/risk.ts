@@ -1,29 +1,59 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import {
+  Injectable,
+} from '@angular/core';
+import {
+  HttpClient,
+  HttpParams,
+} from '@angular/common/http';
+import {
+  Observable,
+  map,
+} from 'rxjs';
 
-/* ---------------------------------------------------------------------------
- * Types mirror the backend's processed bundle (risk_analysis/services.py ->
- * process_payload). Kept loose (optional fields) on purpose: the backend
- * omits a series entirely when the source section is missing, so every
- * consumer (the component) must treat each field as possibly absent rather
- * than assuming a fixed shape.
- * ------------------------------------------------------------------------- */
+export type RiskAnalysisStatus =
+  | 'pending'
+  | 'ready'
+  | 'failed';
+
+export interface PayloadManifestSummary {
+  id: number;
+  bank: number;
+  bank_code: string;
+  bank_name: string;
+  source_batch_id?: string | null;
+  reporting_year: number;
+  version: string;
+  storage_backend: string;
+  minio_prefix: string;
+  status: string;
+  checksum: string;
+  created_at: string;
+}
+
 export interface Kpi {
   title: string;
   value: number | string;
   suffix?: string;
   change: string;
-  cls: 'up' | 'down' | 'flat';
+  cls:
+    | 'positive'
+    | 'negative'
+    | 'neutral';
 }
 
 export interface ValidationWarning {
-  level: 'error' | 'warning' | 'info';
+  level:
+    | 'error'
+    | 'warning'
+    | 'info';
+  code?: string;
   message: string;
+  details?: Record<string, unknown>;
 }
 
 export interface EvidenceItem {
   id: string;
+  key: string;
   label: string;
   value: string;
   source: string;
@@ -31,112 +61,257 @@ export interface EvidenceItem {
   detail: string;
 }
 
+export interface RiskMatrixItem {
+  x: number;
+  y: number;
+  z: number;
+  name: string;
+  rating: string;
+  id: string;
+  horizon: string;
+  category: string;
+  ifrs: string;
+}
+
+export interface DataQualityRegisterItem {
+  domain: string;
+  label: string;
+  assurance_level: string;
+  assurance_provider: string | null;
+  assurance_standard: string | null;
+  is_synthetic: false;
+  confidence: string;
+  confidence_basis: string;
+  note: string;
+}
+
+export interface CounterpartyExposure {
+  counterparty_id: string;
+  country: string | null;
+  exposure_meur: number;
+  financial_impact_meur: number;
+  hazard_types: string[];
+  high_risk_count: number;
+  n_exposures: number;
+}
+
 export interface ProcessedBundle {
-  bank: any;
-  metadata: any;
-  general_requirements_context: any;
-  reporting_kpis: any;
+  bank: {
+    bank_id?: string;
+    bank_name?: string;
+    country?: string;
+    reporting_currency?: string;
+    regulatory_regime?: string;
+    [key: string]: unknown;
+  };
+  metadata: {
+    reporting_year?: number;
+    data_gaps?: Array<Record<string, unknown>>;
+    [key: string]: unknown;
+  };
+  general_requirements_context: {
+    regulatory_regime?: string;
+    standards_basis?: string;
+    reporting_currency?: string;
+    [key: string]: unknown;
+  };
+  reporting_kpis: Record<string, unknown>;
   kpis: Kpi[];
-  intensity_trend: Array<{ year: string; actual: number | null; target: number | null }>;
-  op_emissions: Array<Record<string, string | number>>;
-  financed_composition: Array<{ name: string; value: number; proxy: boolean }>;
-  risk_matrix: Array<{ x: number; y: number; z: number; name: string; rating: string; id: string; horizon: string; ifrs: string }>;
-  risk_by_category: Array<Record<string, string | number>>;
-  physical_by_hazard: Array<{ hazard: string; exposure: number; count: number; high: number }>;
-  scenarios: Array<Record<string, string | number>>;
-  data_quality_register: Array<{
-    domain: string; label: string; assurance_level: string; assurance_provider: string | null;
-    assurance_standard: string | null; is_synthetic: boolean; confidence: string; note: string;
+  intensity_trend: Array<{
+    year: string;
+    actual: number | null;
+    target: number | null;
   }>;
+  financed_composition: Array<{
+    name: string;
+    value: number;
+    proxy: boolean;
+  }>;
+  risk_matrix: RiskMatrixItem[];
+  risk_by_category: Array<
+    Record<string, string | number>
+  >;
+  physical_by_hazard: Array<{
+    hazard: string;
+    exposure: number;
+    count: number;
+    high: number;
+  }>;
+  physical_by_country: Array<{
+    country: string;
+    exposure: number;
+    financial_impact: number;
+    high_risk_count: number;
+  }>;
+  scenarios: Array<
+    Record<string, string | number | null>
+  >;
+  data_quality_register:
+    DataQualityRegisterItem[];
   data_quality_summary: {
-    audited_report_pct?: number; cdp_disclosure_pct?: number;
-    estimated_economic_pct?: number; proxy_model_pct?: number; interpretation?: string;
+    audited_report_pct?: number | null;
+    cdp_disclosure_pct?: number | null;
+    estimated_economic_pct?: number | null;
+    proxy_model_pct?: number | null;
+    interpretation?: string;
   };
-  peer_benchmark: {
-    bank_own: any; peers: any[]; sector_average: any; disclaimer: string;
-  } | null;
   counterparty_drilldown: {
-    physical_risk_top_by_exposure: Array<{
-      counterparty_id: string; country: string; exposure_meur: number;
-      financial_impact_meur: number; hazard_types: string[]; high_risk_count: number;
-    }>;
+    physical_risk_top_by_exposure:
+      CounterpartyExposure[];
     physical_risk_basis: string;
-    equity_synthetic_counterparty_map: any[];
-    equity_has_real_counterparty_id: boolean;
+    excluded_physical_rows: number;
+    unlinked_equity_rows: number;
   };
-  scenario_sensitivity: Array<{ horizon: string; low: number; mid: number; high: number }>;
   evidence: EvidenceItem[];
 }
 
 export interface RiskAnalysis {
   id: string;
-  original_filename: string;
+  payload_manifest_id?: number | null;
+  payload_manifest_version?: string | null;
   bank_id: string;
   bank_name: string;
   reporting_year: number | null;
-  status: 'pending' | 'ready' | 'failed';
+  status: RiskAnalysisStatus;
   processed: ProcessedBundle | null;
-  validation_warnings: ValidationWarning[];
+  validation_warnings:
+    ValidationWarning[];
   error_message: string;
+  created_by?: string | number | null;
+  created_by_name?: string;
   created_at: string;
   updated_at: string;
 }
 
 export interface RiskAnalysisSummary {
   id: string;
-  original_filename: string;
+  payload_manifest_id?: number | null;
+  payload_manifest_version?: string | null;
   bank_id: string;
   bank_name: string;
   reporting_year: number | null;
-  status: 'pending' | 'ready' | 'failed';
+  status: RiskAnalysisStatus;
+  created_by_name?: string;
   created_at: string;
 }
 
 export interface AssessmentResult {
   id: string;
   assessment_text: string;
-  recommendations: Array<{ title: string; detail: string }>;
-  avoid: Array<{ title: string; detail: string }>;
+  recommendations: Array<{
+    title: string;
+    detail: string;
+  }>;
+  avoid: Array<{
+    title: string;
+    detail: string;
+  }>;
   evidence: EvidenceItem[];
   model_used: string;
   is_fallback: boolean;
   created_at: string;
 }
 
+type ListResponse<T> =
+  | T[]
+  | {
+      results: T[];
+    };
+
 @Injectable({
   providedIn: 'root',
 })
 export class Risk {
-  private apiUrl = 'http://127.0.0.1:8000/api';
+  private readonly apiUrl =
+    'http://127.0.0.1:8000/api';
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient
+  ) {}
 
-  /**
-   * Uploads the reporting payload JSON. The backend validates, processes
-   * (derives every chart series + augmentation) and persists it in one
-   * request, returning the full RiskAnalysis row — including `processed` —
-   * so the component can render immediately without a second call.
-   */
-  upload(file: File): Observable<RiskAnalysis> {
-    const formData = new FormData();
-    formData.append('file', file, file.name);
-    return this.http.post<RiskAnalysis>(`${this.apiUrl}/risk/upload/`, formData);
+  getPayloadManifests():
+    Observable<PayloadManifestSummary[]> {
+    return this.http
+      .get<
+        ListResponse<PayloadManifestSummary>
+      >(
+        `${this.apiUrl}/payload-manifests/`
+      )
+      .pipe(
+        map((response) =>
+          Array.isArray(response)
+            ? response
+            : response.results
+        )
+      );
   }
 
-  list(): Observable<RiskAnalysisSummary[]> {
-    return this.http.get<RiskAnalysisSummary[]>(`${this.apiUrl}/risk/analyses/`);
+  startAnalysis(
+    payloadManifestId: number,
+    force = false
+  ): Observable<RiskAnalysis> {
+    return this.http.post<RiskAnalysis>(
+      `${this.apiUrl}/risk/upload/`,
+      {
+        payload_manifest_id:
+          payloadManifestId,
+        force,
+      }
+    );
   }
 
-  get(id: string): Observable<RiskAnalysis> {
-    return this.http.get<RiskAnalysis>(`${this.apiUrl}/risk/analyses/${id}/`);
+  list(
+    payloadManifestId?: number
+  ): Observable<RiskAnalysisSummary[]> {
+    let params = new HttpParams();
+
+    if (payloadManifestId) {
+      params = params.set(
+        'payload_manifest_id',
+        String(payloadManifestId)
+      );
+    }
+
+    return this.http
+      .get<
+        ListResponse<RiskAnalysisSummary>
+      >(
+        `${this.apiUrl}/risk/analyses/`,
+        {
+          params,
+        }
+      )
+      .pipe(
+        map((response) =>
+          Array.isArray(response)
+            ? response
+            : response.results
+        )
+      );
   }
 
-  /** Triggers a fresh LLM assessment for an already-processed analysis. */
-  generateAssessment(id: string): Observable<AssessmentResult> {
-    return this.http.post<AssessmentResult>(`${this.apiUrl}/risk/analyses/${id}/assessment/`, {});
+  get(
+    id: string
+  ): Observable<RiskAnalysis> {
+    return this.http.get<RiskAnalysis>(
+      `${this.apiUrl}/risk/analyses/${id}/`
+    );
   }
 
-  getLatestAssessment(id: string): Observable<AssessmentResult> {
-    return this.http.get<AssessmentResult>(`${this.apiUrl}/risk/analyses/${id}/assessment/latest/`);
+  generateAssessment(
+    id: string
+  ): Observable<AssessmentResult> {
+    return this.http.post<AssessmentResult>(
+      `${this.apiUrl}/risk/analyses/${id}/assessment/`,
+      {}
+    );
+  }
+
+  getLatestAssessment(
+    id: string
+  ): Observable<AssessmentResult> {
+    return this.http.get<AssessmentResult>(
+      `${this.apiUrl}/risk/analyses/${id}/assessment/latest/`
+    );
   }
 }

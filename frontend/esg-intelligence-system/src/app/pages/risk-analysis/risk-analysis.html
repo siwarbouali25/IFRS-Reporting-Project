@@ -1,145 +1,428 @@
 <div class="risk-page">
-
-  <!-- ============================================================= -->
-  <!-- HEADER                                                         -->
-  <!-- ============================================================= -->
   <header class="page-header">
     <div>
-      <div class="title-row">
-        <span class="dot-live"></span>
-        <h1>Climate risk analysis</h1>
-      </div>
-      <p *ngIf="!bundle">
-        Upload a reporting payload (.json) to generate the dashboard. Charts, KPIs and the
-        AI assessment below are all derived from whatever you upload — nothing is preloaded.
+      <p class="eyebrow">
+        Climate Risk Analysis
       </p>
-      <p *ngIf="bundle">
-        {{ bundle.bank.bank_name }} · {{ bundle.bank.country }} ·
-        IFRS S2 / {{ bundle.general_requirements_context.regulatory_regime }} ·
-        FY{{ bundle.metadata.reporting_year }}
+
+      <h1>
+        Assess climate exposure and
+        <em>financial risk</em>
+      </h1>
+
+      <p>
+        Analyse the institution's prepared sustainability
+        information, review material risk concentrations,
+        and generate an evidence-linked assessment.
       </p>
     </div>
 
-    <div class="header-actions" *ngIf="bundle">
-      <span class="quiet-fact">{{ analysis?.validation_warnings?.length || 0 }} notice(s)</span>
-      <span class="status-pill warn">Usable for analysis · low assurance</span>
-      <button class="ghost-btn" (click)="reset()">
+    <div class="header-actions">
+      <button
+        class="secondary-btn"
+        type="button"
+        (click)="loadPage()"
+        [disabled]="state === 'running'"
+      >
         <i class="pi pi-refresh"></i>
-        New upload
+        Refresh
+      </button>
+
+      <button
+        class="primary-btn"
+        type="button"
+        [disabled]="!canRunAnalysis"
+        (click)="runAnalysis(true)"
+      >
+        <i
+          class="pi"
+          [ngClass]="
+            state === 'running'
+              ? 'pi-spin pi-spinner'
+              : 'pi-chart-bar'
+          "
+        ></i>
+
+        {{
+          state === 'running'
+            ? 'Analysing...'
+            : analysis
+              ? 'Run New Analysis'
+              : 'Run Risk Analysis'
+        }}
       </button>
     </div>
   </header>
 
-  <!-- ============================================================= -->
-  <!-- EMPTY STATE — upload zone                                      -->
-  <!-- ============================================================= -->
   <section
-    class="dropzone"
-    *ngIf="state === 'empty' || state === 'error'"
-    (drop)="onDrop($event)"
-    (dragover)="onDragOver($event)">
-    <i class="pi pi-cloud-upload dropzone-icon"></i>
-    <h2>Drop a reporting payload here</h2>
-    <p>or click below to browse — accepts a single .json file (max 25MB)</p>
+    class="error-banner"
+    *ngIf="errorMessage"
+  >
+    <i class="pi pi-exclamation-circle"></i>
 
-    <button class="primary-btn" (click)="triggerFilePicker()">
-      <i class="pi pi-upload"></i>
-      Choose file
-    </button>
-
-    <input
-      #fileInput
-      type="file"
-      accept="application/json,.json"
-      hidden
-      (change)="onFileSelected($event)" />
-
-    <div class="error-banner" *ngIf="state === 'error'">
-      <i class="pi pi-exclamation-triangle"></i>
-      <div>
-        <strong>Couldn't process this file</strong>
-        <p>{{ errorMessage }}</p>
-      </div>
+    <div>
+      <strong>
+        Risk analysis needs attention
+      </strong>
+      <p>{{ errorMessage }}</p>
     </div>
   </section>
 
-  <!-- ============================================================= -->
-  <!-- LOADING STATE                                                  -->
-  <!-- ============================================================= -->
-  <section class="loading-state" *ngIf="state === 'uploading'">
-    <div class="spinner"></div>
-    <h2>Processing upload…</h2>
-    <p>Validating sections, deriving chart series, building the data-quality &amp; benchmark overlay.</p>
+  <div class="section-label">
+    Prepared Dataset
+  </div>
+
+  <section
+    class="dataset-card"
+    *ngIf="selectedManifest"
+  >
+    <div class="dataset-identity">
+      <div class="dataset-icon">
+        <i class="pi pi-building"></i>
+      </div>
+
+      <div>
+        <p class="eyebrow">
+          Selected Institution
+        </p>
+
+        <h2>
+          {{ selectedManifest.bank_name }}
+        </h2>
+
+        <p>
+          Reporting year
+          {{ selectedManifest.reporting_year }}
+          · Prepared dataset version
+          {{ selectedManifest.version }}
+        </p>
+      </div>
+    </div>
+
+    <div class="dataset-status">
+      <small>Analysis status</small>
+
+      <span
+        class="status-pill"
+        [ngClass]="
+          getStatusClass(
+            analysis?.status
+          )
+        "
+      >
+        {{
+          analysis
+            ? formatStatus(
+                analysis.status
+              )
+            : 'Ready to analyse'
+        }}
+      </span>
+    </div>
   </section>
 
-  <!-- ============================================================= -->
-  <!-- READY STATE — dashboard                                        -->
-  <!-- ============================================================= -->
-  <ng-container *ngIf="state === 'ready' && bundle">
+  <section
+    class="dataset-selector"
+    *ngIf="manifests.length > 1"
+  >
+    <p>
+      Select another prepared institution or reporting
+      year.
+    </p>
 
-    <!-- validation notices -->
-    <section class="notices" *ngIf="analysis?.validation_warnings?.length">
+    <div class="dataset-options">
+      <button
+        type="button"
+        class="dataset-option"
+        *ngFor="
+          let manifest of manifests;
+          trackBy: trackManifest
+        "
+        [class.selected]="
+          selectedManifest?.id === manifest.id
+        "
+        [disabled]="state === 'running'"
+        (click)="selectManifest(manifest)"
+      >
+        <strong>{{ manifest.bank_name }}</strong>
+
+        <span>
+          {{ manifest.reporting_year }}
+          · Version {{ manifest.version }}
+        </span>
+      </button>
+    </div>
+  </section>
+
+  <section
+    class="empty-state"
+    *ngIf="
+      state === 'empty' &&
+      manifests.length === 0
+    "
+  >
+    <i class="pi pi-database"></i>
+    <h2>No prepared information available</h2>
+    <p>
+      Complete Data Preparation before starting a
+      climate-risk analysis.
+    </p>
+  </section>
+
+  <section
+    class="start-card"
+    *ngIf="
+      state === 'empty' &&
+      selectedManifest
+    "
+  >
+    <div>
+      <p class="eyebrow">
+        Ready to Begin
+      </p>
+
+      <h2>
+        Analyse
+        {{ selectedManifest.bank_name }}
+      </h2>
+
+      <p>
+        The platform will use the prepared data already
+        registered for reporting year
+        {{ selectedManifest.reporting_year }}. No
+        additional file upload is required.
+      </p>
+    </div>
+
+    <button
+      class="primary-btn"
+      type="button"
+      (click)="runAnalysis()"
+    >
+      <i class="pi pi-chart-bar"></i>
+      Run Risk Analysis
+    </button>
+  </section>
+
+  <section
+    class="loading-state"
+    *ngIf="
+      state === 'loading' ||
+      state === 'running'
+    "
+  >
+    <div class="spinner"></div>
+
+    <h2>
+      {{
+        state === 'running'
+          ? 'Analysing prepared information...'
+          : 'Loading risk analysis...'
+      }}
+    </h2>
+
+    <p>
+      {{
+        state === 'running'
+          ? 'Calculating risk indicators, concentrations, scenarios, and evidence.'
+          : 'Retrieving the latest analysis and assessment.'
+      }}
+    </p>
+  </section>
+
+  <ng-container
+    *ngIf="
+      state === 'ready' &&
+      bundle
+    "
+  >
+    <div
+      class="section-label"
+      *ngIf="
+        analysis &&
+        analysis.validation_warnings.length > 0
+      "
+    >
+      Review Notes
+    </div>
+
+    <section
+      class="notices"
+      *ngIf="
+        analysis &&
+        analysis.validation_warnings.length > 0
+      "
+    >
       <div
         class="notice"
-        *ngFor="let w of analysis?.validation_warnings"
-        [class]="w.level">
+        *ngFor="
+          let warning of
+            analysis.validation_warnings
+        "
+        [ngClass]="warning.level"
+      >
         <i
           class="pi"
-          [class.pi-info-circle]="w.level === 'info'"
-          [class.pi-exclamation-triangle]="w.level === 'warning'"
-          [class.pi-times-circle]="w.level === 'error'"></i>
-        {{ w.message }}
+          [ngClass]="{
+            'pi-info-circle':
+              warning.level === 'info',
+            'pi-exclamation-triangle':
+              warning.level === 'warning',
+            'pi-times-circle':
+              warning.level === 'error'
+          }"
+        ></i>
+
+        <span>{{ warning.message }}</span>
       </div>
     </section>
 
-    <!-- KPI cards -->
+    <div class="section-label">
+      Executive Risk Overview
+    </div>
+
     <section class="metrics-grid">
-      <article class="metric-card" *ngFor="let kpi of bundle.kpis">
+      <article
+        class="metric-card"
+        *ngFor="let kpi of bundle.kpis"
+      >
         <p>{{ kpi.title }}</p>
+
         <h2>
           {{ kpi.value }}
-          <small *ngIf="kpi.suffix">{{ kpi.suffix }}</small>
+
+          <small *ngIf="kpi.suffix">
+            {{ kpi.suffix }}
+          </small>
         </h2>
-        <span [class]="kpi.cls">{{ kpi.change }}</span>
+
+        <span [ngClass]="kpi.cls">
+          {{ kpi.change }}
+        </span>
       </article>
     </section>
 
-    <!-- AI assessment + recommendations -->
-    <section class="assess-grid">
+    <div class="section-label">
+      Evidence-Linked Assessment
+    </div>
+
+    <section class="assessment-layout">
       <article class="panel assessment-panel">
         <div class="panel-header">
           <div>
-            <h3>AI risk assessment</h3>
-            <p>Generated from this upload · hover any marker for sourced evidence</p>
+            <h3>Climate-risk assessment</h3>
+
+            <p>
+              Generated from deterministic evidence
+              derived from the prepared information.
+            </p>
           </div>
-          <span class="quiet-badge" [class.fallback]="assessment?.is_fallback">
-            {{ assessmentLoading ? 'generating…' : (assessment?.is_fallback ? 'offline draft' : 'Claude · grounded') }}
-          </span>
+
+          <div class="assessment-actions">
+            <span
+              class="quiet-badge"
+              [class.fallback]="
+                assessment?.is_fallback
+              "
+            >
+              {{
+                assessmentLoading
+                  ? 'Generating...'
+                  : assessment?.is_fallback
+                    ? 'Evidence-based offline draft'
+                    : 'AI-generated · evidence-linked'
+              }}
+            </span>
+
+            <button
+              class="text-btn"
+              type="button"
+              [disabled]="assessmentLoading"
+              (click)="regenerateAssessment()"
+            >
+              Regenerate
+            </button>
+          </div>
         </div>
 
-        <div class="assessment-body" *ngIf="assessmentLoading">
-          <div class="skeleton-line" *ngFor="let i of [1,2,3,4]"></div>
+        <div
+          class="assessment-body"
+          *ngIf="assessmentLoading"
+        >
+          <div
+            class="skeleton-line"
+            *ngFor="let item of [1, 2, 3, 4]"
+          ></div>
         </div>
 
-        <p class="assessment-body" *ngIf="!assessmentLoading && assessment">
-          <ng-container *ngFor="let seg of assessmentSegments">
+        <p
+          class="assessment-body"
+          *ngIf="
+            !assessmentLoading &&
+            assessment
+          "
+        >
+          <ng-container
+            *ngFor="
+              let segment of
+                assessmentSegments
+            "
+          >
             <span
-              *ngIf="!seg.evidenceId"
-              >{{ seg.text }}</span>
+              *ngIf="!segment.evidenceId"
+            >
+              {{ segment.text }}
+            </span>
+
             <span
-              *ngIf="seg.evidenceId"
               class="evidence-marker"
-              (mouseenter)="hoveredEvidenceId = seg.evidenceId"
-              (mouseleave)="hoveredEvidenceId = null">
-              <sup>{{ seg.evidenceId }}</sup>
-              <span class="evidence-card" *ngIf="hoveredEvidenceId === seg.evidenceId">
-                <ng-container *ngIf="evidenceFor(seg.evidenceId) as ev">
-                  <strong>{{ ev.label }}</strong>
-                  <span class="ev-value">{{ ev.value }}</span>
-                  <span class="ev-detail">{{ ev.detail }}</span>
-                  <span class="ev-tags">
-                    <span class="ev-tag">{{ ev.source }}</span>
-                    <span class="ev-tag accent">{{ ev.ifrs }}</span>
+              *ngIf="segment.evidenceId"
+              (mouseenter)="
+                hoveredEvidenceId =
+                  segment.evidenceId
+              "
+              (mouseleave)="
+                hoveredEvidenceId = null
+              "
+            >
+              <sup>
+                {{ segment.evidenceId }}
+              </sup>
+
+              <span
+                class="evidence-card"
+                *ngIf="
+                  hoveredEvidenceId ===
+                  segment.evidenceId
+                "
+              >
+                <ng-container
+                  *ngIf="
+                    evidenceFor(
+                      segment.evidenceId
+                    ) as evidence
+                  "
+                >
+                  <strong>
+                    {{ evidence.label }}
+                  </strong>
+
+                  <span class="evidence-value">
+                    {{ evidence.value }}
+                  </span>
+
+                  <span class="evidence-detail">
+                    {{ evidence.detail }}
+                  </span>
+
+                  <span class="evidence-tags">
+                    <span>
+                      {{ evidence.source }}
+                    </span>
+
+                    <span class="accent">
+                      {{ evidence.ifrs }}
+                    </span>
                   </span>
                 </ng-container>
               </span>
@@ -147,19 +430,37 @@
           </ng-container>
         </p>
 
-        <p class="assessment-body muted" *ngIf="!assessmentLoading && !assessment">
-          The assessment could not be generated for this upload.
-          <button class="link-btn" (click)="regenerateAssessment()">Try again</button>
+        <p
+          class="assessment-body muted"
+          *ngIf="
+            !assessmentLoading &&
+            !assessment
+          "
+        >
+          The assessment is currently unavailable.
         </p>
 
-        <div class="evidence-strip" *ngIf="bundle.evidence.length">
+        <div
+          class="evidence-strip"
+          *ngIf="bundle.evidence.length > 0"
+        >
           <span
             class="evidence-chip"
-            *ngFor="let ev of bundle.evidence"
-            [class.active]="hoveredEvidenceId === ev.id"
-            (mouseenter)="hoveredEvidenceId = ev.id"
-            (mouseleave)="hoveredEvidenceId = null">
-            {{ ev.id }}
+            *ngFor="
+              let evidence of bundle.evidence
+            "
+            [class.active]="
+              hoveredEvidenceId === evidence.id
+            "
+            (mouseenter)="
+              hoveredEvidenceId =
+                evidence.id
+            "
+            (mouseleave)="
+              hoveredEvidenceId = null
+            "
+          >
+            {{ evidence.id }}
           </span>
         </div>
       </article>
@@ -169,16 +470,37 @@
           <div class="panel-header">
             <div>
               <h3>Recommended actions</h3>
-              <p>What to do next</p>
+              <p>Priority follow-up for the risk team</p>
             </div>
-            <span class="quiet-badge green">for the bank</span>
+
+            <span class="quiet-badge positive">
+              Actions
+            </span>
           </div>
-          <div class="action-list" *ngIf="assessment">
-            <div class="action-item" *ngFor="let r of assessment.recommendations">
-              <span class="action-icon green">→</span>
+
+          <div
+            class="action-list"
+            *ngIf="assessment"
+          >
+            <div
+              class="action-item"
+              *ngFor="
+                let recommendation of
+                  assessment.recommendations
+              "
+            >
+              <span class="action-icon positive">
+                →
+              </span>
+
               <div>
-                <h4>{{ r.title }}</h4>
-                <p>{{ r.detail }}</p>
+                <h4>
+                  {{ recommendation.title }}
+                </h4>
+
+                <p>
+                  {{ recommendation.detail }}
+                </p>
               </div>
             </div>
           </div>
@@ -187,17 +509,34 @@
         <article class="panel">
           <div class="panel-header">
             <div>
-              <h3>Pitfalls to avoid</h3>
-              <p>Disclosure &amp; reporting risk</p>
+              <h3>Reporting watch-outs</h3>
+              <p>
+                Interpretation and disclosure risks
+              </p>
             </div>
-            <span class="quiet-badge red">watch-outs</span>
+
+            <span class="quiet-badge negative">
+              Review
+            </span>
           </div>
-          <div class="action-list" *ngIf="assessment">
-            <div class="action-item" *ngFor="let a of assessment.avoid">
-              <span class="action-icon red">✕</span>
+
+          <div
+            class="action-list"
+            *ngIf="assessment"
+          >
+            <div
+              class="action-item"
+              *ngFor="
+                let warning of assessment.avoid
+              "
+            >
+              <span class="action-icon negative">
+                ×
+              </span>
+
               <div>
-                <h4>{{ a.title }}</h4>
-                <p>{{ a.detail }}</p>
+                <h4>{{ warning.title }}</h4>
+                <p>{{ warning.detail }}</p>
               </div>
             </div>
           </div>
@@ -205,185 +544,362 @@
       </div>
     </section>
 
-    <!-- core charts -->
-    <section class="content-grid">
-      <article class="panel">
-        <div class="panel-header">
-          <div>
-            <h3>Carbon intensity vs NZBA pathway</h3>
-            <p>tCO₂e per M€ lending · actual vs milestones</p>
-          </div>
-        </div>
-        <div class="chart-wrap">
-          <p-chart type="line" [data]="intensityChartData" [options]="intensityChartOptions"></p-chart>
-        </div>
-      </article>
+    <div class="section-label">
+      Risk Matrix
+    </div>
 
-      <article class="panel">
-        <div class="panel-header">
-          <div>
-            <h3>Operational emissions by scope</h3>
-            <p>Scope 1, market-based Scope 2 &amp; business travel · tCO₂e</p>
-          </div>
-        </div>
-        <div class="chart-wrap">
-          <p-chart type="bar" [data]="opEmissionsChartData" [options]="opEmissionsChartOptions"></p-chart>
-        </div>
-      </article>
-    </section>
+    <section class="panel matrix-panel">
+      <div class="panel-header">
+        <div>
+          <h3>5×5 climate-risk matrix</h3>
 
-    <section class="content-grid">
-      <article class="panel">
-        <div class="panel-header">
-          <div>
-            <h3>Risk register by category</h3>
-            <p>Count by rating, by IFRS S2 risk type</p>
-          </div>
+          <p>
+            Likelihood and severity from the prepared
+            risk register. Bubble size reflects the
+            available financial-impact estimate.
+          </p>
         </div>
-        <div class="chart-wrap tall">
-          <p-chart type="bar" [data]="riskByCategoryData" [options]="riskByCategoryOptions"></p-chart>
-        </div>
-      </article>
 
-      <article class="panel">
-        <div class="panel-header">
-          <div>
-            <h3>Financed emissions composition</h3>
-            <p>Attributed tCO₂e by asset class · proxy flagged</p>
-          </div>
-        </div>
-        <div class="chart-wrap">
-          <p-chart type="doughnut" [data]="financedCompositionData" [options]="financedCompositionOptions"></p-chart>
-        </div>
-      </article>
-    </section>
+        <span class="quiet-badge">
+          {{ bundle.risk_matrix.length }} risks positioned
+        </span>
+      </div>
 
-    <section class="content-grid" *ngIf="physByHazardData || scenariosData">
-      <article class="panel" *ngIf="physByHazardData">
-        <div class="panel-header">
-          <div>
-            <h3>Physical risk exposure by hazard</h3>
-            <p>Banking-book exposure (M€)</p>
-          </div>
+      <div
+        class="matrix-layout"
+        *ngIf="matrixHasData"
+      >
+        <div class="matrix-y-label">
+          Severity
         </div>
-        <div class="chart-wrap">
-          <p-chart type="bar" [data]="physByHazardData" [options]="physByHazardOptions"></p-chart>
-        </div>
-      </article>
 
-      <article class="panel" *ngIf="scenariosData">
-        <div class="panel-header">
-          <div>
-            <h3>Scenario revenue at risk</h3>
-            <p>NGFS scenarios · M€ by horizon</p>
-          </div>
-        </div>
-        <div class="chart-wrap">
-          <p-chart type="bar" [data]="scenariosData" [options]="scenariosOptions"></p-chart>
-        </div>
-      </article>
-    </section>
-
-    <!-- data quality / benchmark section -->
-    <section class="section-divider" *ngIf="dataQualityPieData || peerBenchmarkData || sensitivityData">
-      <h2>Data quality, assurance &amp; benchmark</h2>
-      <span class="synth-tag">contains synthetic additions</span>
-    </section>
-
-    <section class="content-grid" *ngIf="dataQualityPieData">
-      <article class="panel">
-        <div class="panel-header">
-          <div>
-            <h3>Assurance coverage by data domain</h3>
-            <p>What's audited vs limited-assured vs unassured</p>
-          </div>
-        </div>
-        <div class="dq-list">
-          <div class="dq-row" *ngFor="let r of bundle.data_quality_register">
-            <div class="dq-label">
-              {{ r.label }}
-              <span class="synth-tag inline" *ngIf="r.is_synthetic">synthetic</span>
-            </div>
-            <span class="dq-assurance" [class.limited]="r.assurance_level === 'limited'">
-              {{ r.assurance_level === 'limited' ? 'Limited assurance' : 'Unassured' }}
+        <div class="matrix-grid">
+          <div
+            class="matrix-cell"
+            *ngFor="let cell of riskMatrixCells"
+            [ngClass]="cell.level"
+            [attr.title]="
+              getMatrixCellTitle(cell)
+            "
+          >
+            <span class="matrix-score">
+              {{ cell.score }}
             </span>
-            <span class="dq-confidence">{{ r.confidence }} conf.</span>
+
+            <div class="matrix-risks">
+              <span
+                class="risk-bubble"
+                *ngFor="
+                  let risk of cell.items;
+                  let index = index
+                "
+                [style.width.px]="
+                  12 +
+                  (risk.z > 0
+                    ? Math.min(
+                        20,
+                        Math.log10(
+                          risk.z + 1
+                        ) * 4
+                      )
+                    : 0)
+                "
+                [style.height.px]="
+                  12 +
+                  (risk.z > 0
+                    ? Math.min(
+                        20,
+                        Math.log10(
+                          risk.z + 1
+                        ) * 4
+                      )
+                    : 0)
+                "
+              >
+                {{
+                  risk.id ||
+                  index + 1
+                }}
+              </span>
+            </div>
           </div>
+        </div>
+
+        <div class="matrix-x-label">
+          Likelihood
+        </div>
+      </div>
+
+      <div
+        class="panel-empty"
+        *ngIf="!matrixHasData"
+      >
+        No risk-register rows could be positioned on the
+        5×5 matrix.
+      </div>
+
+      <div class="matrix-legend">
+        <span class="low">Low</span>
+        <span class="medium">Medium</span>
+        <span class="high">High</span>
+        <span class="critical">Critical</span>
+      </div>
+    </section>
+
+    <div class="section-label">
+      Transition Risk
+    </div>
+
+    <section class="content-grid">
+      <article
+        class="panel"
+        *ngIf="intensityChartData"
+      >
+        <div class="panel-header">
+          <div>
+            <h3>
+              Carbon intensity versus targets
+            </h3>
+
+            <p>
+              Actual values and available target
+              milestones
+            </p>
+          </div>
+        </div>
+
+        <div class="chart-wrap">
+          <p-chart
+            type="line"
+            [data]="intensityChartData"
+            [options]="intensityChartOptions"
+          ></p-chart>
         </div>
       </article>
 
-      <article class="panel">
+      <article
+        class="panel"
+        *ngIf="financedCompositionData"
+      >
         <div class="panel-header">
           <div>
-            <h3>Group emissions data quality</h3>
-            <p>Self-disclosed split across the whole footprint</p>
+            <h3>
+              Financed-emissions composition
+            </h3>
+
+            <p>
+              Attributed emissions by available asset
+              class
+            </p>
           </div>
         </div>
-        <div class="chart-wrap small">
-          <p-chart type="doughnut" [data]="dataQualityPieData" [options]="dataQualityPieOptions"></p-chart>
+
+        <div class="chart-wrap">
+          <p-chart
+            type="doughnut"
+            [data]="financedCompositionData"
+            [options]="
+              financedCompositionOptions
+            "
+          ></p-chart>
         </div>
-        <p class="panel-note">{{ bundle.data_quality_summary.interpretation }}</p>
       </article>
     </section>
 
-    <section class="content-grid" *ngIf="peerBenchmarkData || sensitivityData">
-      <article class="panel" *ngIf="peerBenchmarkData">
+    <section
+      class="content-grid full"
+      *ngIf="riskByCategoryData"
+    >
+      <article class="panel">
         <div class="panel-header">
           <div>
-            <h3>Peer &amp; sector benchmark</h3>
-            <p>Carbon intensity vs anonymized peers</p>
-          </div>
-          <span class="synth-tag">synthetic</span>
-        </div>
-        <div class="chart-wrap">
-          <p-chart type="bar" [data]="peerBenchmarkData" [options]="peerBenchmarkOptions"></p-chart>
-        </div>
-        <p class="panel-note">Lime bar = real figure. Grey bars = synthetic peer/sector estimate — not a real disclosure.</p>
-      </article>
+            <h3>Risks by category and rating</h3>
 
-      <article class="panel" *ngIf="sensitivityData">
-        <div class="panel-header">
-          <div>
-            <h3>Scenario sensitivity</h3>
-            <p>±15% illustrative band around each NGFS point estimate</p>
+            <p>
+              Distribution of the prepared climate-risk
+              register
+            </p>
           </div>
-          <span class="synth-tag">synthetic band</span>
         </div>
-        <div class="chart-wrap">
-          <p-chart type="line" [data]="sensitivityData" [options]="sensitivityOptions"></p-chart>
+
+        <div class="chart-wrap tall">
+          <p-chart
+            type="bar"
+            [data]="riskByCategoryData"
+            [options]="riskByCategoryOptions"
+          ></p-chart>
         </div>
       </article>
     </section>
 
-    <!-- counterparty concentration -->
-    <section class="content-grid full" *ngIf="bundle.counterparty_drilldown.physical_risk_top_by_exposure.length">
+    <div class="section-label">
+      Physical Risk
+    </div>
+
+    <section class="content-grid">
+      <article
+        class="panel"
+        *ngIf="physicalByHazardData"
+      >
+        <div class="panel-header">
+          <div>
+            <h3>
+              Exposure by physical hazard
+            </h3>
+
+            <p>
+              Banking-book exposure by available hazard
+              type
+            </p>
+          </div>
+        </div>
+
+        <div class="chart-wrap tall">
+          <p-chart
+            type="bar"
+            [data]="physicalByHazardData"
+            [options]="physicalByHazardOptions"
+          ></p-chart>
+        </div>
+      </article>
+
+      <article
+        class="panel country-panel"
+        *ngIf="
+          bundle.physical_by_country.length > 0
+        "
+      >
+        <div class="panel-header">
+          <div>
+            <h3>
+              Geographic concentration
+            </h3>
+
+            <p>
+              Largest physical-risk exposures by country
+            </p>
+          </div>
+        </div>
+
+        <div class="country-list">
+          <div
+            class="country-row"
+            *ngFor="
+              let country of
+                bundle.physical_by_country.slice(
+                  0,
+                  8
+                )
+            "
+          >
+            <div>
+              <strong>{{ country.country }}</strong>
+
+              <span>
+                {{
+                  country.high_risk_count
+                }}
+                high-risk exposure row(s)
+              </span>
+            </div>
+
+            <div>
+              <strong>
+                €{{ country.exposure | number:'1.0-1' }}M
+              </strong>
+
+              <span>
+                Impact
+                €{{
+                  country.financial_impact
+                    | number:'1.0-1'
+                }}M
+              </span>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section
+      class="content-grid full"
+      *ngIf="
+        bundle.counterparty_drilldown
+          .physical_risk_top_by_exposure
+          .length > 0
+      "
+    >
       <article class="panel">
         <div class="panel-header">
           <div>
-            <h3>Counterparty concentration — physical risk</h3>
-            <p>Top exposures by counterparty, aggregated from real source rows</p>
+            <h3>
+              Counterparty concentration
+            </h3>
+
+            <p>
+              Top physical-risk exposures based only on
+              real source counterparty identifiers
+            </p>
           </div>
         </div>
+
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
                 <th>Counterparty</th>
                 <th>Country</th>
-                <th>Exposure (M€)</th>
-                <th>Financial impact (M€)</th>
+                <th>Exposure</th>
+                <th>Financial impact</th>
                 <th>Hazards</th>
                 <th>High-risk flags</th>
               </tr>
             </thead>
+
             <tbody>
-              <tr *ngFor="let r of bundle.counterparty_drilldown.physical_risk_top_by_exposure.slice(0, 8); let i = index">
-                <td class="mono">{{ r.counterparty_id }}</td>
-                <td>{{ r.country }}</td>
-                <td [class.lead]="i === 0">{{ r.exposure_meur }}</td>
-                <td>{{ r.financial_impact_meur }}</td>
-                <td class="muted-cell">{{ r.hazard_types.join(', ') }}</td>
-                <td [class.warn-cell]="r.high_risk_count > 0">{{ r.high_risk_count }}</td>
+              <tr
+                *ngFor="
+                  let row of
+                    bundle.counterparty_drilldown
+                      .physical_risk_top_by_exposure
+                      .slice(0, 8)
+                "
+              >
+                <td class="mono">
+                  {{ row.counterparty_id }}
+                </td>
+
+                <td>
+                  {{ row.country || '—' }}
+                </td>
+
+                <td>
+                  €{{
+                    row.exposure_meur
+                      | number:'1.0-2'
+                  }}M
+                </td>
+
+                <td>
+                  €{{
+                    row.financial_impact_meur
+                      | number:'1.0-2'
+                  }}M
+                </td>
+
+                <td class="muted-cell">
+                  {{
+                    row.hazard_types.join(', ')
+                  }}
+                </td>
+
+                <td
+                  [class.warn-cell]="
+                    row.high_risk_count > 0
+                  "
+                >
+                  {{ row.high_risk_count }}
+                </td>
               </tr>
             </tbody>
           </table>
@@ -391,10 +907,173 @@
       </article>
     </section>
 
-    <footer class="page-footer">
-      All figures derived live from <code>{{ analysis?.original_filename }}</code> ·
-      methodology: PCAF B61/B62, NGFS v4, 5×5 risk matrix ·
-      panels tagged <span class="synth-tag inline">synthetic</span> are illustrative additions, not part of the bank's original disclosure.
-    </footer>
+    <div
+      class="section-label"
+      *ngIf="scenariosData"
+    >
+      Scenario Analysis
+    </div>
+
+    <section
+      class="content-grid full"
+      *ngIf="scenariosData"
+    >
+      <article class="panel">
+        <div class="panel-header">
+          <div>
+            <h3>
+              Scenario financial impact
+            </h3>
+
+            <p>
+              Available revenue-at-risk or financial-impact
+              estimates by time horizon
+            </p>
+          </div>
+        </div>
+
+        <div class="chart-wrap tall">
+          <p-chart
+            type="bar"
+            [data]="scenariosData"
+            [options]="scenariosOptions"
+          ></p-chart>
+        </div>
+      </article>
+    </section>
+
+    <div class="section-label">
+      Data Confidence
+    </div>
+
+    <section class="content-grid">
+      <article class="panel">
+        <div class="panel-header">
+          <div>
+            <h3>
+              Assurance and confidence by domain
+            </h3>
+
+            <p>
+              Based on reported assurance scope and
+              available quality indicators
+            </p>
+          </div>
+        </div>
+
+        <div class="quality-list">
+          <div
+            class="quality-row"
+            *ngFor="
+              let item of
+                bundle.data_quality_register
+            "
+          >
+            <div>
+              <strong>{{ item.label }}</strong>
+
+              <span>{{ item.note }}</span>
+            </div>
+
+            <div>
+              <span class="quality-assurance">
+                {{ item.assurance_level }}
+              </span>
+
+              <span class="quality-confidence">
+                {{ item.confidence }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article
+        class="panel"
+        *ngIf="dataQualityPieData"
+      >
+        <div class="panel-header">
+          <div>
+            <h3>
+              Emissions-data quality mix
+            </h3>
+
+            <p>
+              Reported audited, disclosed, estimated, and
+              proxy-based shares
+            </p>
+          </div>
+        </div>
+
+        <div class="chart-wrap">
+          <p-chart
+            type="doughnut"
+            [data]="dataQualityPieData"
+            [options]="dataQualityPieOptions"
+          ></p-chart>
+        </div>
+
+        <p class="panel-note">
+          {{
+            bundle.data_quality_summary
+              .interpretation
+          }}
+        </p>
+      </article>
+    </section>
   </ng-container>
+
+  <div
+    class="section-label"
+    *ngIf="recentAnalyses.length > 0"
+  >
+    Analysis History
+  </div>
+
+  <section
+    class="history-card"
+    *ngIf="recentAnalyses.length > 0"
+  >
+    <button
+      type="button"
+      class="history-row"
+      *ngFor="
+        let item of recentAnalyses;
+        trackBy: trackAnalysis
+      "
+      [class.selected]="
+        analysis?.id === item.id
+      "
+      [disabled]="state === 'running'"
+      (click)="selectAnalysis(item)"
+    >
+      <div>
+        <strong>{{ item.bank_name }}</strong>
+
+        <span>
+          Reporting year
+          {{ item.reporting_year }}
+          · Version
+          {{ item.payload_manifest_version || '—' }}
+        </span>
+      </div>
+
+      <div>
+        <small>Created</small>
+
+        <strong>
+          {{ item.created_at | date:'medium' }}
+        </strong>
+      </div>
+
+      <span
+        class="status-pill"
+        [ngClass]="
+          getStatusClass(item.status)
+        "
+      >
+        {{ formatStatus(item.status) }}
+      </span>
+    </button>
+  </section>
 </div>

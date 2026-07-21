@@ -1,19 +1,9 @@
 """
-llm.py — server-side call to NVIDIA's NIM-hosted Llama 3.3 70B (via the
-OpenAI-compatible client) to generate the risk assessment paragraph +
-recommendations + avoid list. The API key lives only in this process
-(settings.NVIDIA_API_KEY, from the environment) and is never sent to the
-browser. The frontend calls our /api/risk/analysis/<id>/assessment/
-endpoint, which calls this module.
+Evidence-linked risk assessment generation.
 
-The model is given ONLY the evidence catalogue already computed by
-services.process_payload() and asked to cite by id (e.g. [E3]). It cannot
-invent a figure that isn't already in the evidence list, because every
-number the frontend renders in a hover panel is looked up by id, not parsed
-out of free text. Output is validated as strict JSON with citations
-checked against the real evidence ids before being trusted; any failure
-(bad JSON, hallucinated id, network error, missing key) falls back to the
-deterministic template below rather than surfacing a broken response.
+The deterministic evidence catalogue is the only factual context sent to
+the model. Any malformed response, unknown citation, uncited sentence, or
+network/configuration error falls back to a deterministic narrative.
 """
 
 from __future__ import annotations
@@ -21,149 +11,563 @@ from __future__ import annotations
 import json
 import logging
 import re
+from typing import Any
 
 from django.conf import settings
 from openai import OpenAI
 
+
 logger = logging.getLogger(__name__)
 
-NVIDIA_BASE_URL = "https://integrate.api.nvidia.com/v1"
-MODEL = "meta/llama-3.3-70b-instruct"
+DEFAULT_BASE_URL = (
+    "https://integrate.api.nvidia.com/v1"
+)
+DEFAULT_MODEL = (
+    "meta/llama-3.3-70b-instruct"
+)
+
+MARKER_PATTERN = re.compile(
+    r"\[(E\d+)\]"
+)
 
 
-def _build_prompt(bundle):
+def _setting(
+    name: str,
+    fallback: str | None = None,
+) -> str | None:
+    value = getattr(
+        settings,
+        name,
+        None,
+    )
+
+    if value in (
+        None,
+        "",
+    ):
+        return fallback
+
+    return str(value)
+
+
+def _provider_config() -> tuple[
+    str | None,
+    str,
+    str,
+]:
+    """
+    Prefer generic RISK_LLM_* settings so the project can use the same
+    approved Azure/OpenAI-compatible infrastructure as Report Generation.
+
+    NVIDIA settings remain a backwards-compatible fallback.
+    """
+    api_key = (
+        _setting("RISK_LLM_API_KEY")
+        or _setting("NVIDIA_API_KEY")
+    )
+    base_url = (
+        _setting("RISK_LLM_BASE_URL")
+        or DEFAULT_BASE_URL
+    )
+    model = (
+        _setting("RISK_LLM_MODEL")
+        or DEFAULT_MODEL
+    )
+
+    return api_key, base_url, model
+
+
+def _build_prompt(
+    bundle: dict,
+) -> str:
     bank = bundle.get("bank", {})
-    metadata = bundle.get("metadata", {})
-    evidence = bundle.get("evidence", [])
-    kpis = bundle.get("kpis", [])
+    metadata = bundle.get(
+        "metadata",
+        {},
+    )
+    evidence = bundle.get(
+        "evidence",
+        [],
+    )
 
-    facts = {
-        "bank": bank.get("bank_name"),
-        "country": bank.get("country"),
-        "reporting_year": metadata.get("reporting_year"),
-        "kpis": kpis,
-        "data_gaps": [g.get("field") for g in metadata.get("data_gaps", [])],
-    }
+    evidence_lines = "\n".join(
+        (
+            f"{item['id']} | "
+            f"{item['label']} | "
+            f"{item['value']} | "
+            f"source={item['source']} | "
+            f"reference={item['ifrs']}"
+        )
+        for item in evidence
+    )
 
-    ev_lines = "\n".join(f"{e['id']}: {e['label']} \u2014 {e['value']}" for e in evidence)
-    allowed_ids = ", ".join(e["id"] for e in evidence)
+    allowed_ids = ", ".join(
+        item["id"]
+        for item in evidence
+    )
 
-    return f"""You are a climate-risk analyst writing one IFRS S2 risk-assessment paragraph for a bank's internal dashboard.
+    return f"""
+You are producing an internal climate-risk assessment for an audit and
+review platform.
 
-FACTS (JSON):
-{json.dumps(facts, indent=2, default=str)}
+Institution: {bank.get("bank_name", "Reporting institution")}
+Reporting year: {metadata.get("reporting_year", "not specified")}
 
-EVIDENCE you may cite (use ONLY these exact ids in square brackets, e.g. [E1]; you may not invent new ids or numbers not listed here):
-{ev_lines}
+You may use ONLY the evidence below. Do not add a number, percentage, year,
+methodology, benchmark, entity, or conclusion that is absent from the
+evidence catalogue.
 
-Allowed ids: {allowed_ids}
+EVIDENCE:
+{evidence_lines}
 
-Respond with STRICT JSON only. No markdown fences, no commentary before or after the JSON object. The JSON must have exactly this shape:
+Allowed evidence ids: {allowed_ids}
+
+Return one JSON object only, with exactly these keys:
 {{
-  "assessment": "4-6 sentence paragraph. Embed evidence markers like [E1] right after the clause they support. Plain, factual, no hype. Cite 5-8 distinct ids.",
-  "recommendations": [ {{"title": "short imperative", "detail": "one sentence"}} ],
-  "avoid": [ {{"title": "short imperative", "detail": "one sentence"}} ]
+  "assessment": "4-6 factual sentences",
+  "recommendations": [
+    {{"title": "short action", "detail": "one factual sentence"}}
+  ],
+  "avoid": [
+    {{"title": "short warning", "detail": "one factual sentence"}}
+  ]
 }}
 
-recommendations: 3-5 concrete actions for the bank's risk team.
-avoid: 3-5 concrete disclosure/reporting pitfalls to avoid, grounded in the evidence (e.g. proxy data, unassured figures, schedule-based progress)."""
+Rules:
+1. Every assessment sentence must end with at least one evidence marker,
+   such as [E1].
+2. Use only the allowed evidence ids.
+3. Use 3-5 recommendations and 3-5 avoid items.
+4. Do not mention synthetic peers, invented benchmarks, or unsupported
+   sensitivity bands.
+5. Do not wrap the JSON in markdown.
+""".strip()
 
 
-def generate_assessment(bundle):
+def _clean_json_text(
+    text: str,
+) -> dict:
+    clean = (
+        text.strip()
+        .replace("```json", "")
+        .replace("```", "")
+        .strip()
+    )
+
+    start = clean.find("{")
+    end = clean.rfind("}")
+
+    if start == -1 or end == -1:
+        raise ValueError(
+            "No JSON object was returned."
+        )
+
+    value = json.loads(
+        clean[start:end + 1]
+    )
+
+    if not isinstance(value, dict):
+        raise ValueError(
+            "The model response is not an object."
+        )
+
+    return value
+
+
+def _validate_actions(
+    value: Any,
+    field_name: str,
+) -> list[dict]:
+    if not (
+        isinstance(value, list)
+        and 3 <= len(value) <= 5
+    ):
+        raise ValueError(
+            f"{field_name} must contain "
+            "between 3 and 5 items."
+        )
+
+    cleaned: list[dict] = []
+
+    for item in value:
+        if not isinstance(item, dict):
+            raise ValueError(
+                f"{field_name} contains "
+                "an invalid item."
+            )
+
+        title = item.get("title")
+        detail = item.get("detail")
+
+        if not (
+            isinstance(title, str)
+            and title.strip()
+            and isinstance(detail, str)
+            and detail.strip()
+        ):
+            raise ValueError(
+                f"{field_name} items require "
+                "title and detail strings."
+            )
+
+        cleaned.append(
+            {
+                "title": title.strip(),
+                "detail": detail.strip(),
+            }
+        )
+
+    return cleaned
+
+
+def _validate_assessment(
+    parsed: dict,
+    bundle: dict,
+) -> dict:
+    required_keys = {
+        "assessment",
+        "recommendations",
+        "avoid",
+    }
+
+    if set(parsed) != required_keys:
+        raise ValueError(
+            "The response has an unexpected JSON shape."
+        )
+
+    assessment = parsed.get(
+        "assessment"
+    )
+
+    if not (
+        isinstance(assessment, str)
+        and assessment.strip()
+    ):
+        raise ValueError(
+            "Assessment text is missing."
+        )
+
+    evidence = bundle.get(
+        "evidence",
+        [],
+    )
+    valid_ids = {
+        item["id"]
+        for item in evidence
+    }
+    cited_ids = set(
+        MARKER_PATTERN.findall(
+            assessment
+        )
+    )
+
+    if not cited_ids:
+        raise ValueError(
+            "The assessment contains no evidence citations."
+        )
+
+    unknown_ids = (
+        cited_ids - valid_ids
+    )
+
+    if unknown_ids:
+        raise ValueError(
+            "Unknown evidence ids: "
+            + ", ".join(
+                sorted(unknown_ids)
+            )
+        )
+
+    # Every factual sentence must carry evidence. Splitting is deliberately
+    # conservative and ignores empty fragments.
+    sentences = [
+        sentence.strip()
+        for sentence in re.split(
+            r"(?<=[.!?])\s+",
+            assessment.strip(),
+        )
+        if sentence.strip()
+    ]
+
+    if not 4 <= len(sentences) <= 6:
+        raise ValueError(
+            "Assessment must contain 4-6 sentences."
+        )
+
+    for sentence in sentences:
+        if not MARKER_PATTERN.search(
+            sentence
+        ):
+            raise ValueError(
+                "Every assessment sentence must "
+                "contain an evidence citation."
+            )
+
+    return {
+        "assessment": assessment.strip(),
+        "recommendations": (
+            _validate_actions(
+                parsed.get("recommendations"),
+                "recommendations",
+            )
+        ),
+        "avoid": _validate_actions(
+            parsed.get("avoid"),
+            "avoid",
+        ),
+    }
+
+
+def generate_assessment(
+    bundle: dict,
+) -> dict:
     """
-    Returns {"assessment": str, "recommendations": [...], "avoid": [...],
-    "model_used": str, "is_fallback": bool}. Never raises — on any failure
-    (no API key, network error, malformed JSON back from the model) it
-    returns a deterministic fallback built from the same evidence catalogue,
-    so the dashboard never blocks on this call.
+    Never raises. Returns a validated live response or a deterministic
+    evidence-based fallback.
     """
-    api_key = getattr(settings, "NVIDIA_API_KEY", None)
+    evidence = bundle.get(
+        "evidence",
+        [],
+    )
+
+    if len(evidence) < 2:
+        return _fallback(bundle)
+
+    api_key, base_url, model = (
+        _provider_config()
+    )
+
     if not api_key:
-        logger.warning("NVIDIA_API_KEY not configured; returning fallback assessment.")
+        logger.warning(
+            "Risk LLM credentials are not configured; "
+            "using the deterministic fallback."
+        )
         return _fallback(bundle)
 
     try:
-        client = OpenAI(base_url=NVIDIA_BASE_URL, api_key=api_key)
-        prompt = _build_prompt(bundle)
-        completion = client.chat.completions.create(
-            model=MODEL,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "You respond with strict JSON only. Never wrap the JSON in markdown code fences. Never add commentary before or after the JSON object.",
-                },
-                {"role": "user", "content": prompt},
-            ],
-            temperature=0.2,
-            top_p=0.7,
-            max_tokens=1024,
-            stream=False,
+        client = OpenAI(
+            base_url=base_url,
+            api_key=api_key,
         )
-        text = completion.choices[0].message.content or ""
-        clean = text.strip()
-        if "```" in clean:
-            clean = clean.replace("```json", "").replace("```", "")
-        start, end = clean.find("{"), clean.rfind("}")
-        if start == -1 or end == -1:
-            logger.warning("No JSON object found in model output; using fallback. Raw: %s", clean[:300])
-            return _fallback(bundle)
-        parsed = json.loads(clean[start:end + 1])
+        completion = (
+            client.chat.completions.create(
+                model=model,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": (
+                            "Return strict JSON only. "
+                            "Use only the supplied evidence."
+                        ),
+                    },
+                    {
+                        "role": "user",
+                        "content": (
+                            _build_prompt(bundle)
+                        ),
+                    },
+                ],
+                temperature=0.1,
+                top_p=0.7,
+                max_tokens=1200,
+                stream=False,
+            )
+        )
 
-        valid_ids = {e["id"] for e in bundle.get("evidence", [])}
-        assessment_text = parsed.get("assessment", "")
-        cited = set(re.findall(r"\[(E\d+)\]", assessment_text))
-        if cited and not cited.issubset(valid_ids):
-            logger.warning("Model cited unknown evidence ids %s; using fallback.", cited - valid_ids)
-            return _fallback(bundle)
+        raw_text = (
+            completion
+            .choices[0]
+            .message
+            .content
+            or ""
+        )
+        parsed = _clean_json_text(
+            raw_text
+        )
+        validated = _validate_assessment(
+            parsed,
+            bundle,
+        )
 
         return {
-            "assessment": assessment_text,
-            "recommendations": parsed.get("recommendations", []),
-            "avoid": parsed.get("avoid", []),
-            "model_used": MODEL,
+            **validated,
+            "model_used": model,
             "is_fallback": False,
         }
     except Exception:
-        logger.exception("LLM assessment generation failed; returning fallback.")
+        logger.exception(
+            "Risk assessment generation failed; "
+            "using the deterministic fallback."
+        )
         return _fallback(bundle)
 
 
-def _fallback(bundle):
-    """
-    Deterministic, template-based assessment built directly from the
-    evidence catalogue — used whenever the live API call is unavailable or
-    fails, so the analyst is never blocked, just told it's an offline draft.
-    """
-    ev = {e["id"]: e for e in bundle.get("evidence", [])}
-    bank_name = bundle.get("bank", {}).get("bank_name", "This bank")
+def _sentence_for_evidence(
+    item: dict,
+) -> str:
+    key = item.get("key")
+    label = item.get(
+        "label",
+        "Risk indicator",
+    )
+    value = item.get(
+        "value",
+        "not available",
+    )
+    marker = f"[{item['id']}]"
 
-    parts = []
-    if "E2" in ev and "E1" in ev:
-        parts.append(f"{bank_name}'s climate risk is concentrated in the lending book, with financed emissions [E2] far exceeding the operational footprint and carbon intensity above target [E1].")
-    if "E3" in ev:
-        parts.append("The risk register shows material concentration in the highest-severity bands [E3].")
-    if "E6" in ev or "E7" in ev:
-        parts.append("Transition exposure is structural, reflecting material fossil-fuel lending [E6] against a small green-loan share [E7].")
-    if "E4" in ev or "E5" in ev:
-        parts.append("Physical risk adds an acute layer [E4], and scenario analysis shows meaningful revenue at risk under adverse conditions [E5].")
-    if "E13" in ev or "E14" in ev:
-        parts.append("Confidence should stay measured: assurance is narrow [E13] and much of the underlying emissions data is modelled or proxy-based [E14].")
-    if "E9" in ev or "E8" in ev:
-        parts.append("Two reporting caveats matter: target progress reflects schedule, not measured reduction [E9], and proxy-based figures should not be presented as verified [E8].")
+    templates = {
+        "carbon_intensity": (
+            f"Carbon intensity is {value} {marker}."
+        ),
+        "financed_emissions": (
+            f"Financed emissions total {value} {marker}."
+        ),
+        "risk_register": (
+            f"The risk register contains {value} {marker}."
+        ),
+        "physical_hazard": (
+            f"The largest physical-risk concentration is "
+            f"{value} {marker}."
+        ),
+        "scenario_impact": (
+            f"The highest available scenario impact is "
+            f"{value} {marker}."
+        ),
+        "fossil_fuel_exposure": (
+            f"Transition exposure includes "
+            f"{value} {marker}."
+        ),
+        "green_loan_share": (
+            f"The green-loan share is "
+            f"{value} {marker}."
+        ),
+        "equity_proxy": (
+            f"Equity-emissions measurement includes "
+            f"{value} {marker}."
+        ),
+        "schedule_proxy": (
+            f"Target tracking includes "
+            f"{value} {marker}."
+        ),
+        "modeled_data": (
+            f"Measurement uncertainty is material because "
+            f"{value} {marker}."
+        ),
+    }
 
-    assessment = " ".join(parts) or "Insufficient evidence was available to generate a populated assessment for this upload."
+    return templates.get(
+        key,
+        f"{label} is reported as {value} {marker}.",
+    )
+
+
+def _fallback(
+    bundle: dict,
+) -> dict:
+    evidence = bundle.get(
+        "evidence",
+        [],
+    )
+
+    selected = evidence[:6]
+
+    if selected:
+        assessment = " ".join(
+            _sentence_for_evidence(item)
+            for item in selected
+        )
+    else:
+        assessment = (
+            "The prepared information did not contain "
+            "enough supported evidence for a populated "
+            "risk narrative."
+        )
+
+    evidence_keys = {
+        item.get("key")
+        for item in evidence
+    }
 
     recommendations = [
-        {"title": "Extend assurance scope", "detail": "Bring financed emissions and physical-risk figures into the audit scope."},
-        {"title": "Set sector decarbonisation pathways", "detail": "Translate intensity targets into per-sector glide-paths for high-carbon exposure."},
-        {"title": "Close counterparty data gaps", "detail": "Populate counterparty_id across investment holdings to enable concentration analysis."},
+        {
+            "title": "Prioritise severe risks",
+            "detail": (
+                "Assign owners and response plans to the "
+                "highest-rated risks in the register."
+            ),
+        },
+        {
+            "title": "Strengthen source traceability",
+            "detail": (
+                "Retain source, methodology, and quality "
+                "information for every material metric."
+            ),
+        },
+        {
+            "title": "Review scenario impacts",
+            "detail": (
+                "Link material scenario results to risk "
+                "appetite, capital planning, and monitoring."
+            ),
+        },
     ]
+
+    if "equity_proxy" in evidence_keys:
+        recommendations.append(
+            {
+                "title": "Improve counterparty data",
+                "detail": (
+                    "Replace proxy emissions with reported "
+                    "counterparty data when it becomes "
+                    "available."
+                ),
+            }
+        )
+
     avoid = [
-        {"title": "Don't report schedule as progress", "detail": "Schedule-elapsed percentages are not a measured reduction."},
-        {"title": "Don't present proxy data as verified", "detail": "Flag PCAF proxy-based figures with their data-quality score and confidence level."},
-        {"title": "Don't cite synthetic benchmarks externally", "detail": "Any peer/sector comparison generated by this tool is illustrative only."},
+        {
+            "title": "Avoid unsupported conclusions",
+            "detail": (
+                "Do not extend conclusions beyond the "
+                "prepared evidence catalogue."
+            ),
+        },
+        {
+            "title": "Do not hide uncertainty",
+            "detail": (
+                "Keep proxy, estimated, and unassured "
+                "figures visibly identified."
+            ),
+        },
+        {
+            "title": "Do not invent benchmarks",
+            "detail": (
+                "Use peer comparisons only when an approved "
+                "external benchmark source exists."
+            ),
+        },
     ]
+
+    if "schedule_proxy" in evidence_keys:
+        avoid.append(
+            {
+                "title": "Do not report schedule as progress",
+                "detail": (
+                    "Elapsed time is not evidence of an "
+                    "achieved emissions reduction."
+                ),
+            }
+        )
+
     return {
-        "assessment": assessment, "recommendations": recommendations, "avoid": avoid,
-        "model_used": "fallback-template", "is_fallback": True,
+        "assessment": assessment,
+        "recommendations": (
+            recommendations[:5]
+        ),
+        "avoid": avoid[:5],
+        "model_used": (
+            "deterministic-evidence-template"
+        ),
+        "is_fallback": True,
     }

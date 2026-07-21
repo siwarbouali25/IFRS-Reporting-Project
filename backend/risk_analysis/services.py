@@ -1,610 +1,2274 @@
 """
-services.py — turns an uploaded reporting payload into everything the
-dashboard needs: KPI cards, chart series, an evidence catalogue, and the
-data-quality / peer-benchmark / scenario-sensitivity augmentation.
+Deterministic processing for Risk Analysis.
 
-Design intent: nothing here is specific to BANK01, 2024, or any fixed set of
-risk categories/hazard types/scenario names. Every function reads the shape
-and values of whatever payload is uploaded. If a bank uploads 5 years of
-history instead of 3, or 40 risks instead of 16, this still works — the
-charts and KPIs are built from list comprehensions and groupbys over
-whatever rows are present, not from indices or fixed-length assumptions.
-
-If a section is missing or a key is absent, the corresponding chart/KPI is
-simply omitted and a validation warning is recorded separately (see
-validators.py). We do not synthesize required reporting fields here; we only
-ADD clearly-labeled supplementary context (peer benchmark, sensitivity
-bands, a data-quality rollup) on top of what exists.
+The module accepts the combined payload produced by Data Preparation and also
+supports the section-specific payload files used by Report Generation. It
+does not create synthetic peers, counterparty identifiers, or arbitrary
+scenario sensitivity bands.
 """
 
 from __future__ import annotations
 
-import random
+import json
 import statistics
 from collections import defaultdict
+from pathlib import Path
+from typing import Any
 
 
-def _last(seq, key_year="reporting_year"):
-    if not seq:
-        return None
-    return sorted(seq, key=lambda r: r.get(key_year, 0))[-1]
+FORBIDDEN_IMPROVED_KEYS = {
+    "_augmentation_disclaimer",
+    "peer_benchmark",
+    "scenario_sensitivity",
+    "counterparty_drilldown",
+    "data_quality_assurance_register",
+    "data_quality_summary",
+}
 
 
-def _safe_div(a, b, default=None):
+class RiskPayloadError(Exception):
+    pass
+
+
+def _read_json(path: Path) -> dict:
     try:
-        if b in (0, None) or a is None:
-            return default
-        return a / b
-    except (TypeError, ZeroDivisionError):
-        return default
-
-
-def _round(v, nd=2):
-    return round(v, nd) if isinstance(v, (int, float)) else v
-
-
-def _num(v, default=0):
-    """Coalesce None (declared data gaps use null) to a numeric default."""
-    return v if isinstance(v, (int, float)) else default
-
-
-
-# ---------------------------------------------------------------------------
-# KPI cards
-# ---------------------------------------------------------------------------
-def build_kpis(P):
-    kpis = []
-    k = P.get("reporting_kpis", {})
-    fin = sorted(P.get("financial_summary", []), key=lambda r: r.get("reporting_year", 0))
-    fe = sorted(P.get("financed_emissions", []), key=lambda r: r.get("reporting_year", 0))
-    risks = P.get("climate_risk_register", [])
-    phys = P.get("physical_risk_exposures", [])
-    scenarios = P.get("climate_scenarios", [])
-    bank = P.get("bank", {})
-
-    if fe:
-        fe_first, fe_last = fe[0], fe[-1]
-        delta_pct = _safe_div(
-            (fe_last.get("financed_em_loans_tco2e", 0) - fe_first.get("financed_em_loans_tco2e", 0)),
-            fe_first.get("financed_em_loans_tco2e", 0),
+        value = json.loads(
+            path.read_text(encoding="utf-8")
         )
-        kpis.append({
-            "title": f"Financed emissions {fe_last.get('reporting_year', '')}",
-            "value": _round(fe_last.get("financed_em_loans_tco2e", 0) / 1e6, 1),
-            "suffix": "Mt CO\u2082e",
-            "change": f"{delta_pct*100:+.1f}% vs {fe_first.get('reporting_year', '')}" if delta_pct is not None else "n/a",
-            "cls": "up" if (delta_pct or 0) < 0 else "down",
-        })
+    except (
+        OSError,
+        UnicodeDecodeError,
+        json.JSONDecodeError,
+    ) as exc:
+        raise RiskPayloadError(
+            f"Could not read canonical payload "
+            f"{path.name}: {exc}"
+        ) from exc
 
-    intensity = k.get("carbon_intensity_2024_tco2e_per_meur") or (fin[-1].get("carbon_intensity_tco2e_per_meur_lending") if fin else None)
+    if not isinstance(value, dict):
+        raise RiskPayloadError(
+            f"Canonical payload {path.name} "
+            "does not contain a JSON object."
+        )
+
+    return value
+
+
+def _find_exact_payload(
+    payload_dir: Path,
+    filename: str,
+) -> Path | None:
+    matches = [
+        path
+        for path in payload_dir.rglob("*.json")
+        if path.name.lower() == filename.lower()
+    ]
+
+    if len(matches) > 1:
+        raise RiskPayloadError(
+            f"More than one {filename} file was found "
+            "in the prepared dataset."
+        )
+
+    return matches[0] if matches else None
+
+
+def load_canonical_payload(
+    payload_dir: str | Path,
+    *,
+    bank_code: str,
+    bank_name: str,
+    reporting_year: int,
+) -> tuple[dict, str]:
+    """
+    Load one canonical combined payload only.
+
+    Preferred filename:
+        payload_<BANK>_v2.json
+
+    Backwards-compatible filename:
+        payload_<BANK>.json
+
+    The loader deliberately does not scan, merge, or consume:
+      - *_improved.json
+      - section-specific report payloads
+      - precomputed peer benchmarks
+      - precomputed scenario sensitivity
+      - synthetic counterparty drill-downs
+
+    Risk Analysis derives its dashboard bundle dynamically from the same
+    canonical source used by the reporting workflow.
+    """
+    directory = Path(payload_dir)
+
+    if not directory.exists():
+        raise RiskPayloadError(
+            "The prepared dataset folder does not exist."
+        )
+
+    code = bank_code.strip().upper()
+    preferred_names = [
+        f"payload_{code}_v2.json",
+        f"payload_{code}.json",
+    ]
+
+    selected_path: Path | None = None
+
+    for filename in preferred_names:
+        selected_path = _find_exact_payload(
+            directory,
+            filename,
+        )
+
+        if selected_path is not None:
+            break
+
+    if selected_path is None:
+        improved_name = (
+            f"payload_{code}_improved.json"
+        )
+        improved_path = _find_exact_payload(
+            directory,
+            improved_name,
+        )
+
+        if improved_path is not None:
+            raise RiskPayloadError(
+                "Only an improved/augmented payload was "
+                "found. Risk Analysis requires the "
+                "canonical V2 payload."
+            )
+
+        raise RiskPayloadError(
+            "The canonical combined payload was not found. "
+            f"Expected {preferred_names[0]} or "
+            f"{preferred_names[1]}."
+        )
+
+    payload = _read_json(selected_path)
+
+    forbidden_present = sorted(
+        key
+        for key in FORBIDDEN_IMPROVED_KEYS
+        if key in payload
+    )
+
+    if forbidden_present:
+        raise RiskPayloadError(
+            "The selected file contains improved-payload "
+            "augmentation sections and cannot be used as "
+            "the canonical source: "
+            + ", ".join(forbidden_present)
+        )
+
+    bank = payload.get("bank")
+    metadata = payload.get("metadata")
+    context = payload.get(
+        "general_requirements_context"
+    )
+
+    if not isinstance(bank, dict):
+        bank = {}
+
+    if not isinstance(metadata, dict):
+        metadata = {}
+
+    if not isinstance(context, dict):
+        context = {}
+
+    source_code = (
+        bank.get("bank_id")
+        or metadata.get("bank_id")
+        or context.get("bank_id")
+    )
+
+    if (
+        source_code
+        and str(source_code).strip().upper()
+        != code
+    ):
+        raise RiskPayloadError(
+            "The canonical payload belongs to a "
+            "different institution."
+        )
+
+    source_year = (
+        metadata.get("reporting_year")
+        or context.get("reporting_year")
+    )
+
+    if source_year is not None:
+        try:
+            source_year_int = int(source_year)
+        except (TypeError, ValueError) as exc:
+            raise RiskPayloadError(
+                "The canonical payload has an invalid "
+                "reporting year."
+            ) from exc
+
+        if source_year_int != int(reporting_year):
+            raise RiskPayloadError(
+                "The canonical payload reporting year "
+                "does not match the selected prepared "
+                "dataset."
+            )
+
+    source_name = (
+        bank.get("bank_name")
+        or context.get("reporting_entity")
+    )
+
+    if (
+        source_name
+        and bank_name
+        and str(source_name).strip().casefold()
+        != str(bank_name).strip().casefold()
+    ):
+        raise RiskPayloadError(
+            "The canonical payload institution name "
+            "does not match the selected prepared "
+            "dataset."
+        )
+
+    return payload, selected_path.name
+
+
+def _as_rows(
+    value: Any,
+    *,
+    include_synthetic: bool = False,
+) -> list[dict]:
+    if isinstance(value, list):
+        rows = [
+            row
+            for row in value
+            if isinstance(row, dict)
+        ]
+    elif isinstance(value, dict):
+        rows = [value]
+    else:
+        rows = []
+
+    if include_synthetic:
+        return rows
+
+    return [
+        row
+        for row in rows
+        if row.get("is_synthetic") is not True
+    ]
+
+
+def _rows_for_reporting_year(
+    payload: dict,
+    section: str,
+) -> list[dict]:
+    rows = _as_rows(
+        payload.get(section)
+    )
+    metadata = payload.get(
+        "metadata",
+        {},
+    )
+
+    if not isinstance(metadata, dict):
+        metadata = {}
+
+    reporting_year = _number(
+        metadata.get("reporting_year")
+    )
+
+    if reporting_year is None:
+        return rows
+
+    matching = [
+        row
+        for row in rows
+        if (
+            row.get("reporting_year") is None
+            or _number(
+                row.get("reporting_year")
+            )
+            == reporting_year
+        )
+    ]
+
+    return matching
+
+
+def _number(
+    value: Any,
+) -> float | None:
+    if (
+        isinstance(value, (int, float))
+        and not isinstance(value, bool)
+    ):
+        return float(value)
+
+    try:
+        if value in (
+            None,
+            "",
+            "null",
+            "None",
+        ):
+            return None
+
+        return float(value)
+    except (
+        TypeError,
+        ValueError,
+    ):
+        return None
+
+
+def _rounded(
+    value: Any,
+    digits: int = 2,
+) -> float | None:
+    number = _number(value)
+
+    if number is None:
+        return None
+
+    return round(number, digits)
+
+
+def _latest(
+    rows: Any,
+    year_key: str = "reporting_year",
+) -> dict:
+    records = _as_rows(rows)
+
+    if not records:
+        return {}
+
+    def sort_key(row: dict) -> float:
+        return (
+            _number(row.get(year_key))
+            or _number(
+                row.get("year")
+            )
+            or 0
+        )
+
+    return sorted(
+        records,
+        key=sort_key,
+    )[-1]
+
+
+def _dynamic_kpi(
+    kpis: dict,
+    *,
+    base_names: list[str],
+    reporting_year: int | None,
+) -> float | None:
+    candidate_keys: list[str] = []
+
+    for base in base_names:
+        candidate_keys.append(base)
+
+        if reporting_year:
+            candidate_keys.extend(
+                [
+                    f"{base}_{reporting_year}",
+                    (
+                        f"{base}_{reporting_year}"
+                        "_tco2e"
+                    ),
+                    (
+                        f"{base}_{reporting_year}"
+                        "_tco2e_per_meur"
+                    ),
+                    (
+                        f"{base}_{reporting_year}"
+                        "_meur"
+                    ),
+                    (
+                        f"{base}_{reporting_year}"
+                        "_pct"
+                    ),
+                ]
+            )
+
+    for key in candidate_keys:
+        value = _number(
+            kpis.get(key)
+        )
+
+        if value is not None:
+            return value
+
+    for key, value in kpis.items():
+        key_lower = key.lower()
+
+        if any(
+            base.lower() in key_lower
+            for base in base_names
+        ):
+            number = _number(value)
+
+            if number is not None:
+                return number
+
+    return None
+
+
+def _format_number(
+    value: float | None,
+    digits: int = 1,
+) -> str:
+    if value is None:
+        return "Not available"
+
+    return f"{value:,.{digits}f}"
+
+
+def build_kpis(payload: dict) -> list[dict]:
+    kpis: list[dict] = []
+    bank = payload.get("bank", {})
+    metadata = payload.get("metadata", {})
+    reporting_year = metadata.get(
+        "reporting_year"
+    )
+    reporting_kpis = payload.get(
+        "reporting_kpis",
+        {},
+    )
+
+    financed_rows = sorted(
+        _as_rows(
+            payload.get(
+                "financed_emissions"
+            )
+        ),
+        key=lambda row: (
+            _number(
+                row.get("reporting_year")
+            )
+            or 0
+        ),
+    )
+
+    if financed_rows:
+        latest = financed_rows[-1]
+        latest_value = _number(
+            latest.get(
+                "financed_em_loans_tco2e"
+            )
+        )
+
+        if latest_value is not None:
+            change_label = (
+                "Latest available year"
+            )
+            tone = "neutral"
+
+            if len(financed_rows) >= 2:
+                first = financed_rows[0]
+                first_value = _number(
+                    first.get(
+                        "financed_em_loans_tco2e"
+                    )
+                )
+
+                if (
+                    first_value is not None
+                    and first_value != 0
+                ):
+                    delta = (
+                        latest_value
+                        - first_value
+                    ) / first_value * 100
+
+                    change_label = (
+                        f"{delta:+.1f}% vs "
+                        f"{first.get('reporting_year', '')}"
+                    )
+                    tone = (
+                        "positive"
+                        if delta < 0
+                        else "negative"
+                    )
+
+            kpis.append(
+                {
+                    "title": (
+                        "Financed emissions"
+                    ),
+                    "value": round(
+                        latest_value / 1_000_000,
+                        1,
+                    ),
+                    "suffix": "Mt CO₂e",
+                    "change": change_label,
+                    "cls": tone,
+                }
+            )
+
+    financial_latest = _latest(
+        payload.get("financial_summary")
+    )
+
+    intensity = (
+        _number(
+            financial_latest.get(
+                "carbon_intensity_tco2e_per_meur_lending"
+            )
+        )
+        or _dynamic_kpi(
+            reporting_kpis,
+            base_names=[
+                "carbon_intensity",
+            ],
+            reporting_year=reporting_year,
+        )
+    )
+
+    target_intensity = _number(
+        bank.get(
+            "target_intensity_tco2e_per_meur"
+        )
+    )
+
     if intensity is not None:
-        target = bank.get("target_intensity_tco2e_per_meur")
-        kpis.append({
-            "title": "Carbon intensity",
-            "value": _round(intensity, 0),
-            "suffix": "t/M\u20ac",
-            "change": f"target {target} t/M\u20ac" if target is not None else "no target set",
-            "cls": "down",
-        })
+        change = "No target provided"
+        tone = "neutral"
+
+        if target_intensity is not None:
+            change = (
+                f"Target "
+                f"{target_intensity:,.0f} t/M€"
+            )
+            tone = (
+                "positive"
+                if intensity <= target_intensity
+                else "negative"
+            )
+
+        kpis.append(
+            {
+                "title": "Carbon intensity",
+                "value": round(
+                    intensity,
+                    0,
+                ),
+                "suffix": "t/M€",
+                "change": change,
+                "cls": tone,
+            }
+        )
+
+    risks = _rows_for_reporting_year(
+        payload,
+        "climate_risk_register",
+    )
 
     if risks:
-        crit = sum(1 for r in risks if r.get("risk_rating") == "critical")
-        high = sum(1 for r in risks if r.get("risk_rating") == "high")
-        kpis.append({
-            "title": "Critical / high risks",
-            "value": crit,
-            "suffix": f"+{high} high",
-            "change": f"{len(risks)} in register",
-            "cls": "down",
-        })
+        critical = sum(
+            1
+            for row in risks
+            if str(
+                row.get("risk_rating", "")
+            ).lower() == "critical"
+        )
+        high = sum(
+            1
+            for row in risks
+            if str(
+                row.get("risk_rating", "")
+            ).lower() == "high"
+        )
 
-    if phys:
-        high_phys = [p for p in phys if p.get("high_risk_flag")]
-        kpis.append({
-            "title": "Physical high-risk exposure",
-            "value": _round(sum(_num(p.get("exposure_amount_meur")) for p in high_phys), 0),
-            "suffix": "M\u20ac",
-            "change": f"{len(high_phys)} of {len(phys)} counterparties",
-            "cls": "down",
-        })
+        kpis.append(
+            {
+                "title": (
+                    "Critical and high risks"
+                ),
+                "value": critical,
+                "suffix": (
+                    f"+{high} high"
+                ),
+                "change": (
+                    f"{len(risks)} risks assessed"
+                ),
+                "cls": (
+                    "negative"
+                    if critical or high
+                    else "positive"
+                ),
+            }
+        )
 
-    if scenarios:
-        worst = max((s.get("revenue_at_risk_meur", 0) for s in scenarios), default=0)
-        kpis.append({
-            "title": "Worst-case revenue at risk",
-            "value": _round(worst, 0),
-            "suffix": "M\u20ac",
-            "change": f"{bank.get('cet1_ratio_pct', '?')}% CET1 buffer" if bank.get("cet1_ratio_pct") else "n/a",
-            "cls": "flat",
-        })
+    physical_rows = _as_rows(
+        payload.get(
+            "physical_risk_exposures"
+        )
+    )
+
+    if physical_rows:
+        high_rows = [
+            row
+            for row in physical_rows
+            if row.get("high_risk_flag")
+        ]
+        exposure = sum(
+            _number(
+                row.get(
+                    "exposure_amount_meur"
+                )
+            )
+            or 0
+            for row in high_rows
+        )
+        counterparties = {
+            row.get("counterparty_id")
+            for row in high_rows
+            if row.get("counterparty_id")
+        }
+
+        kpis.append(
+            {
+                "title": (
+                    "High physical-risk exposure"
+                ),
+                "value": round(
+                    exposure,
+                    0,
+                ),
+                "suffix": "M€",
+                "change": (
+                    f"{len(counterparties)} "
+                    "linked counterparties"
+                ),
+                "cls": (
+                    "negative"
+                    if exposure > 0
+                    else "positive"
+                ),
+            }
+        )
+
+    scenarios = _as_rows(
+        payload.get(
+            "climate_scenarios"
+        )
+    )
+    scenario_values = [
+        _number(
+            row.get(
+                "revenue_at_risk_meur"
+            )
+        )
+        for row in scenarios
+    ]
+    scenario_values = [
+        value
+        for value in scenario_values
+        if value is not None
+    ]
+
+    if scenario_values:
+        worst = max(scenario_values)
+
+        kpis.append(
+            {
+                "title": (
+                    "Highest revenue at risk"
+                ),
+                "value": round(
+                    worst,
+                    0,
+                ),
+                "suffix": "M€",
+                "change": (
+                    "Across available scenarios"
+                ),
+                "cls": "negative",
+            }
+        )
 
     return kpis
 
 
-# ---------------------------------------------------------------------------
-# Chart series
-# ---------------------------------------------------------------------------
-def build_intensity_trend(P):
-    fin = sorted(P.get("financial_summary", []), key=lambda r: r.get("reporting_year", 0))
-    targets = P.get("targets", [])
-    tgt = next((t for t in targets if t.get("metric") == "tco2e_per_meur_lending"), None)
-    milestones = {m["year"]: m["value"] for m in (tgt.get("milestones_parsed") or [])} if tgt else {}
+def _find_intensity_target(
+    payload: dict,
+) -> dict:
+    targets = _as_rows(
+        payload.get("targets")
+    )
+
+    for target in targets:
+        metric = str(
+            target.get("metric", "")
+        ).lower()
+        target_type = str(
+            target.get("type", "")
+        ).lower()
+        scope = str(
+            target.get("scope", "")
+        ).lower()
+
+        if (
+            "tco2e_per_meur" in metric
+            or "intensity" in metric
+            or "intensity" in target_type
+            or "cat15" in scope
+        ):
+            return target
+
+    return {}
+
+
+def build_intensity_trend(
+    payload: dict,
+) -> list[dict]:
+    rows_by_year: dict[int, dict] = {}
+
+    for row in _as_rows(
+        payload.get("financial_summary")
+    ):
+        year = _number(
+            row.get("reporting_year")
+        )
+        actual = _number(
+            row.get(
+                "carbon_intensity_tco2e_per_meur_lending"
+            )
+        )
+
+        if year is None:
+            continue
+
+        rows_by_year[int(year)] = {
+            "year": str(int(year)),
+            "actual": actual,
+            "target": None,
+        }
+
+    target = _find_intensity_target(
+        payload
+    )
+
+    baseline_year = _number(
+        target.get("baseline_year")
+    )
+    baseline_value = _number(
+        target.get("baseline_value")
+    )
+
+    if baseline_year is not None:
+        year = int(baseline_year)
+        rows_by_year.setdefault(
+            year,
+            {
+                "year": str(year),
+                "actual": None,
+                "target": None,
+            },
+        )
+        rows_by_year[year][
+            "target"
+        ] = baseline_value
+
+    milestones = (
+        target.get("milestones_parsed")
+        or target.get("milestones")
+        or []
+    )
+
+    if isinstance(milestones, dict):
+        milestones = [
+            {
+                "year": key,
+                "value": value,
+            }
+            for key, value
+            in milestones.items()
+        ]
+
+    for milestone in _as_rows(
+        milestones
+    ):
+        year = _number(
+            milestone.get("year")
+            or milestone.get(
+                "target_year"
+            )
+        )
+        value = _number(
+            milestone.get("value")
+            or milestone.get(
+                "target_value"
+            )
+        )
+
+        if year is None:
+            continue
+
+        year_int = int(year)
+        rows_by_year.setdefault(
+            year_int,
+            {
+                "year": str(year_int),
+                "actual": None,
+                "target": None,
+            },
+        )
+        rows_by_year[year_int][
+            "target"
+        ] = value
+
+    target_year = _number(
+        target.get("target_year")
+    )
+    target_value = _number(
+        target.get("target_value")
+    )
+
+    if target_year is not None:
+        year_int = int(target_year)
+        rows_by_year.setdefault(
+            year_int,
+            {
+                "year": str(year_int),
+                "actual": None,
+                "target": None,
+            },
+        )
+
+        if target_value is not None:
+            rows_by_year[year_int][
+                "target"
+            ] = target_value
+
+    return [
+        rows_by_year[year]
+        for year in sorted(rows_by_year)
+    ]
+
+
+def build_financed_composition(
+    payload: dict,
+) -> list[dict]:
+    aggregated = _as_rows(
+        payload.get(
+            "financed_emissions_by_asset_class"
+        )
+    )
+
+    if aggregated:
+        output = []
+
+        for row in aggregated:
+            name = (
+                row.get("pcaf_asset_class")
+                or row.get("asset_class")
+                or "Other"
+            )
+            value = _number(
+                row.get(
+                    "financed_emissions_tco2e"
+                )
+                or row.get(
+                    "attributed_emissions_tco2e"
+                )
+            )
+
+            if value is None:
+                continue
+
+            output.append(
+                {
+                    "name": str(name).replace(
+                        "_",
+                        " ",
+                    ),
+                    "value": value,
+                    "proxy": bool(
+                        row.get("proxy")
+                        or row.get(
+                            "emissions_proxy_used"
+                        )
+                    ),
+                }
+            )
+
+        return sorted(
+            output,
+            key=lambda row: -row["value"],
+        )
+
+    output = []
+    financed_latest = _latest(
+        payload.get(
+            "financed_emissions"
+        )
+    )
+
+    corporate = _number(
+        financed_latest.get(
+            "financed_em_loans_tco2e"
+        )
+    )
+
+    if corporate is not None:
+        output.append(
+            {
+                "name": "Corporate loans",
+                "value": corporate,
+                "proxy": False,
+            }
+        )
+
+    sovereign_rows = _as_rows(
+        payload.get(
+            "financed_emissions_sovereign"
+        )
+    )
+    sovereign_values = [
+        _number(
+            row.get(
+                "attributed_emissions_tco2e"
+            )
+        )
+        for row in sovereign_rows
+    ]
+    sovereign_total = sum(
+        value
+        for value in sovereign_values
+        if value is not None
+    )
+
+    if sovereign_values:
+        output.append(
+            {
+                "name": "Sovereign bonds",
+                "value": sovereign_total,
+                "proxy": False,
+            }
+        )
+
+    equity_rows = _as_rows(
+        payload.get(
+            "financed_emissions_equity"
+        )
+    )
+    equity_values = [
+        _number(
+            row.get(
+                "attributed_emissions_proxy_tco2e"
+            )
+            or row.get(
+                "attributed_emissions_tco2e"
+            )
+        )
+        for row in equity_rows
+    ]
+    equity_total = sum(
+        value
+        for value in equity_values
+        if value is not None
+    )
+
+    if equity_values:
+        output.append(
+            {
+                "name": "Listed equity",
+                "value": equity_total,
+                "proxy": any(
+                    row.get(
+                        "emissions_proxy_used"
+                    )
+                    or (
+                        row.get(
+                            "attributed_emissions_proxy_tco2e"
+                        )
+                        is not None
+                    )
+                    for row in equity_rows
+                ),
+            }
+        )
+
+    return output
+
+
+def build_risk_matrix(
+    payload: dict,
+) -> list[dict]:
+    output = []
+
+    for row in _rows_for_reporting_year(
+        payload,
+        "climate_risk_register",
+    ):
+        likelihood = _number(
+            row.get("likelihood_score")
+        )
+        severity = _number(
+            row.get("severity_score")
+        )
+
+        if not (
+            likelihood is not None
+            and severity is not None
+            and 1 <= likelihood <= 5
+            and 1 <= severity <= 5
+        ):
+            continue
+
+        output.append(
+            {
+                "x": int(likelihood),
+                "y": int(severity),
+                "z": (
+                    _number(
+                        row.get(
+                            "financial_impact_meur"
+                        )
+                    )
+                    or 0
+                ),
+                "name": (
+                    row.get("risk_name")
+                    or row.get(
+                        "description"
+                    )
+                    or "Unnamed risk"
+                ),
+                "rating": (
+                    row.get("risk_rating")
+                    or "unrated"
+                ),
+                "id": (
+                    row.get("risk_id")
+                    or ""
+                ),
+                "horizon": (
+                    row.get("time_horizon")
+                    or ""
+                ),
+                "category": (
+                    row.get("risk_category")
+                    or "other"
+                ),
+                "ifrs": (
+                    row.get(
+                        "ifrs_s2_para_evidence"
+                    )
+                    or ""
+                ),
+            }
+        )
+
+    return output
+
+
+def build_risk_by_category(
+    payload: dict,
+) -> list[dict]:
+    grouped: dict[str, dict] = {}
+
+    for row in _rows_for_reporting_year(
+        payload,
+        "climate_risk_register",
+    ):
+        category = str(
+            row.get("risk_category")
+            or "other"
+        )
+        rating = str(
+            row.get("risk_rating")
+            or "unrated"
+        ).lower()
+
+        grouped.setdefault(
+            category,
+            {
+                "name": category.replace(
+                    "_",
+                    " ",
+                )
+            },
+        )
+        grouped[category][rating] = (
+            grouped[category].get(
+                rating,
+                0,
+            )
+            + 1
+        )
+
+    output = list(grouped.values())
+
+    for row in output:
+        row["total"] = sum(
+            value
+            for key, value in row.items()
+            if (
+                key != "name"
+                and isinstance(
+                    value,
+                    (int, float),
+                )
+            )
+        )
+
+    return sorted(
+        output,
+        key=lambda row: -row["total"],
+    )
+
+
+def build_physical_by_hazard(
+    payload: dict,
+) -> list[dict]:
+    grouped: dict[str, dict] = {}
+
+    for row in _as_rows(
+        payload.get(
+            "physical_risk_exposures"
+        )
+    ):
+        hazard = str(
+            row.get("hazard_type")
+            or "other"
+        )
+
+        grouped.setdefault(
+            hazard,
+            {
+                "hazard": hazard.replace(
+                    "_",
+                    " ",
+                ),
+                "exposure": 0.0,
+                "count": 0,
+                "high": 0,
+            },
+        )
+
+        exposure = _number(
+            row.get(
+                "exposure_amount_meur"
+            )
+        )
+
+        if exposure is not None:
+            grouped[hazard][
+                "exposure"
+            ] += exposure
+
+        grouped[hazard]["count"] += 1
+
+        if row.get("high_risk_flag"):
+            grouped[hazard]["high"] += 1
+
+    output = list(grouped.values())
+
+    for row in output:
+        row["exposure"] = round(
+            row["exposure"],
+            1,
+        )
+
+    return sorted(
+        output,
+        key=lambda row: -row["exposure"],
+    )
+
+
+def build_physical_by_country(
+    payload: dict,
+) -> list[dict]:
+    grouped: dict[str, dict] = {}
+
+    for row in _as_rows(
+        payload.get(
+            "physical_risk_exposures"
+        )
+    ):
+        country = str(
+            row.get("country")
+            or "Unspecified"
+        )
+
+        grouped.setdefault(
+            country,
+            {
+                "country": country,
+                "exposure": 0.0,
+                "financial_impact": 0.0,
+                "high_risk_count": 0,
+            },
+        )
+
+        grouped[country]["exposure"] += (
+            _number(
+                row.get(
+                    "exposure_amount_meur"
+                )
+            )
+            or 0
+        )
+        grouped[country][
+            "financial_impact"
+        ] += (
+            _number(
+                row.get(
+                    "financial_impact_meur"
+                )
+            )
+            or 0
+        )
+
+        if row.get("high_risk_flag"):
+            grouped[country][
+                "high_risk_count"
+            ] += 1
+
+    output = list(grouped.values())
+
+    for row in output:
+        row["exposure"] = round(
+            row["exposure"],
+            1,
+        )
+        row[
+            "financial_impact"
+        ] = round(
+            row["financial_impact"],
+            1,
+        )
+
+    return sorted(
+        output,
+        key=lambda row: -row["exposure"],
+    )
+
+
+def build_scenarios(
+    payload: dict,
+) -> list[dict]:
+    """
+    Return one series per real scenario name.
+
+    The previous prototype grouped by scenario type, which caused multiple
+    orderly/disorderly/hot-house scenarios to overwrite each other at the
+    same horizon.
+    """
+    horizon_order = {
+        "short_term": 0,
+        "medium_term": 1,
+        "long_term": 2,
+    }
+    grouped: dict[str, dict] = {}
+
+    for row in _as_rows(
+        payload.get("climate_scenarios")
+    ):
+        horizon_raw = str(
+            row.get("horizon")
+            or row.get("time_horizon")
+            or "other"
+        )
+        horizon_label = horizon_raw.replace(
+            "_",
+            " ",
+        )
+        scenario_name = str(
+            row.get("scenario_name")
+            or row.get("scenario_type")
+            or "scenario"
+        )
+
+        value = _number(
+            row.get(
+                "revenue_at_risk_meur"
+            )
+        )
+
+        if value is None:
+            value = _number(
+                row.get(
+                    "financial_impact_meur"
+                )
+            )
+
+        grouped.setdefault(
+            horizon_raw,
+            {
+                "horizon": horizon_label,
+            },
+        )
+        grouped[horizon_raw][
+            scenario_name
+        ] = value
+
+    return [
+        value
+        for _, value in sorted(
+            grouped.items(),
+            key=lambda item: (
+                horizon_order.get(
+                    item[0],
+                    99,
+                )
+            ),
+        )
+    ]
+
+
+def _assurance_applies(
+    scope: str,
+    domain_terms: list[str],
+) -> bool:
+    lowered = scope.lower()
+
+    return any(
+        term.lower() in lowered
+        for term in domain_terms
+    )
+
+
+def _pcaf_confidence(
+    scores: list[float],
+) -> tuple[str, str]:
+    if not scores:
+        return (
+            "not assessed",
+            "No PCAF quality score was provided.",
+        )
+
+    average = statistics.mean(scores)
+
+    if average <= 2:
+        label = "high"
+    elif average <= 3.5:
+        label = "medium"
+    else:
+        label = "low"
+
+    return (
+        label,
+        (
+            "Platform-assessed from the average "
+            f"PCAF data-quality score ({average:.2f})."
+        ),
+    )
+
+
+def build_data_quality_register(
+    payload: dict,
+) -> tuple[list[dict], dict]:
+    context = payload.get(
+        "general_requirements_context",
+        {},
+    )
+    reporting_kpis = payload.get(
+        "reporting_kpis",
+        {},
+    )
+    assurance_level = str(
+        context.get("external_assurance")
+        or "not specified"
+    )
+    assurance_scope = str(
+        context.get("assurance_scope")
+        or ""
+    )
+    assurance_provider = context.get(
+        "assurance_provider"
+    )
+    assurance_standard = context.get(
+        "assurance_standard"
+    )
+
+    register: list[dict] = []
+
+    if (
+        _as_rows(payload.get("scope1"))
+        or _as_rows(payload.get("scope2"))
+    ):
+        applies = _assurance_applies(
+            assurance_scope,
+            [
+                "scope 1",
+                "scope 2",
+                "scope1",
+                "scope2",
+                "operational emissions",
+            ],
+        )
+
+        register.append(
+            {
+                "domain": "scope1_scope2",
+                "label": (
+                    "Scope 1 and 2 operational "
+                    "emissions"
+                ),
+                "assurance_level": (
+                    assurance_level
+                    if applies
+                    else "not specified"
+                ),
+                "assurance_provider": (
+                    assurance_provider
+                    if applies
+                    else None
+                ),
+                "assurance_standard": (
+                    assurance_standard
+                    if applies
+                    else None
+                ),
+                "is_synthetic": False,
+                "confidence": (
+                    "assured"
+                    if applies
+                    else "not assessed"
+                ),
+                "confidence_basis": (
+                    "Based on the reported assurance scope."
+                    if applies
+                    else (
+                        "The provided assurance scope does "
+                        "not explicitly cover this domain."
+                    )
+                ),
+                "note": (
+                    assurance_scope
+                    or "No assurance scope was provided."
+                ),
+            }
+        )
+
+    loan_details = _as_rows(
+        payload.get(
+            "financed_emissions_loans_detail"
+        )
+    )
+    loan_scores = [
+        score
+        for score in (
+            _number(
+                row.get(
+                    "pcaf_data_quality_score"
+                )
+            )
+            for row in loan_details
+        )
+        if score is not None
+    ]
+
+    if (
+        _as_rows(
+            payload.get("financed_emissions")
+        )
+        or loan_details
+    ):
+        confidence, basis = (
+            _pcaf_confidence(
+                loan_scores
+            )
+        )
+        applies = _assurance_applies(
+            assurance_scope,
+            [
+                "financed emissions",
+                "scope 3 category 15",
+                "scope3 category 15",
+            ],
+        )
+
+        register.append(
+            {
+                "domain": (
+                    "financed_emissions_loans"
+                ),
+                "label": (
+                    "Financed emissions — lending"
+                ),
+                "assurance_level": (
+                    assurance_level
+                    if applies
+                    else "not specified"
+                ),
+                "assurance_provider": (
+                    assurance_provider
+                    if applies
+                    else None
+                ),
+                "assurance_standard": (
+                    assurance_standard
+                    if applies
+                    else None
+                ),
+                "is_synthetic": False,
+                "confidence": confidence,
+                "confidence_basis": basis,
+                "note": (
+                    f"{len(loan_scores)} source row(s) "
+                    "included a PCAF quality score."
+                    if loan_scores
+                    else (
+                        "No row-level PCAF score was "
+                        "available."
+                    )
+                ),
+            }
+        )
+
+    equity_rows = _as_rows(
+        payload.get(
+            "financed_emissions_equity"
+        )
+    )
+    equity_scores = [
+        score
+        for score in (
+            _number(
+                row.get(
+                    "pcaf_data_quality_score"
+                )
+            )
+            for row in equity_rows
+        )
+        if score is not None
+    ]
+
+    if equity_rows:
+        confidence, basis = (
+            _pcaf_confidence(
+                equity_scores
+            )
+        )
+        proxy_count = sum(
+            1
+            for row in equity_rows
+            if (
+                row.get(
+                    "emissions_proxy_used"
+                )
+                or row.get(
+                    "attributed_emissions_proxy_tco2e"
+                )
+                is not None
+            )
+        )
+
+        register.append(
+            {
+                "domain": (
+                    "financed_emissions_equity"
+                ),
+                "label": (
+                    "Financed emissions — listed "
+                    "equity"
+                ),
+                "assurance_level": (
+                    "not specified"
+                ),
+                "assurance_provider": None,
+                "assurance_standard": None,
+                "is_synthetic": False,
+                "confidence": confidence,
+                "confidence_basis": basis,
+                "note": (
+                    f"{proxy_count} of "
+                    f"{len(equity_rows)} row(s) use "
+                    "a proxy method."
+                ),
+            }
+        )
+
+    physical_rows = _as_rows(
+        payload.get(
+            "physical_risk_exposures"
+        )
+    )
+
+    if physical_rows:
+        sources = {
+            str(
+                row.get("data_source")
+            )
+            for row in physical_rows
+            if row.get("data_source")
+        }
+
+        register.append(
+            {
+                "domain": (
+                    "physical_risk_exposures"
+                ),
+                "label": (
+                    "Physical-risk exposure"
+                ),
+                "assurance_level": (
+                    "not specified"
+                ),
+                "assurance_provider": None,
+                "assurance_standard": None,
+                "is_synthetic": False,
+                "confidence": (
+                    "not assessed"
+                ),
+                "confidence_basis": (
+                    "No standardised confidence score "
+                    "was present in the prepared data."
+                ),
+                "note": (
+                    "Reported source(s): "
+                    + ", ".join(sorted(sources))
+                    if sources
+                    else (
+                        "No source label was provided."
+                    )
+                ),
+            }
+        )
+
+    summary = reporting_kpis.get(
+        "emissions_data_quality_summary",
+        {},
+    )
+
+    if not isinstance(summary, dict):
+        summary = {}
+
+    result_summary = {
+        "audited_report_pct": _number(
+            summary.get("audited_report")
+        ),
+        "cdp_disclosure_pct": _number(
+            summary.get("cdp_disclosure")
+        ),
+        "estimated_economic_pct": _number(
+            summary.get(
+                "estimated_economic"
+            )
+        ),
+        "proxy_model_pct": _number(
+            summary.get("proxy_model")
+        ),
+    }
+
+    available_values = [
+        value
+        for value
+        in result_summary.values()
+        if value is not None
+    ]
+
+    if available_values:
+        modeled = sum(
+            value
+            for key, value
+            in result_summary.items()
+            if (
+                key
+                in {
+                    "estimated_economic_pct",
+                    "proxy_model_pct",
+                }
+                and value is not None
+            )
+        )
+        result_summary[
+            "interpretation"
+        ] = (
+            "The prepared data identifies "
+            f"{modeled:.1f}% as estimated or "
+            "proxy-based."
+        )
+
+    return register, result_summary
+
+
+def build_counterparty_drilldown(
+    payload: dict,
+    top_n: int = 20,
+) -> dict:
+    grouped = defaultdict(
+        lambda: {
+            "exposure_meur": 0.0,
+            "financial_impact_meur": 0.0,
+            "hazard_types": set(),
+            "country": None,
+            "high_risk_count": 0,
+            "n_exposures": 0,
+        }
+    )
+
+    excluded_rows = 0
+
+    for row in _as_rows(
+        payload.get(
+            "physical_risk_exposures"
+        )
+    ):
+        counterparty_id = row.get(
+            "counterparty_id"
+        )
+
+        if not counterparty_id:
+            excluded_rows += 1
+            continue
+
+        item = grouped[counterparty_id]
+        item["exposure_meur"] += (
+            _number(
+                row.get(
+                    "exposure_amount_meur"
+                )
+            )
+            or 0
+        )
+        item[
+            "financial_impact_meur"
+        ] += (
+            _number(
+                row.get(
+                    "financial_impact_meur"
+                )
+            )
+            or 0
+        )
+
+        hazard = row.get("hazard_type")
+
+        if hazard:
+            item[
+                "hazard_types"
+            ].add(str(hazard))
+
+        item["country"] = (
+            row.get("country")
+            or item["country"]
+        )
+        item[
+            "high_risk_count"
+        ] += (
+            1
+            if row.get("high_risk_flag")
+            else 0
+        )
+        item["n_exposures"] += 1
 
     rows = [
         {
-            "year": str(r["reporting_year"]),
-            "actual": r.get("carbon_intensity_tco2e_per_meur_lending"),
-            "target": tgt["baseline_value"] if tgt and r["reporting_year"] == tgt.get("baseline_year") else None,
+            "counterparty_id": (
+                counterparty_id
+            ),
+            "country": value["country"],
+            "exposure_meur": round(
+                value["exposure_meur"],
+                2,
+            ),
+            "financial_impact_meur": round(
+                value[
+                    "financial_impact_meur"
+                ],
+                2,
+            ),
+            "hazard_types": sorted(
+                value["hazard_types"]
+            ),
+            "high_risk_count": value[
+                "high_risk_count"
+            ],
+            "n_exposures": value[
+                "n_exposures"
+            ],
         }
-        for r in fin
-    ]
-    rows += [{"year": str(y), "actual": None, "target": v} for y, v in sorted(milestones.items())]
-    return rows
-
-
-def build_op_emissions(P):
-    s1 = {r["reporting_year"]: r for r in P.get("scope1", [])}
-    s2 = {r["reporting_year"]: r for r in P.get("scope2", [])}
-    s3 = {r["reporting_year"]: r for r in P.get("scope3_travel", [])}
-    years = sorted(set(s1) | set(s2) | set(s3))
-    return [
-        {
-            "year": str(y),
-            "Scope 1": s1.get(y, {}).get("scope1_total_tco2e", 0),
-            "Scope 2 (market)": s2.get(y, {}).get("scope2_market_tco2e", 0),
-            "Scope 3 travel": s3.get(y, {}).get("scope3_travel_tco2e", 0),
-        }
-        for y in years
-    ]
-
-
-def build_financed_composition(P):
-    fe = _last(P.get("financed_emissions", []))
-    eq_sum = sum((r.get("attributed_emissions_proxy_tco2e") or 0) for r in P.get("financed_emissions_equity", []))
-    sov_sum = sum((r.get("attributed_emissions_tco2e") or 0) for r in P.get("financed_emissions_sovereign", []))
-    out = []
-    if fe:
-        out.append({"name": "Corporate loans", "value": fe.get("financed_em_loans_tco2e", 0), "proxy": False})
-    if P.get("financed_emissions_sovereign"):
-        out.append({"name": "Sovereign bonds", "value": sov_sum, "proxy": False})
-    if P.get("financed_emissions_equity"):
-        out.append({"name": "Listed equity (proxy)", "value": eq_sum, "proxy": True})
-    return out
-
-
-def build_risk_matrix(P):
-    return [
-        {
-            "x": r.get("likelihood_score"), "y": r.get("severity_score"),
-            "z": r.get("financial_impact_meur", 0), "name": r.get("risk_name"),
-            "rating": r.get("risk_rating"), "id": r.get("risk_id"),
-            "horizon": r.get("time_horizon"), "ifrs": r.get("ifrs_s2_para_evidence"),
-        }
-        for r in P.get("climate_risk_register", [])
+        for counterparty_id, value
+        in grouped.items()
     ]
 
+    rows.sort(
+        key=lambda row: -row[
+            "exposure_meur"
+        ]
+    )
 
-def build_risk_by_category(P):
-    cat = {}
-    for r in P.get("climate_risk_register", []):
-        c = r.get("risk_category", "unknown")
-        cat.setdefault(c, {"name": c.replace("_", " ")})
-        rating = r.get("risk_rating", "unrated")
-        cat[c][rating] = cat[c].get(rating, 0) + 1
-    rows = list(cat.values())
-    for row in rows:
-        row["total"] = sum(v for k, v in row.items() if k != "name" and isinstance(v, (int, float)))
-    rows.sort(key=lambda r: -r["total"])
-    return rows
-
-
-def build_physical_by_hazard(P):
-    hz = {}
-    for p in P.get("physical_risk_exposures", []):
-        h = p.get("hazard_type", "unknown")
-        hz.setdefault(h, {"hazard": h.replace("_", " "), "exposure": 0.0, "count": 0, "high": 0})
-        hz[h]["exposure"] += _num(p.get("exposure_amount_meur"))
-        hz[h]["count"] += 1
-        if p.get("high_risk_flag"):
-            hz[h]["high"] += 1
-    rows = sorted(hz.values(), key=lambda r: -r["exposure"])
-    for r in rows:
-        r["exposure"] = _round(r["exposure"], 1)
-    return rows
-
-
-def build_scenarios(P):
-    horizon_order = {"short_term": 0, "medium_term": 1, "long_term": 2}
-    by_h = {}
-    for s in P.get("climate_scenarios", []):
-        h = s.get("horizon", "unknown")
-        by_h.setdefault(h, {"horizon": h.replace("_", " ")})
-        by_h[h][s.get("scenario_type", "unknown")] = s.get("revenue_at_risk_meur")
-    rows = list(by_h.values())
-    rows.sort(key=lambda r: horizon_order.get(r["horizon"].replace(" ", "_"), 99))
-    return rows
-
-
-# ---------------------------------------------------------------------------
-# Augmentation: data quality / assurance register
-# ---------------------------------------------------------------------------
-def build_data_quality_register(P):
-    gov = _last(P.get("governance", [])) or {}
-    edq = P.get("reporting_kpis", {}).get("emissions_data_quality_summary", {})
-    fe = _last(P.get("financed_emissions", [])) or {}
-
-    def is_synth(section_name):
-        rows = P.get(section_name, [])
-        return bool(rows) and all(r.get("is_synthetic") for r in rows if isinstance(r, dict))
-
-    register = []
-
-    if P.get("scope1") or P.get("scope2"):
-        register.append({
-            "domain": "scope1_scope2", "label": "Scope 1 & 2 operational emissions",
-            "assurance_level": gov.get("external_assurance", "unknown"),
-            "assurance_provider": gov.get("assurance_provider"),
-            "assurance_standard": gov.get("assurance_standard"),
-            "is_synthetic": False, "confidence": "high" if gov.get("external_assurance") else "medium",
-            "note": "Operational emissions; check governance.assurance_scope for exact coverage.",
-        })
-
-    if P.get("scope3_travel"):
-        register.append({
-            "domain": "scope3_travel", "label": "Scope 3 business travel",
-            "assurance_level": "none", "assurance_provider": None, "assurance_standard": None,
-            "is_synthetic": False, "confidence": "medium",
-            "note": "Typically unassured unless governance states otherwise.",
-        })
-
-    if P.get("scope3_categories"):
-        register.append({
-            "domain": "scope3_categories", "label": "Scope 3 value-chain categories",
-            "assurance_level": "none", "assurance_provider": None, "assurance_standard": None,
-            "is_synthetic": is_synth("scope3_categories"), "confidence": "low",
-            "note": "Spend-based/estimated category emissions carry inherently higher uncertainty.",
-        })
-
-    if P.get("financed_emissions"):
-        register.append({
-            "domain": "financed_emissions_loans", "label": "Financed emissions \u2014 corporate loans",
-            "assurance_level": "none", "assurance_provider": None, "assurance_standard": None,
-            "is_synthetic": False, "confidence": "medium",
-            "note": "Usually the largest single line; verify if it carries any assurance.",
-        })
-
-    if P.get("financed_emissions_equity"):
-        register.append({
-            "domain": "financed_emissions_equity", "label": "Financed emissions \u2014 listed equity",
-            "assurance_level": "none", "assurance_provider": None, "assurance_standard": None,
-            "is_synthetic": False, "confidence": "low",
-            "note": "Check emissions_proxy_used / proxy_confidence fields on each row.",
-        })
-
-    if P.get("financed_emissions_sovereign"):
-        gap_n = sum(1 for r in P["financed_emissions_sovereign"] if r.get("data_gap_flag"))
-        register.append({
-            "domain": "financed_emissions_sovereign", "label": "Financed emissions \u2014 sovereign bonds",
-            "assurance_level": "none", "assurance_provider": None, "assurance_standard": None,
-            "is_synthetic": False, "confidence": "medium",
-            "note": f"{gap_n} of {len(P['financed_emissions_sovereign'])} sovereign rows flagged with a data gap.",
-        })
-
-    if P.get("physical_risk_exposures"):
-        register.append({
-            "domain": "physical_risk_exposures", "label": "Physical risk exposures",
-            "assurance_level": "none", "assurance_provider": None, "assurance_standard": None,
-            "is_synthetic": False, "confidence": "medium",
-            "note": "External hazard source data; financial-impact translation is modelled.",
-        })
-
-    if P.get("climate_financial_effects"):
-        register.append({
-            "domain": "climate_financial_effects", "label": "Financial-statement climate effects",
-            "assurance_level": "none", "assurance_provider": None, "assurance_standard": None,
-            "is_synthetic": is_synth("climate_financial_effects"), "confidence": "low",
-            "note": "Balance-sheet/P&L linkage; verify against filed accounts before external use.",
-        })
-
-    summary = {
-        "audited_report_pct": edq.get("audited_report"),
-        "cdp_disclosure_pct": edq.get("cdp_disclosure"),
-        "estimated_economic_pct": edq.get("estimated_economic"),
-        "proxy_model_pct": edq.get("proxy_model"),
-    }
-    if all(v is not None for v in summary.values()):
-        modeled = round(summary["estimated_economic_pct"] + summary["proxy_model_pct"], 1)
-        summary["interpretation"] = (
-            f"{summary['audited_report_pct']}% of group emissions data traces to an audited "
-            f"report; ~{modeled}% is modelled or proxy-based."
+    equity_rows = _as_rows(
+        payload.get(
+            "financed_emissions_equity"
         )
-    return register, summary
-
-
-# ---------------------------------------------------------------------------
-# Augmentation: synthetic peer benchmark
-# ---------------------------------------------------------------------------
-def build_peer_benchmark(P, seed=None):
-    k = P.get("reporting_kpis", {})
-    bank = P.get("bank", {})
-    own_intensity = k.get("carbon_intensity_2024_tco2e_per_meur")
-    if own_intensity is None:
-        return None
-
-    rng = random.Random(seed if seed is not None else bank.get("bank_id", "seed"))
-
-    def jitter(val, lo, hi):
-        return round(val * rng.uniform(lo, hi), 2) if val is not None else None
-
-    own = {
-        "peer_name": bank.get("bank_name", "This bank"), "is_synthetic": False,
-        "carbon_intensity_tco2e_per_meur": own_intensity,
-        "green_loans_pct": k.get("green_loans_pct_2024"),
-        "fossil_fuel_exposure_pct": k.get("fossil_fuel_exposure_pct"),
-        "high_carbon_sector_exposure_pct": k.get("high_carbon_sector_exposure_pct"),
-    }
-
-    archetype = bank.get("archetype", "bank").replace("_", " ")
-    peers = []
-    for label in ["Peer A", "Peer B", "Peer C"]:
-        peers.append({
-            "peer_name": f"{label} ({archetype})", "is_synthetic": True,
-            "source": "synthetic_estimate \u2014 no real disclosure; illustrative only",
-            "carbon_intensity_tco2e_per_meur": jitter(own_intensity, 0.65, 1.15),
-            "green_loans_pct": jitter(own["green_loans_pct"], 0.7, 1.6),
-            "fossil_fuel_exposure_pct": jitter(own["fossil_fuel_exposure_pct"], 0.6, 1.2),
-            "high_carbon_sector_exposure_pct": jitter(own["high_carbon_sector_exposure_pct"], 0.6, 1.2),
-        })
-
-    def avg(field):
-        vals = [p[field] for p in peers if p[field] is not None]
-        return round(statistics.mean(vals), 2) if vals else None
-
-    sector_avg = {
-        "peer_name": f"Sector average ({archetype})", "is_synthetic": True,
-        "source": "synthetic_estimate \u2014 illustrative midpoint, not an official benchmark",
-        "carbon_intensity_tco2e_per_meur": avg("carbon_intensity_tco2e_per_meur"),
-        "green_loans_pct": avg("green_loans_pct"),
-        "fossil_fuel_exposure_pct": avg("fossil_fuel_exposure_pct"),
-        "high_carbon_sector_exposure_pct": avg("high_carbon_sector_exposure_pct"),
-    }
+    )
+    unlinked_equity_rows = sum(
+        1
+        for row in equity_rows
+        if not row.get("counterparty_id")
+    )
 
     return {
-        "bank_own": own, "peers": peers, "sector_average": sector_avg,
-        "disclaimer": (
-            "Peer and sector figures are SYNTHETIC, generated for relative-positioning "
-            "illustration only. They are not sourced from any peer bank's actual disclosure "
-            "and must not be cited as real benchmark data in any external-facing report."
+        "physical_risk_top_by_exposure": (
+            rows[:top_n]
+        ),
+        "physical_risk_basis": (
+            "Aggregated from source counterparty "
+            "identifiers."
+        ),
+        "excluded_physical_rows": (
+            excluded_rows
+        ),
+        "unlinked_equity_rows": (
+            unlinked_equity_rows
         ),
     }
 
 
-# ---------------------------------------------------------------------------
-# Augmentation: counterparty concentration (real data where available)
-# ---------------------------------------------------------------------------
-def build_counterparty_drilldown(P, top_n=20):
-    phys = P.get("physical_risk_exposures", [])
-    by_cp = defaultdict(lambda: {
-        "exposure_meur": 0.0, "financial_impact_meur": 0.0,
-        "hazard_types": set(), "country": None, "high_risk_count": 0, "n_exposures": 0,
-    })
-    for p in phys:
-        cid = p.get("counterparty_id")
-        if not cid:
-            continue
-        c = by_cp[cid]
-        c["exposure_meur"] += _num(p.get("exposure_amount_meur"))
-        c["financial_impact_meur"] += _num(p.get("financial_impact_meur"))
-        c["hazard_types"].add(p.get("hazard_type", "unknown"))
-        c["country"] = p.get("country")
-        c["high_risk_count"] += 1 if p.get("high_risk_flag") else 0
-        c["n_exposures"] += 1
+def build_evidence(
+    payload: dict,
+    derived: dict,
+) -> list[dict]:
+    evidence: list[dict] = []
 
-    top = sorted(
-        [
+    def add(
+        key: str,
+        label: str,
+        value: str,
+        source: str,
+        ifrs: str,
+        detail: str,
+    ) -> None:
+        evidence.append(
             {
-                "counterparty_id": cid, "country": v["country"],
-                "exposure_meur": _round(v["exposure_meur"]), "financial_impact_meur": _round(v["financial_impact_meur"]),
-                "hazard_types": sorted(v["hazard_types"]), "high_risk_count": v["high_risk_count"],
-                "n_exposures": v["n_exposures"], "is_synthetic": False,
+                "id": (
+                    f"E{len(evidence) + 1}"
+                ),
+                "key": key,
+                "label": label,
+                "value": value,
+                "source": source,
+                "ifrs": ifrs,
+                "detail": detail,
             }
-            for cid, v in by_cp.items()
-        ],
-        key=lambda r: -r["exposure_meur"],
-    )[:top_n]
+        )
 
-    equity_rows = P.get("financed_emissions_equity", [])
-    equity_has_real_cp = any(r.get("counterparty_id") for r in equity_rows)
-    equity_map = []
-    if equity_rows and not equity_has_real_cp:
-        for i, r in enumerate(equity_rows):
-            equity_map.append({
-                "investment_id": r.get("investment_id"), "issuer_name": r.get("issuer_name"),
-                "nace_code": r.get("nace_code"), "country": r.get("country"),
-                "market_value_meur": r.get("market_value_meur"),
-                "attributed_emissions_proxy_tco2e": r.get("attributed_emissions_proxy_tco2e"),
-                "pcaf_data_quality_score": r.get("pcaf_data_quality_score"),
-                "synthetic_counterparty_id": f"SYN-CP-{i+1:03d}",
-                "counterparty_id_is_synthetic": True,
-                "note": "counterparty_id is null in source data for this row \u2014 placeholder for drill-down UX only.",
-            })
+    bank = payload.get("bank", {})
+    metadata = payload.get("metadata", {})
+    reporting_year = metadata.get(
+        "reporting_year"
+    )
+    reporting_kpis = payload.get(
+        "reporting_kpis",
+        {},
+    )
 
-    return {
-        "physical_risk_top_by_exposure": top,
-        "physical_risk_basis": "real counterparty_id from source data",
-        "equity_synthetic_counterparty_map": equity_map,
-        "equity_has_real_counterparty_id": equity_has_real_cp,
-    }
+    financial_latest = _latest(
+        payload.get("financial_summary")
+    )
+    intensity = (
+        _number(
+            financial_latest.get(
+                "carbon_intensity_tco2e_per_meur_lending"
+            )
+        )
+        or _dynamic_kpi(
+            reporting_kpis,
+            base_names=[
+                "carbon_intensity",
+            ],
+            reporting_year=reporting_year,
+        )
+    )
+    intensity_target = _number(
+        bank.get(
+            "target_intensity_tco2e_per_meur"
+        )
+    )
 
+    if intensity is not None:
+        value = (
+            f"{intensity:,.0f} tCO₂e/M€"
+        )
 
-# ---------------------------------------------------------------------------
-# Augmentation: scenario sensitivity band
-# ---------------------------------------------------------------------------
-def build_scenario_sensitivity(P, band_pct=0.15):
-    scenarios = P.get("climate_scenarios", [])
-    if not scenarios:
-        return []
-    by_h = {}
-    for s in scenarios:
-        base = s.get("revenue_at_risk_meur")
-        if base is None:
-            continue
-        h = s.get("horizon", "unknown").replace("_", " ")
-        by_h.setdefault(h, {"horizon": h, "low": 0.0, "mid": 0.0, "high": 0.0, "n": 0})
-        by_h[h]["low"] += base * (1 - band_pct)
-        by_h[h]["mid"] += base
-        by_h[h]["high"] += base * (1 + band_pct)
-        by_h[h]["n"] += 1
-    out = []
-    for row in by_h.values():
-        n = row.pop("n") or 1
-        out.append({
-            "horizon": row["horizon"],
-            "low": round(row["low"] / n, 0), "mid": round(row["mid"] / n, 0), "high": round(row["high"] / n, 0),
-        })
-    return out
+        if intensity_target is not None:
+            value += (
+                f" versus a stated target of "
+                f"{intensity_target:,.0f} "
+                "tCO₂e/M€"
+            )
 
+        add(
+            "carbon_intensity",
+            "Carbon intensity",
+            value,
+            "financial_summary / reporting_kpis",
+            "IFRS S2 metrics and targets",
+            (
+                "Latest available lending-book "
+                "carbon-intensity value."
+            ),
+        )
 
-# ---------------------------------------------------------------------------
-# Evidence catalogue — the fixed set of citable, sourced facts the LLM may
-# reference. Built dynamically; an item is only included if its underlying
-# data is present in the upload.
-# ---------------------------------------------------------------------------
-def build_evidence(P, derived):
-    ev = []
-    k = P.get("reporting_kpis", {})
-    bank = P.get("bank", {})
-    fe = _last(P.get("financed_emissions", []))
-    risks = P.get("climate_risk_register", [])
-    phys_by_hazard = derived.get("phys_by_hazard", [])
-    scenarios = P.get("climate_scenarios", [])
-    targets = P.get("targets", [])
-    fin = sorted(P.get("financial_summary", []), key=lambda r: r.get("reporting_year", 0))
-    dq_summary = derived.get("dq_summary", {})
-    dq_register = derived.get("dq_register", [])
-    peer = derived.get("peer_benchmark")
+    financed_latest = _latest(
+        payload.get(
+            "financed_emissions"
+        )
+    )
+    financed_value = _number(
+        financed_latest.get(
+            "financed_em_loans_tco2e"
+        )
+    )
 
-    def add(eid, label, value, source, ifrs, detail):
-        ev.append({"id": eid, "label": label, "value": value, "source": source, "ifrs": ifrs, "detail": detail})
+    if financed_value is not None:
+        add(
+            "financed_emissions",
+            "Financed emissions",
+            (
+                f"{financed_value / 1_000_000:,.1f} "
+                "Mt CO₂e"
+            ),
+            "financed_emissions",
+            "IFRS S2 financed emissions",
+            (
+                "Latest available financed-emissions "
+                "total for lending."
+            ),
+        )
 
-    if k.get("carbon_intensity_2024_tco2e_per_meur") is not None and bank.get("target_intensity_tco2e_per_meur"):
-        ratio = k["carbon_intensity_2024_tco2e_per_meur"] / bank["target_intensity_tco2e_per_meur"]
-        add("E1", "Carbon intensity vs target",
-            f"{k['carbon_intensity_2024_tco2e_per_meur']:.0f} t/M\u20ac \u2014 {ratio:.1f}\u00d7 the {bank['target_intensity_tco2e_per_meur']} t/M\u20ac target",
-            "financial_summary", "IFRS S2 \u00a729(a)",
-            "Lending-book carbon intensity is usually the dominant exposure relative to the stated target.")
-
-    if fe:
-        add("E2", "Financed emissions", f"{fe.get('financed_em_loans_tco2e', 0)/1e6:.1f} Mt CO\u2082e (Scope 3 Cat.15)",
-            "financed_emissions", "IFRS S2 \u00a729(g)", "Usually the dominant share of the group footprint.")
+    risks = _rows_for_reporting_year(
+        payload,
+        "climate_risk_register",
+    )
 
     if risks:
-        crit = sum(1 for r in risks if r.get("risk_rating") == "critical")
-        high = sum(1 for r in risks if r.get("risk_rating") == "high")
-        add("E3", "Critical risks", f"{crit} critical + {high} high of {len(risks)}",
-            "climate_risk_register", "IFRS S2 \u00a725(a)", "Rating = likelihood \u00d7 severity on a 5\u00d75 matrix.")
+        critical = sum(
+            1
+            for row in risks
+            if str(
+                row.get("risk_rating", "")
+            ).lower() == "critical"
+        )
+        high = sum(
+            1
+            for row in risks
+            if str(
+                row.get("risk_rating", "")
+            ).lower() == "high"
+        )
 
-    if phys_by_hazard:
-        top = phys_by_hazard[0]
-        add("E4", "Top physical hazard", f"{top['hazard']}: \u20ac{top['exposure']:.0f}M across {top['count']} counterparties",
-            "physical_risk_exposures", "IFRS S2 \u00a7A2", "Largest single acute/chronic hazard concentration in the book.")
+        add(
+            "risk_register",
+            "Risk-register severity",
+            (
+                f"{critical} critical and {high} high "
+                f"out of {len(risks)} risks"
+            ),
+            "climate_risk_register",
+            "IFRS S2 risk identification",
+            (
+                "Counted directly from the prepared "
+                "risk register."
+            ),
+        )
 
-    if scenarios:
-        worst = max(s.get("revenue_at_risk_meur", 0) for s in scenarios)
-        add("E5", "Worst-case revenue at risk", f"\u20ac{worst:.0f}M",
-            "climate_scenarios", "IFRS S2 \u00a722", "Peak revenue-at-risk across all scenario/horizon cells.")
+    hazards = derived.get(
+        "physical_by_hazard",
+        [],
+    )
 
-    if k.get("fossil_fuel_exposure_pct") is not None:
-        add("E6", "Fossil-fuel exposure", f"{k['fossil_fuel_exposure_pct']}% (\u20ac{k.get('fossil_fuel_exposure_meur', 0):.0f}M)",
-            "reporting_kpis", "IFRS S2 \u00a729(a)", "Transition-risk concentration in lending.")
+    if hazards:
+        top = hazards[0]
 
-    if k.get("green_loans_pct_2024") is not None:
-        add("E7", "Green-loan share", f"{k['green_loans_pct_2024']}% of lending",
-            "reporting_kpis", "IFRS S2 \u00a729(c)", "Check trend across years for stagnation.")
+        add(
+            "physical_hazard",
+            "Largest physical-risk hazard",
+            (
+                f"{top['hazard']}: "
+                f"€{top['exposure']:,.1f}M across "
+                f"{top['count']} exposure row(s)"
+            ),
+            "physical_risk_exposures",
+            "IFRS S2 physical climate risk",
+            (
+                "Largest aggregated hazard exposure "
+                "in the prepared data."
+            ),
+        )
 
-    eq = P.get("financed_emissions_equity", [])
-    if eq and any(r.get("emissions_proxy_used") for r in eq):
-        add("E8", "Equity emissions are proxy", "PCAF B61 revenue proxy \u2014 not verified issuer emissions",
-            "financed_emissions_equity", "PCAF \u00a7B61", "Revenue-substituted, must be disclosed as such.")
+    scenarios = _as_rows(
+        payload.get("climate_scenarios")
+    )
+    scenario_values = [
+        (
+            _number(
+                row.get(
+                    "revenue_at_risk_meur"
+                )
+                or row.get(
+                    "financial_impact_meur"
+                )
+            ),
+            row,
+        )
+        for row in scenarios
+    ]
+    scenario_values = [
+        item
+        for item in scenario_values
+        if item[0] is not None
+    ]
 
-    if targets and any(t.get("progress_is_schedule_proxy") for t in targets):
-        add("E9", "Target progress is a schedule proxy", "schedule-elapsed only; actual % typically null",
-            "targets", "IFRS S2 \u00a736", "Time elapsed is not the same as a measured reduction.")
+    if scenario_values:
+        worst_value, worst_row = max(
+            scenario_values,
+            key=lambda item: item[0],
+        )
 
-    if len(fin) >= 2:
-        add("E10", "Profitability trend", f"ROE {fin[0].get('return_on_equity_pct')}% \u2192 {fin[-1].get('return_on_equity_pct')}%",
-            "financial_summary", "IFRS S2 \u00a716", "Affects capacity to absorb transition/physical losses.")
+        add(
+            "scenario_impact",
+            "Highest scenario impact",
+            (
+                f"€{worst_value:,.1f}M under "
+                f"{worst_row.get('scenario_type') or worst_row.get('scenario_name') or 'the highest-impact scenario'}"
+            ),
+            "climate_scenarios",
+            "IFRS S2 climate resilience",
+            (
+                "Highest available revenue-at-risk "
+                "or financial-impact estimate."
+            ),
+        )
 
-    s2 = sorted(P.get("scope2", []), key=lambda r: r.get("reporting_year", 0))
-    if len(s2) >= 2:
-        add("E11", "Scope 2 market-based trend", f"{s2[0]['scope2_market_tco2e']:.0f} \u2192 {s2[-1]['scope2_market_tco2e']:.0f} t",
-            "scope2", "IFRS S2 \u00a729(a)", "Check REC/PPA procurement narrative for the driver.")
+    fossil_pct = _dynamic_kpi(
+        reporting_kpis,
+        base_names=[
+            "fossil_fuel_exposure_pct",
+        ],
+        reporting_year=reporting_year,
+    )
 
-    gaps = P.get("metadata", {}).get("data_gaps", [])
-    if any(g.get("field") == "total_loans_meur" for g in gaps):
-        add("E12", "Loan denominator may be constant", "check metadata.data_gaps for total_loans_meur",
-            "metadata.data_gaps", "IFRS S2 \u00a7B8", "If constant, intensity trend reflects emissions only, not loan growth.")
+    if fossil_pct is not None:
+        add(
+            "fossil_fuel_exposure",
+            "Fossil-fuel exposure",
+            f"{fossil_pct:,.1f}% of lending",
+            "reporting_kpis",
+            "IFRS S2 transition risk",
+            (
+                "Prepared transition-risk exposure "
+                "indicator."
+            ),
+        )
 
-    s12 = next((r for r in dq_register if r["domain"] == "scope1_scope2"), None)
-    if s12 and fe:
-        add("E13", "Assurance coverage is narrow",
-            f"Scope 1+2 {s12['assurance_level']}-assured; financed emissions (~{fe.get('financed_em_loans_tco2e', 0)/1e6:.1f} Mt) unassured",
-            "data_quality_assurance_register", "IFRS S2 \u00a7B58", "Most of the footprint sits outside any assurance scope.")
+    green_pct = _dynamic_kpi(
+        reporting_kpis,
+        base_names=[
+            "green_loans_pct",
+        ],
+        reporting_year=reporting_year,
+    )
 
-    if dq_summary.get("audited_report_pct") is not None:
-        modeled = round((dq_summary.get("estimated_economic_pct") or 0) + (dq_summary.get("proxy_model_pct") or 0), 1)
-        add("E14", "Share of modeled emissions data", f"audited {dq_summary['audited_report_pct']}% \u00b7 modeled/proxy {modeled}%",
-            "data_quality_summary", "IFRS S2 \u00a7B58", "Self-disclosed split between audited and modeled/proxy data.")
+    if green_pct is not None:
+        add(
+            "green_loan_share",
+            "Green-loan share",
+            f"{green_pct:,.1f}% of lending",
+            "reporting_kpis",
+            "IFRS S2 opportunity metrics",
+            (
+                "Prepared lending-portfolio "
+                "classification indicator."
+            ),
+        )
 
-    if peer:
-        add("E15", "Intensity vs synthetic peer set",
-            f"{k.get('carbon_intensity_2024_tco2e_per_meur'):.0f} t/M\u20ac vs sector-avg {peer['sector_average']['carbon_intensity_tco2e_per_meur']:.0f} t/M\u20ac (synthetic)",
-            "peer_benchmark", "n/a \u2014 illustrative only", "Peer/sector figures are synthetic placeholders, not real disclosed benchmarks.")
+    equity_rows = _as_rows(
+        payload.get(
+            "financed_emissions_equity"
+        )
+    )
+    proxy_rows = sum(
+        1
+        for row in equity_rows
+        if (
+            row.get(
+                "emissions_proxy_used"
+            )
+            or row.get(
+                "attributed_emissions_proxy_tco2e"
+            )
+            is not None
+        )
+    )
 
-    return ev
+    if proxy_rows:
+        add(
+            "equity_proxy",
+            "Equity-emissions proxy use",
+            (
+                f"{proxy_rows} of "
+                f"{len(equity_rows)} equity row(s) "
+                "use a proxy method"
+            ),
+            "financed_emissions_equity",
+            "PCAF data quality",
+            (
+                "Proxy use must remain visible when "
+                "the result is interpreted."
+            ),
+        )
+
+    targets = _as_rows(
+        payload.get("targets")
+    )
+    schedule_proxy_count = sum(
+        1
+        for row in targets
+        if row.get(
+            "progress_is_schedule_proxy"
+        )
+    )
+
+    if schedule_proxy_count:
+        add(
+            "schedule_proxy",
+            "Target-progress basis",
+            (
+                f"{schedule_proxy_count} target(s) "
+                "use schedule elapsed rather than "
+                "measured achieved progress"
+            ),
+            "targets",
+            "IFRS S2 targets",
+            (
+                "Schedule elapsed must not be "
+                "presented as actual reduction."
+            ),
+        )
+
+    quality_summary = derived.get(
+        "data_quality_summary",
+        {},
+    )
+    estimated = (
+        _number(
+            quality_summary.get(
+                "estimated_economic_pct"
+            )
+        )
+        or 0
+    )
+    proxy = (
+        _number(
+            quality_summary.get(
+                "proxy_model_pct"
+            )
+        )
+        or 0
+    )
+
+    if estimated or proxy:
+        add(
+            "modeled_data",
+            "Estimated or proxy-based data",
+            (
+                f"{estimated + proxy:,.1f}% of the "
+                "reported emissions-data mix"
+            ),
+            "reporting_kpis.emissions_data_quality_summary",
+            "IFRS S2 measurement uncertainty",
+            (
+                "Calculated from the institution's "
+                "prepared data-quality summary."
+            ),
+        )
+
+    return evidence
 
 
-# ---------------------------------------------------------------------------
-# Top-level entry point
-# ---------------------------------------------------------------------------
-def process_payload(payload):
+def process_payload(
+    payload: dict,
+) -> dict:
     """
-    Single entry point called by the upload view. Returns the fully derived
-    bundle the frontend renders directly — no further client-side
-    aggregation of raw rows is required, though the frontend MAY recompute
-    presentation-only details (formatting, colours) from this bundle.
+    Build the stable, business-facing bundle returned to Angular.
     """
-    P = payload
+    physical_by_hazard = (
+        build_physical_by_hazard(payload)
+    )
+    data_quality_register, (
+        data_quality_summary
+    ) = build_data_quality_register(
+        payload
+    )
 
-    dq_register, dq_summary = build_data_quality_register(P)
-    peer_benchmark = build_peer_benchmark(P)
-    phys_by_hazard = build_physical_by_hazard(P)
-
-    derived_for_evidence = {
-        "phys_by_hazard": phys_by_hazard,
-        "dq_register": dq_register,
-        "dq_summary": dq_summary,
-        "peer_benchmark": peer_benchmark,
+    derived = {
+        "physical_by_hazard": (
+            physical_by_hazard
+        ),
+        "data_quality_summary": (
+            data_quality_summary
+        ),
     }
 
     bundle = {
-        "bank": P.get("bank", {}),
-        "metadata": P.get("metadata", {}),
-        "general_requirements_context": P.get("general_requirements_context", {}),
-        "reporting_kpis": P.get("reporting_kpis", {}),
-        "kpis": build_kpis(P),
-        "intensity_trend": build_intensity_trend(P),
-        "op_emissions": build_op_emissions(P),
-        "financed_composition": build_financed_composition(P),
-        "risk_matrix": build_risk_matrix(P),
-        "risk_by_category": build_risk_by_category(P),
-        "physical_by_hazard": phys_by_hazard,
-        "scenarios": build_scenarios(P),
-        "data_quality_register": dq_register,
-        "data_quality_summary": dq_summary,
-        "peer_benchmark": peer_benchmark,
-        "counterparty_drilldown": build_counterparty_drilldown(P),
-        "scenario_sensitivity": build_scenario_sensitivity(P),
+        "bank": payload.get("bank", {}),
+        "metadata": payload.get(
+            "metadata",
+            {},
+        ),
+        "general_requirements_context": (
+            payload.get(
+                "general_requirements_context",
+                {},
+            )
+        ),
+        "reporting_kpis": payload.get(
+            "reporting_kpis",
+            {},
+        ),
+        "kpis": build_kpis(payload),
+        "intensity_trend": (
+            build_intensity_trend(payload)
+        ),
+        "financed_composition": (
+            build_financed_composition(
+                payload
+            )
+        ),
+        "risk_matrix": (
+            build_risk_matrix(payload)
+        ),
+        "risk_by_category": (
+            build_risk_by_category(payload)
+        ),
+        "physical_by_hazard": (
+            physical_by_hazard
+        ),
+        "physical_by_country": (
+            build_physical_by_country(
+                payload
+            )
+        ),
+        "scenarios": (
+            build_scenarios(payload)
+        ),
+        "data_quality_register": (
+            data_quality_register
+        ),
+        "data_quality_summary": (
+            data_quality_summary
+        ),
+        "counterparty_drilldown": (
+            build_counterparty_drilldown(
+                payload
+            )
+        ),
     }
-    bundle["evidence"] = build_evidence(P, derived_for_evidence)
+
+    bundle["evidence"] = (
+        build_evidence(
+            payload,
+            derived,
+        )
+    )
+
     return bundle
