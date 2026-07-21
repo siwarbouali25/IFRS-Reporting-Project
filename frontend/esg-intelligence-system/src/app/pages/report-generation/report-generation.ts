@@ -35,8 +35,6 @@ export class ReportGeneration implements OnInit, OnDestroy {
     localStorage.getItem('activePayloadManifestId') ?? 0
   );
   activePayloadManifest: PayloadManifestSummary | null = null;
-  ifrsAssetVersion = 'ifrs_s1_s2_2024';
-  styleAssetVersion = 'bank01_style_v1';
   maxRevisions = 2;
 
   jobs: GenerationJob[] = [];
@@ -51,6 +49,7 @@ export class ReportGeneration implements OnInit, OnDestroy {
 
   isStarting = false;
   isLoadingJobs = false;
+  isLoadingPayloadManifest = false;
   isPolling = false;
   isPreviewLoading = false;
   isApprovalActionRunning = false;
@@ -100,8 +99,6 @@ export class ReportGeneration implements OnInit, OnDestroy {
       bank_code: this.bankCode,
       reporting_year: this.reportingYear,
       payload_manifest_id: this.payloadManifestId,
-      ifrs_asset_version: this.ifrsAssetVersion,
-      style_asset_version: this.styleAssetVersion,
       output_formats: ['markdown', 'pdf'],
       max_revisions: this.maxRevisions,
     };
@@ -124,12 +121,23 @@ export class ReportGeneration implements OnInit, OnDestroy {
   }
 
   private loadActivePayloadManifest(): void {
+    this.isLoadingPayloadManifest = true;
+
     this.reportService
-      .getPayloadManifests(this.bankCode, this.reportingYear)
+      .getPayloadManifests(
+        this.bankCode,
+        this.reportingYear
+      )
       .subscribe({
         next: (manifests) => {
+          this.isLoadingPayloadManifest = false;
+
           const selected = manifests.find(
-            (manifest) => manifest.id === this.payloadManifestId
+            (manifest) =>
+              manifest.id ===
+              this.payloadManifestId &&
+              manifest.status ===
+                'available'
           );
 
           if (selected) {
@@ -137,11 +145,22 @@ export class ReportGeneration implements OnInit, OnDestroy {
             return;
           }
 
-          this.selectLatestPayloadManifest(manifests);
+          this.selectLatestPayloadManifest(
+            manifests
+          );
+
+          if (!this.payloadManifestId) {
+            this.errorMessage =
+              'No prepared dataset is available. Complete Data Preparation first.';
+          }
         },
-        error: () => {
+        error: (error) => {
+          this.isLoadingPayloadManifest = false;
           this.errorMessage =
-            'No prepared payload manifest could be loaded.';
+            this.extractErrorMessage(
+              error,
+              'No prepared payload manifest could be loaded.'
+            );
         },
       });
   }
@@ -771,28 +790,76 @@ export class ReportGeneration implements OnInit, OnDestroy {
   }
 
   private extractErrorMessage(error: any, fallback: string): string {
+    if (error?.status === 0) {
+      return (
+        'Could not reach the Django API at 127.0.0.1:8000. ' +
+        'Start Django and refresh the page.'
+      );
+    }
+
+    if (error?.status === 401) {
+      return 'Your session has expired. Sign in again.';
+    }
+
     if (typeof error?.error === 'string') {
       return error.error;
     }
 
     const apiError = error?.error;
-    if (apiError && typeof apiError === 'object') {
-      const firstField = Object.keys(apiError)[0];
-      const fieldValue = firstField ? apiError[firstField] : null;
 
-      if (Array.isArray(fieldValue) && fieldValue.length > 0) {
-        return String(fieldValue[0]);
+    if (
+      apiError &&
+      typeof apiError === 'object'
+    ) {
+      const preferredFields = [
+        'payload_manifest_id',
+        'ifrs_asset_version',
+        'style_asset_version',
+        'non_field_errors',
+        'detail',
+        'message',
+      ];
+
+      for (
+        const field of preferredFields
+      ) {
+        const value = apiError[field];
+
+        if (
+          Array.isArray(value) &&
+          value.length > 0
+        ) {
+          return String(value[0]);
+        }
+
+        if (
+          typeof value === 'string'
+        ) {
+          return value;
+        }
       }
-      if (typeof fieldValue === 'string') {
-        return fieldValue;
+
+      const firstField =
+        Object.keys(apiError)[0];
+      const firstValue =
+        firstField
+          ? apiError[firstField]
+          : null;
+
+      if (
+        Array.isArray(firstValue) &&
+        firstValue.length > 0
+      ) {
+        return String(firstValue[0]);
+      }
+
+      if (
+        typeof firstValue === 'string'
+      ) {
+        return firstValue;
       }
     }
 
-    return (
-      error?.error?.detail ||
-      error?.error?.non_field_errors?.[0] ||
-      error?.error?.message ||
-      fallback
-    );
+    return fallback;
   }
 }

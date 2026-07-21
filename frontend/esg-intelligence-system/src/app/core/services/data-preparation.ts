@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 export interface DataUploadBatch {
   id: string;
@@ -91,11 +91,17 @@ export interface CanonicalValidationResult {
 
 export interface GeneratedPayloadManifest {
   id: number;
+  bank?: number;
   bank_code: string;
   bank_name: string;
+  source_batch_id?: string | null;
   reporting_year: number;
   version: string;
   storage_backend: string;
+  minio_prefix?: string;
+  status?: string;
+  checksum?: string;
+  created_at?: string;
 }
 
 export interface PayloadOutput {
@@ -130,6 +136,40 @@ export class DataPreparation {
     return this.http.get<DataUploadBatch[]>(
       `${this.baseUrl}/`
     );
+  }
+
+  getPayloadManifests(
+    bankCode?: string,
+    reportingYear?: number
+  ): Observable<GeneratedPayloadManifest[]> {
+    const params: Record<string, string> = {};
+
+    if (bankCode) {
+      params['bank_code'] = bankCode;
+    }
+
+    if (reportingYear) {
+      params['reporting_year'] = String(reportingYear);
+    }
+
+    return this.http
+      .get<
+        | GeneratedPayloadManifest[]
+        | {
+            results:
+              GeneratedPayloadManifest[];
+          }
+      >(
+        'http://127.0.0.1:8000/api/payload-manifests/',
+        { params }
+      )
+      .pipe(
+        map((response) =>
+          Array.isArray(response)
+            ? response
+            : response.results
+        )
+      );
   }
 
   getBatch(batchId: string): Observable<DataUploadBatch> {

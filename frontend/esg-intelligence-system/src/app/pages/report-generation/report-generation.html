@@ -25,7 +25,12 @@
         class="primary-btn"
         type="button"
         (click)="generateDraft()"
-        [disabled]="isStarting || isRunningJob"
+        [disabled]="
+          isStarting ||
+          isRunningJob ||
+          isLoadingPayloadManifest ||
+          !payloadManifestId
+        "
       >
         <i class="pi pi-sparkles"></i>
         {{

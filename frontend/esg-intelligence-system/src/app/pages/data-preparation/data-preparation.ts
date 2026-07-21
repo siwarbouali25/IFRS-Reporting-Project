@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
@@ -47,7 +47,7 @@ interface DisclosureArea {
   templateUrl: './data-preparation.html',
   styleUrl: './data-preparation.css',
 })
-export class DataPreparation {
+export class DataPreparation implements OnInit {
   private readonly dataPreparationApi =
     inject(DataPreparationApi);
 
@@ -112,6 +112,10 @@ export class DataPreparation {
       status: 'pending',
     },
   ];
+
+  ngOnInit(): void {
+    this.restorePreparationState();
+  }
 
   readonly disclosureAreas: DisclosureArea[] = [
     {
@@ -494,6 +498,224 @@ export class DataPreparation {
       issue.message ??
       'An item requires review.'
     );
+  }
+
+  private restorePreparationState(): void {
+    const storedBatchId =
+      localStorage.getItem(
+        'activeDataPreparationBatchId'
+      );
+    const storedManifestId = Number(
+      localStorage.getItem(
+        'activePayloadManifestId'
+      ) ?? 0
+    );
+    const storedBankCode =
+      localStorage.getItem(
+        'activeReportBankCode'
+      ) ?? undefined;
+    const storedReportingYear = Number(
+      localStorage.getItem(
+        'activeReportingYear'
+      ) ?? 0
+    );
+
+    if (
+      storedBatchId &&
+      storedManifestId
+    ) {
+      this.loading = true;
+      this.currentActivity =
+        'Restoring the latest completed preparation...';
+
+      this.dataPreparationApi
+        .getBatch(storedBatchId)
+        .subscribe({
+          next: (batch) => {
+            this.dataPreparationApi
+              .getPayloadManifests(
+                storedBankCode,
+                storedReportingYear ||
+                  undefined
+              )
+              .subscribe({
+                next: (manifests) => {
+                  const selected =
+                    manifests.find(
+                      (manifest) =>
+                        manifest.id ===
+                        storedManifestId
+                    );
+
+                  if (selected) {
+                    this.applyRestoredPreparation(
+                      batch,
+                      selected,
+                      manifests
+                    );
+                    return;
+                  }
+
+                  this.restoreLatestPreparation();
+                },
+                error: () => {
+                  this.restoreLatestPreparation();
+                },
+              });
+          },
+          error: () => {
+            this.restoreLatestPreparation();
+          },
+        });
+
+      return;
+    }
+
+    this.restoreLatestPreparation();
+  }
+
+  private restoreLatestPreparation(): void {
+    this.loading = true;
+    this.currentActivity =
+      'Checking for a completed preparation...';
+
+    this.dataPreparationApi
+      .getPayloadManifests()
+      .subscribe({
+        next: (manifests) => {
+          const latest =
+            [...manifests]
+              .filter(
+                (manifest) =>
+                  (
+                    !manifest.status ||
+                    manifest.status ===
+                      'available'
+                  ) &&
+                  !!manifest.source_batch_id
+              )
+              .sort(
+                (left, right) =>
+                  new Date(
+                    right.created_at ?? 0
+                  ).getTime() -
+                  new Date(
+                    left.created_at ?? 0
+                  ).getTime()
+              )[0];
+
+          if (
+            !latest ||
+            !latest.source_batch_id
+          ) {
+            this.finishRestoreWithoutResult();
+            return;
+          }
+
+          this.dataPreparationApi
+            .getBatch(
+              latest.source_batch_id
+            )
+            .subscribe({
+              next: (batch) => {
+                this.applyRestoredPreparation(
+                  batch,
+                  latest,
+                  manifests
+                );
+              },
+              error: () => {
+                this.finishRestoreWithoutResult();
+              },
+            });
+        },
+        error: () => {
+          this.finishRestoreWithoutResult();
+        },
+      });
+  }
+
+  private applyRestoredPreparation(
+    batch: DataUploadBatch,
+    manifest: GeneratedPayloadManifest,
+    manifests: GeneratedPayloadManifest[]
+  ): void {
+    const batchManifests =
+      manifests.filter(
+        (item) =>
+          item.source_batch_id ===
+            batch.id ||
+          item.id === manifest.id
+      );
+
+    this.currentBatch = batch;
+    this.activeManifest = manifest;
+    this.selectedFiles = [];
+
+    this.uploadResult = {
+      batch_id: batch.id,
+      status: batch.status,
+      uploaded_files_count:
+        batch.uploaded_files_count ??
+        0,
+      files: [],
+    };
+
+    this.validationResult = {
+      batch_id: batch.id,
+      status: 'completed',
+      is_valid: true,
+      total_validated_files:
+        batch.uploaded_files_count ??
+        0,
+      issues: [],
+      validations: [],
+    };
+
+    this.payloadResult = {
+      batch_id: batch.id,
+      status: 'completed',
+      payload_count: Math.max(
+        batchManifests.length,
+        1
+      ),
+      payloads_folder:
+        batch.payload_folder,
+      payload_manifests:
+        batchManifests.length > 0
+          ? batchManifests
+          : [manifest],
+    };
+
+    this.steps =
+      this.steps.map(
+        (step) => ({
+          ...step,
+          status: 'completed',
+        })
+      );
+
+    this.completedAt =
+      batch.updated_at
+        ? new Date(batch.updated_at)
+        : null;
+
+    this.storeActivePayloadManifest(
+      manifest
+    );
+
+    this.loading = false;
+    this.errorMessage = '';
+    this.currentActivity =
+      'Preparation completed successfully.';
+    this.successMessage =
+      `${manifest.bank_name} is ready for report generation.`;
+  }
+
+  private finishRestoreWithoutResult(): void {
+    this.loading = false;
+    this.currentActivity =
+      'Select the institution source files to begin.';
   }
 
   private applySelectedFiles(
