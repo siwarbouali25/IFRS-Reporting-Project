@@ -1,55 +1,36 @@
-from __future__ import annotations
-
-import json
 from pathlib import Path
+from data_preparation.models import DataUploadBatch
+
+batch_id = "a0a4d84f-6e3a-4905-b249-9ace68b19937"
+
+batch = DataUploadBatch.objects.get(id=batch_id)
+
+print("Status:", batch.status)
+print("Payload folder:", batch.payload_folder)
+print("Folder exists:", Path(batch.payload_folder).exists())
+print("Files:", list(Path(batch.payload_folder).glob("*.json")))
 
 
-SOURCE = Path("sqlite_data_backup.json")
-OUTPUT = Path("sqlite_data_backup_utf8.json")
 
 
-def decode_fixture(raw: bytes) -> tuple[str, str]:
-    if raw.startswith((b"\xff\xfe", b"\xfe\xff")):
-        return raw.decode("utf-16"), "utf-16"
-
-    if raw.startswith(b"\xef\xbb\xbf"):
-        return raw.decode("utf-8-sig"), "utf-8-sig"
-
-    try:
-        return raw.decode("utf-8"), "utf-8"
-    except UnicodeDecodeError:
-        return raw.decode("cp1252"), "cp1252"
 
 
-def main() -> None:
-    if not SOURCE.exists():
-        raise FileNotFoundError(
-            f"Fixture not found: {SOURCE.resolve()}"
+from payloads.models import PayloadManifest
+
+print(
+    list(
+        PayloadManifest.objects.filter(
+            source_batch_id=batch_id
+        ).values(
+            "id",
+            "bank__code",
+            "reporting_year",
+            "status",
+            "local_folder",
+            "storage_backend",
         )
-
-    raw = SOURCE.read_bytes()
-    text, detected_encoding = decode_fixture(raw)
-
-    # Verify that the converted content is valid JSON.
-    parsed = json.loads(text)
-
-    OUTPUT.write_text(
-        json.dumps(
-            parsed,
-            ensure_ascii=False,
-            indent=2,
-        ),
-        encoding="utf-8",
-        newline="\n",
     )
-
-    print(f"Detected encoding: {detected_encoding}")
-    print(f"Converted fixture: {OUTPUT.resolve()}")
-    print(f"Objects found: {len(parsed)}")
-
-
-if __name__ == "__main__":
-    main()
+)
 
 
 
@@ -58,23 +39,17 @@ if __name__ == "__main__":
 
 
 
-python -c "import json; json.load(open('sqlite_data_backup_utf8.json', encoding='utf-8')); print('Fixture is valid UTF-8 JSON')"
+localStorage.getItem('activeDataPreparationBatchId')
+localStorage.getItem('activePayloadManifestId')
+localStorage.getItem('activeReportBankCode')
+localStorage.getItem('activeReportingYear')
 
 
 
 
 
-
-$env:PYTHONUTF8="1"
-
-python -X utf8 manage.py dumpdata `
-  --natural-foreign `
-  --natural-primary `
-  --exclude contenttypes `
-  --exclude auth.permission `
-  --indent 2 `
-  --output sqlite_data_backup_utf8.json
-
-
-
-python manage.py loaddata sqlite_data_backup_utf8.json
+localStorage.removeItem('activeDataPreparationBatchId');
+localStorage.removeItem('activePayloadManifestId');
+localStorage.removeItem('activeReportBankCode');
+localStorage.removeItem('activeReportingYear');
+location.reload();
