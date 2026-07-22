@@ -431,11 +431,24 @@ class AssessmentGenerateView(APIView):
             analysis.processed
         )
 
+        assessment_text = result[
+            "assessment"
+        ]
+        cited_evidence = (
+            llm.select_cited_evidence(
+                assessment_text,
+                analysis.processed.get(
+                    "evidence",
+                    [],
+                ),
+            )
+        )
+
         record = (
             AssessmentResult.objects.create(
                 analysis=analysis,
                 assessment_text=(
-                    result["assessment"]
+                    assessment_text
                 ),
                 recommendations=(
                     result[
@@ -444,10 +457,7 @@ class AssessmentGenerateView(APIView):
                 ),
                 avoid=result["avoid"],
                 evidence=(
-                    analysis.processed.get(
-                        "evidence",
-                        [],
-                    )
+                    cited_evidence
                 ),
                 model_used=(
                     result["model_used"]

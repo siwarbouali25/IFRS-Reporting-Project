@@ -31,6 +31,42 @@ MARKER_PATTERN = re.compile(
 )
 
 
+def select_cited_evidence(
+    assessment: str,
+    evidence: list[dict],
+) -> list[dict]:
+    """
+    Return only evidence referenced by the assessment, preserving the
+    first-citation order and removing duplicate markers.
+    """
+    evidence_by_id = {
+        str(item.get("id")): item
+        for item in evidence
+        if isinstance(item, dict)
+        and item.get("id")
+    }
+
+    ordered_ids: list[str] = []
+    seen: set[str] = set()
+
+    for evidence_id in MARKER_PATTERN.findall(
+        assessment or ""
+    ):
+        if (
+            evidence_id in seen
+            or evidence_id not in evidence_by_id
+        ):
+            continue
+
+        seen.add(evidence_id)
+        ordered_ids.append(evidence_id)
+
+    return [
+        evidence_by_id[evidence_id]
+        for evidence_id in ordered_ids
+    ]
+
+
 def _setting(
     name: str,
     fallback: str | None = None,
@@ -140,7 +176,9 @@ Rules:
 3. Use 3-5 recommendations and 3-5 avoid items.
 4. Do not mention synthetic peers, invented benchmarks, or unsupported
    sensitivity bands.
-5. Do not wrap the JSON in markdown.
+5. Do not attempt to cite every evidence item. Use only the evidence needed
+   for the 4-6 assessment sentences.
+6. Do not wrap the JSON in markdown.
 """.strip()
 
 
@@ -245,6 +283,13 @@ def _validate_assessment(
     ):
         raise ValueError(
             "Assessment text is missing."
+        )
+
+    assessment = assessment.strip()
+
+    if assessment[-1] not in ".!?":
+        raise ValueError(
+            "Assessment appears incomplete or truncated."
         )
 
     evidence = bundle.get(
@@ -373,6 +418,17 @@ def generate_assessment(
                 stream=False,
             )
         )
+
+        finish_reason = getattr(
+            completion.choices[0],
+            "finish_reason",
+            None,
+        )
+
+        if finish_reason == "length":
+            raise ValueError(
+                "The model response was truncated."
+            )
 
         raw_text = (
             completion

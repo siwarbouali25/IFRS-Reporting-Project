@@ -206,6 +206,61 @@ export class RiskAnalysis
     });
   }
 
+  get citedEvidence():
+    EvidenceItem[] {
+    if (!this.assessment) {
+      return [];
+    }
+
+    const sourceEvidence =
+      this.assessment.evidence?.length
+        ? this.assessment.evidence
+        : (
+            this.bundle?.evidence ??
+            []
+          );
+
+    const evidenceById =
+      Object.fromEntries(
+        sourceEvidence.map(
+          (item) => [
+            item.id,
+            item,
+          ]
+        )
+      ) as Record<
+        string,
+        EvidenceItem
+      >;
+
+    const orderedIds: string[] = [];
+    const seen = new Set<string>();
+
+    for (
+      const match of
+        this.assessment
+          .assessment_text
+          .matchAll(/\[(E\d+)\]/g)
+    ) {
+      const evidenceId = match[1];
+
+      if (
+        seen.has(evidenceId) ||
+        !evidenceById[evidenceId]
+      ) {
+        continue;
+      }
+
+      seen.add(evidenceId);
+      orderedIds.push(evidenceId);
+    }
+
+    return orderedIds.map(
+      (evidenceId) =>
+        evidenceById[evidenceId]
+    );
+  }
+
   get riskMatrixCells():
     MatrixCell[] {
     const items =
@@ -521,6 +576,13 @@ export class RiskAnalysis
     analysis: RiskAnalysisSummary
   ): string {
     return analysis.id;
+  }
+
+  trackEvidence(
+    _index: number,
+    evidence: EvidenceItem
+  ): string {
+    return evidence.id;
   }
 
   private loadAnalysisHistory(
