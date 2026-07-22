@@ -2024,18 +2024,57 @@ def build_evidence(
             key=lambda item: item[0],
         )
 
+        scenario_name = str(
+            worst_row.get("scenario_name")
+            or worst_row.get("scenario_type")
+            or "highest-impact scenario"
+        ).replace("_", " ")
+        scenario_type = str(
+            worst_row.get("scenario_type")
+            or ""
+        ).replace("_", " ")
+        horizon = str(
+            worst_row.get("horizon")
+            or worst_row.get("time_horizon")
+            or ""
+        ).replace("_", " ")
+
+        scenario_parts = [
+            scenario_name
+        ]
+
+        if (
+            scenario_type
+            and scenario_type.casefold()
+            != scenario_name.casefold()
+        ):
+            scenario_parts.append(
+                f"({scenario_type})"
+            )
+
+        if horizon:
+            scenario_parts.append(
+                f"— {horizon}"
+            )
+
+        scenario_description = " ".join(
+            scenario_parts
+        )
+
         add(
             "scenario_impact",
             "Highest scenario impact",
             (
                 f"€{worst_value:,.1f}M under "
-                f"{worst_row.get('scenario_type') or worst_row.get('scenario_name') or 'the highest-impact scenario'}"
+                f"{scenario_description}"
             ),
             "climate_scenarios",
             "IFRS S2 climate resilience",
             (
                 "Highest available revenue-at-risk "
-                "or financial-impact estimate."
+                "or financial-impact estimate, with "
+                "the scenario name, type, and horizon "
+                "retained for interpretation."
             ),
         )
 

@@ -566,6 +566,7 @@
 }
 
 .assessment-body {
+  max-width: 92ch;
   margin: 0;
   color: #d9dde1;
   font-size: 14px;
@@ -1192,4 +1193,3 @@ td.warn-cell {
     grid-template-columns: 24px 1fr;
   }
 }
-  
