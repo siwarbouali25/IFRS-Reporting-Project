@@ -188,7 +188,7 @@
       </p>
     </article>
 
-    <article class="panel">
+    <article class="panel data-quality-panel">
       <div class="panel-header">
         <div>
           <h3>Emissions data quality</h3>
@@ -196,13 +196,21 @@
         </div>
       </div>
 
-      <div class="donut-wrap">
+      <div class="donut-wrap" *ngIf="hasDataQualityData; else dataQualityEmpty">
         <p-chart
           type="doughnut"
           [data]="dataQualityData"
           [options]="doughnutOptions">
         </p-chart>
       </div>
+
+      <ng-template #dataQualityEmpty>
+        <div class="chart-empty chart-empty--donut">
+          <i class="pi pi-chart-pie"></i>
+          <strong>No data-quality distribution</strong>
+          <span>The selected payload does not contain usable emissions data-quality values.</span>
+        </div>
+      </ng-template>
 
       <p class="panel-note">
         A higher share of estimated or proxy data increases review attention.
@@ -244,26 +252,34 @@
       </p>
     </article>
 
-    <article class="panel">
+    <article class="panel scenario-panel">
       <div class="panel-header">
         <div>
           <h3>Scenario analysis</h3>
-          <p>Physical and transition risk loss by horizon.</p>
+          <p>Average physical and transition risk loss by horizon.</p>
         </div>
 
         <span class="quiet-badge">%</span>
       </div>
 
-      <div class="chart-wrap">
+      <div class="chart-wrap scenario-chart-wrap" *ngIf="hasScenarioData; else scenarioEmpty">
         <p-chart
           type="bar"
           [data]="scenarioData"
-          [options]="percentBarOptions">
+          [options]="scenarioOptions">
         </p-chart>
       </div>
 
+      <ng-template #scenarioEmpty>
+        <div class="chart-empty">
+          <i class="pi pi-chart-bar"></i>
+          <strong>No scenario values available</strong>
+          <span>The selected payload does not contain usable physical or transition loss percentages.</span>
+        </div>
+      </ng-template>
+
       <p class="panel-note">
-        Scenario outputs show the relative materiality of physical and transition risk.
+        Values are averaged across the available scenarios for each time horizon.
       </p>
     </article>
 

@@ -58,23 +58,23 @@ export class DashboardComponent implements OnInit {
 
 private readonly palette = [
   'rgba(200, 223, 48, 0.82)',
-  'rgba(79, 143, 191, 0.70)',
+  'rgba(77, 159, 255, 0.72)',
   'rgba(168, 201, 62, 0.62)',
   'rgba(138, 146, 155, 0.55)',
   'rgba(201, 162, 78, 0.65)',
   'rgba(217, 112, 112, 0.62)',
-  'rgba(79, 143, 191, 0.46)',
+  'rgba(77, 159, 255, 0.48)',
   'rgba(200, 223, 48, 0.48)',
 ];
 
 private readonly borderPalette = [
   '#c8df30',
-  '#4f8fbf',
+  '#4d9fff',
   '#a8c93e',
   '#8a929b',
   '#c9a24e',
   '#d97070',
-  '#4f8fbf',
+  '#4d9fff',
   '#c8df30',
 ];
 
@@ -232,16 +232,22 @@ private readonly borderPalette = [
     },
   };
 
-  percentBarOptions: any = {
+  scenarioOptions: any = {
     responsive: true,
     maintainAspectRatio: false,
+    interaction: {
+      mode: 'index',
+      intersect: false,
+    },
     plugins: {
       legend: {
+        position: 'top',
         labels: {
           color: '#8a929b',
           boxWidth: 10,
           boxHeight: 10,
           usePointStyle: true,
+          padding: 18,
         },
       },
       tooltip: this.tooltipOptions('%'),
@@ -254,6 +260,8 @@ private readonly borderPalette = [
         },
       },
       y: {
+        beginAtZero: true,
+        suggestedMax: 25,
         ...this.axisStyle,
         ticks: {
           ...this.axisStyle.ticks,
@@ -266,7 +274,16 @@ private readonly borderPalette = [
   doughnutOptions: any = {
     responsive: true,
     maintainAspectRatio: false,
-    cutout: '68%',
+    cutout: '56%',
+    radius: '92%',
+    layout: {
+      padding: {
+        top: 4,
+        right: 12,
+        bottom: 4,
+        left: 12,
+      },
+    },
     plugins: {
       legend: {
         position: 'bottom',
@@ -275,7 +292,7 @@ private readonly borderPalette = [
           boxWidth: 10,
           boxHeight: 10,
           usePointStyle: true,
-          padding: 14,
+          padding: 16,
         },
       },
       tooltip: this.tooltipOptions('%'),
@@ -517,6 +534,37 @@ private readonly borderPalette = [
     this.countryExposureData = { labels: [], datasets: [] };
     this.opportunitiesData = { labels: [], datasets: [] };
     this.investmentEmissionsData = { labels: [], datasets: [] };
+  }
+
+  get hasScenarioData(): boolean {
+    return this.hasChartValues(this.scenarioData);
+  }
+
+  get hasDataQualityData(): boolean {
+    return this.hasChartValues(this.dataQualityData);
+  }
+
+  private hasChartValues(chart: any): boolean {
+    const labels = Array.isArray(chart?.labels)
+      ? chart.labels
+      : [];
+    const datasets = Array.isArray(chart?.datasets)
+      ? chart.datasets
+      : [];
+
+    return (
+      labels.length > 0 &&
+      datasets.some((dataset: any) =>
+        Array.isArray(dataset?.data) &&
+        dataset.data.some((value: unknown) => {
+          if (value === null || value === undefined || value === '') {
+            return false;
+          }
+
+          return !Number.isNaN(Number(value));
+        })
+      )
+    );
   }
 
   formatScore(value: number | null | undefined): string {

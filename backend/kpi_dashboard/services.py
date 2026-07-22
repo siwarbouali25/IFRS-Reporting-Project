@@ -228,6 +228,7 @@ def get_record_year(
         "invoice_year",
         "target_year",
         "scenario_year",
+        "analysis_conducted_year",
         "assessment_year",
     ]:
         value = to_float(row.get(field))
@@ -987,8 +988,68 @@ def build_scope3_categories_chart(
 
 def build_data_quality_chart(
     *,
+    payload: Dict[str, Any],
     financed_records: List[Dict[str, Any]],
 ) -> Dict[str, Any]:
+    """Build the financed-emissions data-quality distribution.
+
+    Prefer the prepared aggregate in
+    ``reporting_kpis.emissions_data_quality_summary`` because it represents
+    the intended percentage split. When that summary is unavailable, fall
+    back to counting source/calculation categories on the financed-emissions
+    records.
+    """
+
+    reporting_kpis = payload.get("reporting_kpis", {})
+    summary = (
+        reporting_kpis.get("emissions_data_quality_summary", {})
+        if isinstance(reporting_kpis, dict)
+        else {}
+    )
+
+    if isinstance(summary, dict):
+        label_overrides = {
+            "audited_report": "Audited report",
+            "cdp_disclosure": "CDP disclosure",
+            "estimated_economic": "Estimated economic",
+            "estimated_physical": "Estimated physical",
+            "proxy_model": "Proxy model",
+            "reported": "Reported",
+        }
+
+        rows = []
+        for key, raw_value in summary.items():
+            value = to_float(raw_value)
+            if value is None or value < 0:
+                continue
+
+            label = label_overrides.get(
+                str(key),
+                str(key).replace("_", " ").strip().title(),
+            )
+            rows.append((label, value))
+
+        if rows:
+            total = sum(value for _, value in rows)
+
+            # Some sources express shares as fractions that sum to roughly 1.
+            # Convert those to percentages while preserving already-percent
+            # summaries such as 0.7 + 35.5 + 47.5 + 16.3 = 100.
+            multiplier = 100 if total <= 1.01 else 1
+
+            return {
+                "labels": [label for label, _ in rows],
+                "datasets": [
+                    {
+                        "label": "%",
+                        "data": [
+                            round(value * multiplier, 2)
+                            for _, value in rows
+                        ],
+                    }
+                ],
+            }
+
     return group_count_percentage(
         financed_records,
         [
@@ -1007,57 +1068,139 @@ def build_data_quality_chart(
 def build_scenario_analysis_chart(
     *,
     scenario_records: List[Dict[str, Any]],
+    reporting_year: Optional[int] = None,
 ) -> Dict[str, Any]:
-    horizons = []
-    transition_values = []
-    physical_values = []
+    """Aggregate physical and transition losses by time horizon.
+
+    The prepared BANK payload uses
+    ``*_risk_loss_pct_capital`` and ``analysis_conducted_year``. Older
+    payloads used shorter field names, so both formats remain supported.
+    Multiple scenarios for the same horizon are averaged to avoid duplicate
+    x-axis labels and to provide a readable horizon-level comparison.
+    """
+
+    horizon_order = {
+        "short_term": 0,
+        "medium_term": 1,
+        "long_term": 2,
+    }
+    horizon_labels = {
+        "short_term": "Short term",
+        "medium_term": "Medium term",
+        "long_term": "Long term",
+    }
+
+    grouped: Dict[str, Dict[str, List[float]]] = {}
+
+    def first_numeric(row: Dict[str, Any], fields: List[str]) -> Optional[float]:
+        for field in fields:
+            value = to_float(row.get(field))
+            if value is not None:
+                return value
+        return None
 
     for row in scenario_records:
-        label = get_text_value(
+        row_year = get_record_year(row)
+
+        if (
+            reporting_year is not None
+            and row_year is not None
+            and row_year != reporting_year
+        ):
+            continue
+
+        raw_horizon = get_text_value(
             row,
             [
                 "horizon",
                 "time_horizon",
                 "scenario_horizon",
                 "period",
-                "scenario_name",
             ],
-            default="Scenario",
+            default="",
+        )
+        horizon_key = raw_horizon.strip().lower().replace(" ", "_")
+
+        if not horizon_key:
+            horizon_year = to_float(row.get("horizon_year"))
+            horizon_key = (
+                str(int(horizon_year))
+                if horizon_year is not None
+                else "scenario"
+            )
+
+        transition = first_numeric(
+            row,
+            [
+                "transition_risk_loss_pct_capital",
+                "transition_loss_pct",
+                "transition_risk_loss_pct",
+                "transition_impact_pct",
+                "transition_var_pct",
+            ],
+        )
+        physical = first_numeric(
+            row,
+            [
+                "physical_risk_loss_pct_capital",
+                "physical_loss_pct",
+                "physical_risk_loss_pct",
+                "physical_impact_pct",
+                "physical_var_pct",
+            ],
         )
 
-        transition = (
-            to_float(row.get("transition_loss_pct"))
-            or to_float(row.get("transition_risk_loss_pct"))
-            or to_float(row.get("transition_impact_pct"))
-            or to_float(row.get("transition_var_pct"))
-            or 0
-        )
-
-        physical = (
-            to_float(row.get("physical_loss_pct"))
-            or to_float(row.get("physical_risk_loss_pct"))
-            or to_float(row.get("physical_impact_pct"))
-            or to_float(row.get("physical_var_pct"))
-            or 0
-        )
-
-        if transition == 0 and physical == 0:
+        if transition is None and physical is None:
             continue
 
-        horizons.append(label)
-        transition_values.append(round(transition, 4))
-        physical_values.append(round(physical, 4))
+        bucket = grouped.setdefault(
+            horizon_key,
+            {"transition": [], "physical": []},
+        )
+
+        if transition is not None:
+            bucket["transition"].append(transition)
+
+        if physical is not None:
+            bucket["physical"].append(physical)
+
+    ordered_horizons = sorted(
+        grouped,
+        key=lambda key: (
+            horizon_order.get(key, 99),
+            key,
+        ),
+    )
+
+    def average(values: List[float]) -> Optional[float]:
+        if not values:
+            return None
+        return round(sum(values) / len(values), 2)
 
     return {
-        "labels": horizons,
+        "labels": [
+            horizon_labels.get(
+                horizon,
+                horizon.replace("_", " ").title(),
+            )
+            for horizon in ordered_horizons
+        ],
         "datasets": [
             {
                 "label": "Transition risk",
-                "data": transition_values,
+                "data": [
+                    average(grouped[horizon]["transition"])
+                    for horizon in ordered_horizons
+                ],
+                "unit": "%",
             },
             {
                 "label": "Physical risk",
-                "data": physical_values,
+                "data": [
+                    average(grouped[horizon]["physical"])
+                    for horizon in ordered_horizons
+                ],
+                "unit": "%",
             },
         ],
     }
@@ -1671,10 +1814,12 @@ def build_dashboard_charts(
             travel_emissions_tco2e=travel_emissions_tco2e,
         ),
         "data_quality": build_data_quality_chart(
+            payload=payload,
             financed_records=financed_records,
         ),
         "scenario_analysis": build_scenario_analysis_chart(
             scenario_records=scenario_records,
+            reporting_year=reporting_year,
         ),
         "physical_risk_by_hazard": build_physical_risk_by_hazard_chart(
             physical_risk_exposures=physical_risk_exposures,
