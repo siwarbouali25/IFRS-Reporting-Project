@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChartModule } from 'primeng/chart';
-import { finalize } from 'rxjs';
+import { catchError, finalize, Observable, switchMap, throwError } from 'rxjs';
 
 import {
   BasicChartData,
@@ -13,6 +13,10 @@ import {
   MiniKpi,
   RiskMatrixCell,
 } from '../../core/services/kpi-dashboard';
+import {
+  DataPreparation,
+  DataUploadBatch,
+} from '../../core/services/data-preparation';
 
 @Component({
   selector: 'app-dashboard',
@@ -22,8 +26,9 @@ import {
 })
 export class DashboardComponent implements OnInit {
   private readonly kpiDashboardService = inject(KpiDashboardService);
+  private readonly dataPreparation = inject(DataPreparation);
 
-  batchId = 'a0a4d84f-6e3a-4905-b249-9acec68b1993';
+  batchId = '';
   bankId = 'BANK01';
   reportingYear = 2024;
 
@@ -278,29 +283,240 @@ private readonly borderPalette = [
   };
 
   ngOnInit(): void {
+    this.restoreDashboardContext();
     this.loadDashboard();
   }
 
   loadDashboard(): void {
+    if (this.loading) {
+      return;
+    }
+
     this.loading = true;
     this.errorMessage = '';
 
-    this.kpiDashboardService
-      .getDashboard(this.batchId, this.bankId, this.reportingYear)
+    this.resolveDashboard()
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: (response) => {
-          this.dashboard = response;
-          this.bindCharts(response.charts);
+          this.applyDashboardResponse(response);
         },
         error: (error) => {
+          console.error('Unable to load KPI dashboard:', error);
+
+          this.resetDashboardData();
           this.errorMessage =
             error?.error?.detail ||
             error?.error?.message ||
             error?.message ||
-            'Unable to load KPI dashboard.';
+            'No ready data-preparation batch with a valid KPI payload is available.';
         },
       });
+  }
+
+  private resolveDashboard(): Observable<KpiDashboardResponse> {
+    const storedBatchId = localStorage.getItem(
+      'activeDataPreparationBatchId'
+    );
+
+    if (!storedBatchId) {
+      return this.loadLatestReadyDashboard();
+    }
+
+    /*
+     * Validate the cached UUID against Django before using it in the KPI URL.
+     * This prevents an obsolete localStorage value from reaching the dashboard
+     * endpoint and causing a server error.
+     */
+    return this.dataPreparation.getBatch(storedBatchId).pipe(
+      switchMap((batch) => {
+        if (batch.status?.toLowerCase() !== 'ready') {
+          return throwError(() => ({
+            status: 409,
+            error: {
+              detail: 'The stored data-preparation batch is not ready.',
+            },
+          }));
+        }
+
+        return this.kpiDashboardService.getDashboard(
+          batch.id,
+          this.bankId,
+          this.reportingYear
+        );
+      }),
+      catchError((error) => {
+        if (this.isAuthenticationError(error)) {
+          return throwError(() => error);
+        }
+
+        this.clearStoredPreparationContext();
+
+        return this.loadLatestReadyDashboard(storedBatchId);
+      })
+    );
+  }
+
+  private loadLatestReadyDashboard(
+    excludedBatchId?: string
+  ): Observable<KpiDashboardResponse> {
+    return this.dataPreparation.listBatches().pipe(
+      switchMap((batches) => {
+        const candidates = [...(batches || [])]
+          .filter(
+            (batch) =>
+              batch.status?.toLowerCase() === 'ready' &&
+              batch.id !== excludedBatchId
+          )
+          .sort(
+            (left, right) =>
+              this.batchTimestamp(right) -
+              this.batchTimestamp(left)
+          );
+
+        if (candidates.length === 0) {
+          return throwError(() => ({
+            status: 404,
+            error: {
+              detail:
+                'No ready data-preparation batch is available for the KPI dashboard.',
+            },
+          }));
+        }
+
+        return this.tryDashboardCandidates(candidates);
+      })
+    );
+  }
+
+  private tryDashboardCandidates(
+    candidates: DataUploadBatch[],
+    index = 0
+  ): Observable<KpiDashboardResponse> {
+    if (index >= candidates.length) {
+      return throwError(() => ({
+        status: 404,
+        error: {
+          detail:
+            `No ready batch contains a valid ${this.bankId} KPI payload for ${this.reportingYear}.`,
+        },
+      }));
+    }
+
+    const candidate = candidates[index];
+
+    return this.kpiDashboardService
+      .getDashboard(
+        candidate.id,
+        this.bankId,
+        this.reportingYear
+      )
+      .pipe(
+        catchError((error) => {
+          if (this.isAuthenticationError(error)) {
+            return throwError(() => error);
+          }
+
+          return this.tryDashboardCandidates(
+            candidates,
+            index + 1
+          );
+        })
+      );
+  }
+
+  private restoreDashboardContext(): void {
+    const storedBankId = localStorage.getItem(
+      'activeReportBankCode'
+    );
+    const storedReportingYear = Number(
+      localStorage.getItem('activeReportingYear')
+    );
+
+    if (storedBankId?.trim()) {
+      this.bankId = storedBankId.trim().toUpperCase();
+    }
+
+    if (
+      Number.isInteger(storedReportingYear) &&
+      storedReportingYear > 0
+    ) {
+      this.reportingYear = storedReportingYear;
+    }
+  }
+
+  private applyDashboardResponse(
+    response: KpiDashboardResponse
+  ): void {
+    this.dashboard = response;
+    this.batchId = response.batch_id;
+    this.bankId = response.bank_id;
+    this.reportingYear = response.reporting_year;
+
+    this.persistValidatedDashboardContext(response);
+    this.bindCharts(response.charts);
+  }
+
+  private persistValidatedDashboardContext(
+    response: KpiDashboardResponse
+  ): void {
+    localStorage.setItem(
+      'activeDataPreparationBatchId',
+      response.batch_id
+    );
+    localStorage.setItem(
+      'activeReportBankCode',
+      response.bank_id
+    );
+    localStorage.setItem(
+      'activeReportingYear',
+      String(response.reporting_year)
+    );
+  }
+
+  private clearStoredPreparationContext(): void {
+    localStorage.removeItem(
+      'activeDataPreparationBatchId'
+    );
+    localStorage.removeItem(
+      'activePayloadManifestId'
+    );
+    localStorage.removeItem(
+      'activePayloadManifestVersion'
+    );
+  }
+
+  private batchTimestamp(batch: DataUploadBatch): number {
+    const value = batch.created_at || batch.updated_at;
+    const timestamp = value ? Date.parse(value) : 0;
+
+    return Number.isNaN(timestamp) ? 0 : timestamp;
+  }
+
+  private isAuthenticationError(error: any): boolean {
+    return error?.status === 401 || error?.status === 403;
+  }
+
+  private resetDashboardData(): void {
+    this.dashboard = null;
+    this.batchId = '';
+    this.miniKpis = [];
+    this.riskMatrixCells = [];
+    this.governanceTiles = [];
+    this.methodologyNotes = [];
+    this.footprintFinancedPct = '—';
+    this.footprintOperationsPct = '—';
+    this.footprintOperations = '—';
+
+    this.operationsTrendData = { labels: [], datasets: [] };
+    this.financedTrendData = { labels: [], datasets: [] };
+    this.scope3CategoryData = { labels: [], datasets: [] };
+    this.dataQualityData = { labels: [], datasets: [] };
+    this.scenarioData = { labels: [], datasets: [] };
+    this.physicalHazardData = { labels: [], datasets: [] };
+    this.countryExposureData = { labels: [], datasets: [] };
+    this.opportunitiesData = { labels: [], datasets: [] };
+    this.investmentEmissionsData = { labels: [], datasets: [] };
   }
 
   formatScore(value: number | null | undefined): string {

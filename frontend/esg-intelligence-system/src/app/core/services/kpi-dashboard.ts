@@ -121,7 +121,7 @@ export interface KpiDashboardResponse {
 export class KpiDashboardService {
   private readonly http = inject(HttpClient);
 
-  private readonly baseUrl = 'http://127.0.0.1:8000/api/kpi-dashboard/batches';
+  private readonly baseUrl = 'http://127.0.0.1:8000/api/kpi-dashboard';
 
   getDashboard(
     batchId: string,
@@ -133,7 +133,7 @@ export class KpiDashboardService {
       .set('reporting_year', String(reportingYear));
 
     return this.http.get<KpiDashboardResponse>(
-      `${this.baseUrl}/${batchId}/`,
+      `${this.baseUrl}/batches/${batchId}/`,
       { params }
     );
   }
