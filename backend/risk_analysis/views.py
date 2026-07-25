@@ -1,4 +1,5 @@
 import logging
+import re
 
 from django.http import Http404
 from rest_framework import (
@@ -55,6 +56,54 @@ def _analysis_queryset_for_user(user):
     return queryset.filter(
         uploaded_by=user
     )
+
+
+EVIDENCE_MARKER_PATTERN = re.compile(
+    r"\[(E\d+)\]"
+)
+
+
+def _cited_evidence(
+    assessment_text: str,
+    evidence: list[dict],
+) -> list[dict]:
+    """
+    Store only evidence cited by the assessment, preserving first-use order.
+    """
+    evidence_by_id = {
+        str(item.get("id")): item
+        for item in evidence
+        if (
+            isinstance(item, dict)
+            and item.get("id")
+        )
+    }
+    ordered: list[dict] = []
+    seen: set[str] = set()
+
+    for evidence_id in (
+        EVIDENCE_MARKER_PATTERN.findall(
+            assessment_text or ""
+        )
+    ):
+        if evidence_id in seen:
+            continue
+
+        item = evidence_by_id.get(
+            evidence_id
+        )
+
+        if item is None:
+            continue
+
+        seen.add(
+            evidence_id
+        )
+        ordered.append(
+            item
+        )
+
+    return ordered
 
 
 class RiskAnalysisUploadView(APIView):
@@ -431,24 +480,19 @@ class AssessmentGenerateView(APIView):
             analysis.processed
         )
 
-        assessment_text = result[
-            "assessment"
-        ]
-        cited_evidence = (
-            llm.select_cited_evidence(
-                assessment_text,
-                analysis.processed.get(
-                    "evidence",
-                    [],
-                ),
-            )
+        cited_evidence = _cited_evidence(
+            result["assessment"],
+            analysis.processed.get(
+                "evidence",
+                [],
+            ),
         )
 
         record = (
             AssessmentResult.objects.create(
                 analysis=analysis,
                 assessment_text=(
-                    assessment_text
+                    result["assessment"]
                 ),
                 recommendations=(
                     result[
@@ -456,9 +500,7 @@ class AssessmentGenerateView(APIView):
                     ]
                 ),
                 avoid=result["avoid"],
-                evidence=(
-                    cited_evidence
-                ),
+                evidence=cited_evidence,
                 model_used=(
                     result["model_used"]
                 ),

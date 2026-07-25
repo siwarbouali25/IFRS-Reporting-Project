@@ -329,7 +329,7 @@
                 assessmentLoading
                   ? 'Generating...'
                   : assessment?.is_fallback
-                    ? 'Deterministic · evidence-linked'
+                    ? 'Evidence-based offline draft'
                     : 'AI-generated · evidence-linked'
               }}
             </span>
@@ -443,30 +443,20 @@
         <div
           class="evidence-strip"
           *ngIf="citedEvidence.length > 0"
+          aria-label="Evidence cited in this assessment"
         >
-          <span class="evidence-strip-label">
-            Cited evidence
-          </span>
-
-          <button
+          <span
             class="evidence-chip"
-            type="button"
             *ngFor="
-              let evidence of citedEvidence;
-              trackBy: trackEvidence
+              let evidence of citedEvidence
             "
             [class.active]="
               hoveredEvidenceId === evidence.id
             "
             [attr.title]="
-              evidence.label +
-              ': ' +
-              evidence.value
-            "
-            [attr.aria-label]="
-              evidence.id +
-              ', ' +
-              evidence.label
+              evidence.value +
+              ' · ' +
+              evidence.source
             "
             (mouseenter)="
               hoveredEvidenceId =
@@ -475,22 +465,12 @@
             (mouseleave)="
               hoveredEvidenceId = null
             "
-            (focus)="
-              hoveredEvidenceId =
-                evidence.id
-            "
-            (blur)="
-              hoveredEvidenceId = null
-            "
           >
-            <strong>
-              {{ evidence.id }}
-            </strong>
-
-            <span>
+            <strong>{{ evidence.id }}</strong>
+            <span class="evidence-chip-label">
               {{ evidence.label }}
             </span>
-          </button>
+          </span>
         </div>
       </article>
 

@@ -1,9 +1,11 @@
 """
 Evidence-linked risk assessment generation.
 
-The deterministic evidence catalogue is the only factual context sent to
-the model. Any malformed response, unknown citation, uncited sentence, or
-network/configuration error falls back to a deterministic narrative.
+The deterministic evidence catalogue is the only factual context sent to the
+model. Live model responses are accepted only when they are complete,
+well-structured, evidence-linked, and analytically useful. Any configuration,
+network, formatting, citation, or quality failure uses a deterministic
+executive assessment built from the same evidence catalogue.
 """
 
 from __future__ import annotations
@@ -29,42 +31,33 @@ DEFAULT_MODEL = (
 MARKER_PATTERN = re.compile(
     r"\[(E\d+)\]"
 )
+SENTENCE_SPLIT_PATTERN = re.compile(
+    r"(?<=[.!?])\s+"
+)
+VAGUE_TERM_PATTERN = re.compile(
+    r"\b(substantial|notable|considerable)\b",
+    flags=re.IGNORECASE,
+)
+GENERIC_CONCLUSION_PATTERN = re.compile(
+    (
+        r"\bprioriti[sz]e climate-risk mitigation "
+        r"and adaptation strategies\b"
+    ),
+    flags=re.IGNORECASE,
+)
 
-
-def select_cited_evidence(
-    assessment: str,
-    evidence: list[dict],
-) -> list[dict]:
-    """
-    Return only evidence referenced by the assessment, preserving the
-    first-citation order and removing duplicate markers.
-    """
-    evidence_by_id = {
-        str(item.get("id")): item
-        for item in evidence
-        if isinstance(item, dict)
-        and item.get("id")
-    }
-
-    ordered_ids: list[str] = []
-    seen: set[str] = set()
-
-    for evidence_id in MARKER_PATTERN.findall(
-        assessment or ""
-    ):
-        if (
-            evidence_id in seen
-            or evidence_id not in evidence_by_id
-        ):
-            continue
-
-        seen.add(evidence_id)
-        ordered_ids.append(evidence_id)
-
-    return [
-        evidence_by_id[evidence_id]
-        for evidence_id in ordered_ids
-    ]
+CORE_EVIDENCE_KEYS = {
+    "carbon_intensity",
+    "financed_emissions",
+    "risk_register",
+    "physical_hazard",
+    "scenario_impact",
+}
+LIMITATION_EVIDENCE_KEYS = {
+    "equity_proxy",
+    "schedule_proxy",
+    "modeled_data",
+}
 
 
 def _setting(
@@ -93,7 +86,7 @@ def _provider_config() -> tuple[
 ]:
     """
     Prefer generic RISK_LLM_* settings so the project can use the same
-    approved Azure/OpenAI-compatible infrastructure as Report Generation.
+    approved OpenAI-compatible infrastructure as Report Generation.
 
     NVIDIA settings remain a backwards-compatible fallback.
     """
@@ -129,9 +122,10 @@ def _build_prompt(
     evidence_lines = "\n".join(
         (
             f"{item['id']} | "
-            f"{item['label']} | "
+            f"key={item.get('key', '')} | "
+            f"label={item['label']} | "
             f"value={item['value']} | "
-            f"meaning={item.get('detail', '')} | "
+            f"detail={item.get('detail', '')} | "
             f"source={item['source']} | "
             f"reference={item['ifrs']}"
         )
@@ -144,18 +138,18 @@ def _build_prompt(
     )
 
     return f"""
-You are producing an executive climate-risk assessment for an internal audit
-and review platform. The audience is an audit, risk, and sustainability team.
+You are producing an internal executive climate-risk assessment for an audit
+and review platform.
 
 Institution: {bank.get("bank_name", "Reporting institution")}
 Reporting year: {metadata.get("reporting_year", "not specified")}
 
-Use ONLY the evidence catalogue below. Do not introduce an external
-benchmark, peer comparison, unsupported methodology, invented cause, or
-uncited factual claim. You may make a simple arithmetic comparison only when
-it can be calculated directly from the cited evidence.
+Use ONLY the evidence catalogue below. Do not add a number, percentage, year,
+methodology, benchmark, entity, causal claim, materiality threshold, or
+conclusion that is absent from or cannot be directly derived from the
+catalogue.
 
-EVIDENCE:
+EVIDENCE CATALOGUE:
 {evidence_lines}
 
 Allowed evidence ids: {allowed_ids}
@@ -164,45 +158,48 @@ Return one JSON object only, with exactly these keys:
 {{
   "assessment": "one coherent executive assessment",
   "recommendations": [
-    {{"title": "short action", "detail": "one evidence-grounded action sentence"}}
+    {{"title": "short action", "detail": "one concise action sentence"}}
   ],
   "avoid": [
-    {{"title": "short warning", "detail": "one evidence-grounded warning sentence"}}
+    {{"title": "short warning", "detail": "one concise warning sentence"}}
   ]
 }}
 
 Assessment requirements:
 1. Write 4-6 complete sentences and approximately 120-190 words.
-2. Write a connected analytical narrative, not one isolated sentence per KPI.
-3. Start with an overall conclusion about the institution's climate-risk
-   profile using the strongest available evidence.
-4. Combine related evidence where useful, especially transition exposure,
-   risk-register severity, physical-risk concentration, scenario impact, and
-   measurement uncertainty.
-5. Explain the risk-management significance of the evidence without using
-   external thresholds or unsupported assumptions.
-6. Prioritise the most decision-relevant findings; do not attempt to mention
-   every evidence item.
-7. Where proxy, estimated, or schedule-based information exists, include one
-   concise limitation statement.
-8. End with the principal management implication supported by the evidence.
-9. Every sentence must contain at least one allowed evidence marker. Put the
-   marker immediately after the supported clause and before final punctuation,
-   for example: "...is concentrated in flood exposure [E4]."
-10. Avoid repetitive openings such as "Carbon intensity is", "Financed
-    emissions total", and "The risk register contains".
-11. Use professional, neutral audit and risk-management language. Do not use
-    promotional, dramatic, or alarmist wording.
-
-Action requirements:
-12. Return 3-5 recommendations and 3-5 avoid items.
-13. Recommendations must respond to the evidence and must not claim that an
-    action has already been implemented.
-14. Avoid items must highlight interpretation, traceability, measurement, or
-    disclosure risks supported by the catalogue.
-15. Do not mention synthetic peers, invented benchmarks, or unsupported
-    sensitivity bands.
-16. Do not wrap the JSON in markdown.
+2. Start with an overall evidence-based conclusion about the institution's
+   climate-risk profile.
+3. Do not write one isolated sentence for every evidence item. Combine related
+   evidence into analytical statements.
+4. Cover, when available:
+   - transition exposure and target position;
+   - financed emissions;
+   - risk-register severity;
+   - the quantified largest physical-risk concentration;
+   - the named scenario, horizon, and quantified financial impact;
+   - at least one measurement or target-progress limitation.
+5. Interpret the evidence objectively. Prefer formulations such as:
+   - "far above the stated target";
+   - "all identified risks are high or critical";
+   - "the largest concentration is...";
+   Avoid unsupported adjectives such as "substantial", "notable", or
+   "considerable".
+6. Preserve useful quantities from the evidence. Do not replace a quantified
+   physical-risk or scenario finding with a vague description.
+7. End with a specific management implication connected to the cited
+   transition, physical-risk, scenario, or measurement evidence. Do not use a
+   generic conclusion such as "prioritise mitigation and adaptation
+   strategies".
+8. Every sentence must contain at least one evidence marker.
+9. Put each marker immediately after the supported clause and before
+   punctuation, for example: "across 30 exposure rows [E4]."
+10. Use only allowed evidence ids. Cite 5-8 distinct evidence items when that
+    many are available. Do not repeat the same marker twice in one sentence
+    unless it supports separate, non-adjacent clauses.
+11. Do not mention synthetic peers, invented benchmarks, unsupported
+    sensitivity bands, or data that is not present.
+12. Use 3-5 recommendations and 3-5 avoid items.
+13. Do not wrap the JSON in markdown.
 """.strip()
 
 
@@ -234,6 +231,35 @@ def _clean_json_text(
         )
 
     return value
+
+
+def _normalise_assessment_text(
+    text: str,
+) -> str:
+    """
+    Keep the model wording but normalise whitespace and citation punctuation.
+
+    Examples:
+      "value [E1] ." -> "value [E1]."
+      "value [E1] ," -> "value [E1],"
+    """
+    clean = re.sub(
+        r"\s+",
+        " ",
+        text.strip(),
+    )
+    clean = re.sub(
+        r"\[(E\d+)\]\s+([,.;:!?])",
+        r"[\1]\2",
+        clean,
+    )
+    clean = re.sub(
+        r"\s+([,.;:!?])",
+        r"\1",
+        clean,
+    )
+
+    return clean
 
 
 def _validate_actions(
@@ -282,6 +308,74 @@ def _validate_actions(
     return cleaned
 
 
+def _evidence_index(
+    bundle: dict,
+) -> tuple[
+    dict[str, dict],
+    dict[str, str],
+]:
+    by_id: dict[str, dict] = {}
+    id_by_key: dict[str, str] = {}
+
+    for item in bundle.get(
+        "evidence",
+        [],
+    ):
+        if not isinstance(item, dict):
+            continue
+
+        evidence_id = item.get("id")
+        key = item.get("key")
+
+        if isinstance(evidence_id, str):
+            by_id[evidence_id] = item
+
+            if isinstance(key, str):
+                id_by_key[key] = evidence_id
+
+    return by_id, id_by_key
+
+
+def _validate_required_coverage(
+    cited_ids: set[str],
+    id_by_key: dict[str, str],
+) -> None:
+    missing_core = [
+        key
+        for key in CORE_EVIDENCE_KEYS
+        if (
+            key in id_by_key
+            and id_by_key[key] not in cited_ids
+        )
+    ]
+
+    if missing_core:
+        raise ValueError(
+            "Assessment omitted core evidence: "
+            + ", ".join(
+                sorted(missing_core)
+            )
+        )
+
+    available_limitations = {
+        id_by_key[key]
+        for key in LIMITATION_EVIDENCE_KEYS
+        if key in id_by_key
+    }
+
+    if (
+        available_limitations
+        and not (
+            cited_ids
+            & available_limitations
+        )
+    ):
+        raise ValueError(
+            "Assessment omitted available measurement "
+            "or target-progress limitations."
+        )
+
+
 def _validate_assessment(
     parsed: dict,
     bundle: dict,
@@ -297,37 +391,49 @@ def _validate_assessment(
             "The response has an unexpected JSON shape."
         )
 
-    assessment = parsed.get(
+    raw_assessment = parsed.get(
         "assessment"
     )
 
     if not (
-        isinstance(assessment, str)
-        and assessment.strip()
+        isinstance(raw_assessment, str)
+        and raw_assessment.strip()
     ):
         raise ValueError(
             "Assessment text is missing."
         )
 
-    assessment = assessment.strip()
+    assessment = (
+        _normalise_assessment_text(
+            raw_assessment
+        )
+    )
 
-    if assessment[-1] not in ".!?":
+    if not assessment.endswith(
+        (
+            ".",
+            "!",
+            "?",
+        )
+    ):
         raise ValueError(
-            "Assessment appears incomplete or truncated."
+            "Assessment appears incomplete because "
+            "it has no terminal punctuation."
         )
 
-    evidence = bundle.get(
-        "evidence",
-        [],
+    evidence_by_id, id_by_key = (
+        _evidence_index(bundle)
     )
-    valid_ids = {
-        item["id"]
-        for item in evidence
-    }
-    cited_ids = set(
+    valid_ids = set(
+        evidence_by_id
+    )
+    cited_sequence = (
         MARKER_PATTERN.findall(
             assessment
         )
+    )
+    cited_ids = set(
+        cited_sequence
     )
 
     if not cited_ids:
@@ -347,13 +453,28 @@ def _validate_assessment(
             )
         )
 
-    # Every factual sentence must carry evidence. Splitting is deliberately
-    # conservative and ignores empty fragments.
+    minimum_distinct = min(
+        5,
+        len(valid_ids),
+    )
+
+    if len(cited_ids) < minimum_distinct:
+        raise ValueError(
+            "Assessment does not use enough distinct "
+            "evidence items."
+        )
+
+    _validate_required_coverage(
+        cited_ids,
+        id_by_key,
+    )
+
     sentences = [
         sentence.strip()
-        for sentence in re.split(
-            r"(?<=[.!?])\s+",
-            assessment.strip(),
+        for sentence in (
+            SENTENCE_SPLIT_PATTERN.split(
+                assessment
+            )
         )
         if sentence.strip()
     ]
@@ -365,15 +486,18 @@ def _validate_assessment(
 
     word_count = len(
         re.findall(
-            r"\b[\w€%./-]+\b",
-            assessment,
+            r"\b[\w€%₂/.-]+\b",
+            MARKER_PATTERN.sub(
+                "",
+                assessment,
+            ),
         )
     )
 
     if not 90 <= word_count <= 220:
         raise ValueError(
-            "Assessment must contain between "
-            "90 and 220 words."
+            "Assessment must contain approximately "
+            "90-220 words."
         )
 
     for sentence in sentences:
@@ -385,8 +509,45 @@ def _validate_assessment(
                 "contain an evidence citation."
             )
 
+        marker_ids = (
+            MARKER_PATTERN.findall(
+                sentence
+            )
+        )
+
+        if len(marker_ids) != len(
+            set(marker_ids)
+        ):
+            raise ValueError(
+                "The same evidence marker is repeated "
+                "within one sentence."
+            )
+
+    if VAGUE_TERM_PATTERN.search(
+        assessment
+    ):
+        raise ValueError(
+            "Assessment contains unsupported vague wording."
+        )
+
+    if GENERIC_CONCLUSION_PATTERN.search(
+        sentences[-1]
+    ):
+        raise ValueError(
+            "Assessment ends with a generic management "
+            "conclusion."
+        )
+
+    if not MARKER_PATTERN.search(
+        sentences[-1]
+    ):
+        raise ValueError(
+            "The final management implication requires "
+            "evidence."
+        )
+
     return {
-        "assessment": assessment.strip(),
+        "assessment": assessment,
         "recommendations": (
             _validate_actions(
                 parsed.get("recommendations"),
@@ -398,6 +559,22 @@ def _validate_assessment(
             "avoid",
         ),
     }
+
+
+def _finish_reason(
+    completion: Any,
+) -> str:
+    try:
+        return str(
+            completion.choices[0].finish_reason
+            or ""
+        ).lower()
+    except (
+        AttributeError,
+        IndexError,
+        TypeError,
+    ):
+        return ""
 
 
 def generate_assessment(
@@ -439,7 +616,9 @@ def generate_assessment(
                         "role": "system",
                         "content": (
                             "Return strict JSON only. "
-                            "Use only the supplied evidence."
+                            "Use only supplied evidence. "
+                            "Write a complete executive "
+                            "risk assessment."
                         ),
                     },
                     {
@@ -451,20 +630,22 @@ def generate_assessment(
                 ],
                 temperature=0.1,
                 top_p=0.7,
-                max_tokens=1200,
+                max_tokens=1500,
                 stream=False,
             )
         )
 
-        finish_reason = getattr(
-            completion.choices[0],
-            "finish_reason",
-            None,
+        finish_reason = (
+            _finish_reason(completion)
         )
 
-        if finish_reason == "length":
+        if finish_reason in {
+            "length",
+            "content_filter",
+        }:
             raise ValueError(
-                "The model response was truncated."
+                "The model response was incomplete "
+                f"(finish_reason={finish_reason})."
             )
 
         raw_text = (
@@ -490,12 +671,12 @@ def generate_assessment(
     except Exception:
         logger.exception(
             "Risk assessment generation failed; "
-            "using the deterministic fallback."
+            "using the deterministic executive fallback."
         )
         return _fallback(bundle)
 
 
-def _evidence_by_key(
+def _by_key(
     evidence: list[dict],
 ) -> dict[str, dict]:
     return {
@@ -509,79 +690,35 @@ def _evidence_by_key(
     }
 
 
-def _markers(
-    *items: dict | None,
+def _marker(
+    item: dict | None,
 ) -> str:
-    ordered_ids: list[str] = []
-    seen: set[str] = set()
+    if not item:
+        return ""
 
-    for item in items:
-        if not item:
-            continue
-
-        evidence_id = str(
-            item.get("id", "")
-        ).strip()
-
-        if (
-            not evidence_id
-            or evidence_id in seen
-        ):
-            continue
-
-        seen.add(evidence_id)
-        ordered_ids.append(
-            evidence_id
-        )
-
-    return "".join(
-        f"[{evidence_id}]"
-        for evidence_id in ordered_ids
-    )
+    return f"[{item['id']}]"
 
 
-def _supported_sentence(
+def _sentence(
     text: str,
     *items: dict | None,
 ) -> str:
-    markers = _markers(*items)
-    clean = text.strip().rstrip(".!?")
-
-    if not markers:
-        return f"{clean}."
-
-    return f"{clean} {markers}."
-
-
-def _generic_evidence_sentence(
-    item: dict,
-) -> str:
-    label = str(
-        item.get("label")
-        or "Risk indicator"
-    )
-    value = str(
-        item.get("value")
-        or "not available"
+    markers = " ".join(
+        _marker(item)
+        for item in items
+        if item
     )
 
-    return _supported_sentence(
-        (
-            f"The prepared information reports "
-            f"{label.lower()} as {value}"
-        ),
-        item,
+    return (
+        f"{text.rstrip('.')} {markers}."
+        if markers
+        else f"{text.rstrip('.')}."
     )
 
 
 def _fallback(
     bundle: dict,
 ) -> dict:
-    """
-    Produce a coherent executive assessment when live generation is not
-    available. The fallback remains deterministic and uses only the prepared
-    evidence catalogue.
-    """
     evidence = [
         item
         for item in bundle.get(
@@ -590,7 +727,7 @@ def _fallback(
         )
         if isinstance(item, dict)
     ]
-    by_key = _evidence_by_key(
+    by_key = _by_key(
         evidence
     )
 
@@ -612,370 +749,304 @@ def _fallback(
     fossil = by_key.get(
         "fossil_fuel_exposure"
     )
-    equity_proxy = by_key.get(
+    proxy = by_key.get(
         "equity_proxy"
     )
-    schedule_proxy = by_key.get(
+    schedule = by_key.get(
         "schedule_proxy"
     )
-    modeled_data = by_key.get(
+    modeled = by_key.get(
         "modeled_data"
     )
 
     sentences: list[str] = []
-    used_ids: set[str] = set()
-
-    def remember(
-        *items: dict | None,
-    ) -> None:
-        for item in items:
-            if item and item.get("id"):
-                used_ids.add(
-                    str(item["id"])
-                )
-
-    opening_items = [
-        item
-        for item in (
-            intensity,
-            financed,
-            fossil,
-        )
-        if item
-    ]
 
     if intensity and financed:
-        opening = (
-            "The available evidence indicates a material "
-            "transition-risk profile: lending-book carbon "
-            f"intensity is {intensity['value']}, while "
-            f"financed emissions are {financed['value']}"
-        )
-
-        if fossil:
-            opening += (
-                ", and fossil-fuel exposure is "
-                f"{fossil['value']}"
-            )
-
         sentences.append(
-            _supported_sentence(
-                opening,
-                *opening_items,
-            )
-        )
-        remember(*opening_items)
-    elif opening_items:
-        item = opening_items[0]
-        sentences.append(
-            _supported_sentence(
+            _sentence(
                 (
-                    "The available evidence indicates a "
-                    "material climate-risk profile, with "
-                    f"{item['label'].lower()} reported as "
-                    f"{item['value']}"
+                    "The available evidence indicates that "
+                    "the institution's climate-risk profile "
+                    "is led by transition exposure, with "
+                    f"lending-book carbon intensity of "
+                    f"{intensity['value']} and financed "
+                    f"emissions of {financed['value']}"
                 ),
-                item,
+                intensity,
+                financed,
             )
         )
-        remember(item)
+    elif intensity:
+        sentences.append(
+            _sentence(
+                (
+                    "The available evidence indicates that "
+                    "transition exposure is a central part "
+                    "of the institution's climate-risk "
+                    "profile, with lending-book carbon "
+                    f"intensity of {intensity['value']}"
+                ),
+                intensity,
+            )
+        )
+    elif financed:
+        sentences.append(
+            _sentence(
+                (
+                    "The available evidence indicates that "
+                    "transition exposure is a central part "
+                    "of the institution's climate-risk "
+                    "profile, with financed emissions of "
+                    f"{financed['value']}"
+                ),
+                financed,
+            )
+        )
 
     if register:
         sentences.append(
-            _supported_sentence(
+            _sentence(
                 (
                     "Risk severity is concentrated at the "
-                    "upper end of the assessment scale, with "
+                    "upper end of the assessment scale: "
                     f"{register['value']}"
                 ),
                 register,
             )
         )
-        remember(register)
 
     if physical:
         sentences.append(
-            _supported_sentence(
+            _sentence(
                 (
-                    "Physical-risk exposure is most "
-                    "concentrated in "
+                    "The largest quantified physical-risk "
+                    "concentration is "
                     f"{physical['value']}"
                 ),
                 physical,
             )
         )
-        remember(physical)
 
     if scenario:
         sentences.append(
-            _supported_sentence(
+            _sentence(
                 (
-                    "Scenario analysis indicates potentially "
-                    "material financial effects, with the "
-                    "highest available impact reported as "
+                    "Scenario analysis identifies the "
+                    "highest available financial impact as "
                     f"{scenario['value']}"
                 ),
                 scenario,
             )
         )
-        remember(scenario)
 
     limitation_parts: list[str] = []
     limitation_items: list[dict] = []
 
-    if modeled_data:
+    if proxy:
         limitation_parts.append(
-            str(modeled_data["value"])
+            (
+                "proxy-based equity-emissions "
+                f"measurement ({proxy['value']})"
+            )
         )
         limitation_items.append(
-            modeled_data
+            proxy
         )
 
-    if equity_proxy:
+    if schedule:
         limitation_parts.append(
-            str(equity_proxy["value"])
+            (
+                "target tracking based on elapsed "
+                f"schedule time ({schedule['value']})"
+            )
         )
         limitation_items.append(
-            equity_proxy
+            schedule
         )
 
-    if schedule_proxy:
+    if modeled:
         limitation_parts.append(
-            str(schedule_proxy["value"])
+            (
+                "estimated or proxy-based emissions data "
+                f"({modeled['value']})"
+            )
         )
         limitation_items.append(
-            schedule_proxy
+            modeled
         )
 
     if limitation_parts:
         sentences.append(
-            _supported_sentence(
+            _sentence(
                 (
                     "Interpretation should retain clear "
-                    "visibility over measurement and progress "
-                    "limitations, including "
+                    "visibility over "
                     + "; ".join(
-                        limitation_parts
+                        limitation_parts[:2]
                     )
                 ),
-                *limitation_items,
+                *limitation_items[:2],
             )
         )
-        remember(*limitation_items)
 
-    for item in evidence:
-        evidence_id = str(
-            item.get("id", "")
-        )
+    implication_items: list[dict] = []
+    implication_parts: list[str] = []
 
-        if (
-            len(sentences) >= 4
-            or evidence_id in used_ids
-        ):
-            continue
-
-        sentences.append(
-            _generic_evidence_sentence(
-                item
+    if fossil:
+        implication_parts.append(
+            (
+                "portfolio transition controls for "
+                f"{fossil['value']}"
             )
         )
-        remember(item)
-
-    implication_items = [
-        item
-        for item in (
-            register,
-            physical,
-            scenario,
-            intensity,
-            fossil,
+        implication_items.append(
+            fossil
         )
-        if item
-    ][:3]
 
-    if implication_items:
+    if physical:
+        implication_parts.append(
+            "controls for the largest physical-risk concentration"
+        )
+        implication_items.append(
+            physical
+        )
+
+    if scenario:
+        implication_parts.append(
+            "integration of scenario impacts into risk appetite and capital planning"
+        )
+        implication_items.append(
+            scenario
+        )
+
+    if implication_parts:
         sentences.append(
-            _supported_sentence(
+            _sentence(
                 (
-                    "Taken together, the evidence supports "
-                    "prioritising severe-risk ownership, "
-                    "transition-exposure reduction, and the "
-                    "integration of physical and scenario "
-                    "effects into risk appetite and ongoing "
-                    "monitoring"
+                    "The principal management implication "
+                    "is to assign accountable owners and "
+                    "monitoring thresholds to "
+                    + ", ".join(
+                        implication_parts
+                    )
+                    + ", and to connect those controls to "
+                    "decision processes"
                 ),
                 *implication_items,
             )
         )
 
-    assessment = " ".join(
-        sentences[:6]
-    )
+    if not sentences:
+        assessment = (
+            "The prepared information did not contain "
+            "enough supported evidence for a populated "
+            "risk narrative."
+        )
+    else:
+        assessment = " ".join(
+            sentences[:6]
+        )
 
     evidence_keys = set(
         by_key
     )
-    recommendations: list[dict] = []
 
-    if {
-        "carbon_intensity",
-        "fossil_fuel_exposure",
-    } & evidence_keys:
-        recommendations.append(
-            {
-                "title": "Reduce transition concentration",
-                "detail": (
-                    "Review sector exposure limits, client "
-                    "transition plans, and portfolio "
-                    "decarbonisation actions against the "
-                    "reported transition-risk indicators."
-                ),
-            }
-        )
-
-    if "risk_register" in evidence_keys:
-        recommendations.append(
-            {
-                "title": "Escalate severe risks",
-                "detail": (
-                    "Assign accountable owners, monitoring "
-                    "thresholds, and documented response plans "
-                    "to the critical and high-rated risks."
-                ),
-            }
-        )
-
-    if "physical_hazard" in evidence_keys:
-        recommendations.append(
-            {
-                "title": "Strengthen physical-risk controls",
-                "detail": (
-                    "Prioritise the largest hazard "
-                    "concentration for exposure review, "
-                    "collateral monitoring, and resilience "
-                    "actions."
-                ),
-            }
-        )
-
-    if "scenario_impact" in evidence_keys:
-        recommendations.append(
-            {
-                "title": "Integrate scenario impacts",
-                "detail": (
-                    "Connect material scenario results to risk "
-                    "appetite, capital planning, portfolio "
-                    "monitoring, and management escalation."
-                ),
-            }
-        )
-
-    if {
-        "equity_proxy",
-        "modeled_data",
-    } & evidence_keys:
-        recommendations.append(
-            {
-                "title": "Improve measurement quality",
-                "detail": (
-                    "Prioritise reported counterparty data and "
-                    "document the methodology, source, and "
-                    "quality of estimated or proxy values."
-                ),
-            }
-        )
-
-    default_recommendations = [
+    recommendations = [
         {
-            "title": "Maintain evidence traceability",
+            "title": "Prioritise severe risks",
             "detail": (
-                "Retain source, methodology, ownership, and "
-                "review information for each material risk "
-                "metric."
+                "Assign accountable owners, monitoring "
+                "thresholds, and response plans to all "
+                "critical and high-rated risks."
             ),
         },
         {
-            "title": "Review material indicators",
+            "title": "Integrate scenario impacts",
             "detail": (
-                "Use the prepared evidence catalogue to define "
-                "monitoring thresholds and escalation criteria."
+                "Connect quantified scenario impacts to "
+                "risk appetite, capital planning, and "
+                "portfolio monitoring."
             ),
         },
         {
-            "title": "Link analysis to decisions",
+            "title": "Strengthen source traceability",
             "detail": (
-                "Document how material risk findings inform "
-                "risk appetite, portfolio monitoring, and "
-                "management review."
+                "Retain source, methodology, assurance, "
+                "and quality information for every "
+                "decision-relevant metric."
             ),
         },
     ]
 
-    for item in default_recommendations:
-        if len(recommendations) >= 3:
-            break
-        recommendations.append(item)
+    if (
+        "fossil_fuel_exposure"
+        in evidence_keys
+    ):
+        recommendations.append(
+            {
+                "title": "Review transition exposure",
+                "detail": (
+                    "Review sector limits and client "
+                    "engagement for carbon-intensive "
+                    "lending exposures."
+                ),
+            }
+        )
+
+    if "equity_proxy" in evidence_keys:
+        recommendations.append(
+            {
+                "title": "Improve counterparty data",
+                "detail": (
+                    "Replace proxy emissions with reported "
+                    "counterparty data when it becomes "
+                    "available."
+                ),
+            }
+        )
 
     avoid = [
         {
             "title": "Avoid unsupported conclusions",
             "detail": (
-                "Do not extend the assessment beyond the "
-                "prepared evidence catalogue or present an "
-                "inference as a reported fact."
+                "Do not extend conclusions beyond the "
+                "prepared evidence catalogue."
+            ),
+        },
+        {
+            "title": "Keep uncertainty visible",
+            "detail": (
+                "Keep proxy, estimated, and unassured "
+                "figures clearly identified."
             ),
         },
         {
             "title": "Do not invent benchmarks",
             "detail": (
-                "Use peer or external threshold comparisons "
-                "only when an approved and traceable source is "
-                "available."
+                "Use peer comparisons only when an "
+                "approved external benchmark source "
+                "exists."
             ),
         },
     ]
-
-    if {
-        "equity_proxy",
-        "modeled_data",
-    } & evidence_keys:
-        avoid.append(
-            {
-                "title": "Keep uncertainty visible",
-                "detail": (
-                    "Do not present estimated, proxy-based, or "
-                    "unassured figures as directly reported or "
-                    "fully verified values."
-                ),
-            }
-        )
 
     if "schedule_proxy" in evidence_keys:
         avoid.append(
             {
                 "title": "Separate time from progress",
                 "detail": (
-                    "Do not describe schedule elapsed as "
-                    "evidence of an achieved emissions "
-                    "reduction."
-                ),
-            }
-        )
-
-    if len(avoid) < 3:
-        avoid.append(
-            {
-                "title": "Preserve source context",
-                "detail": (
-                    "Do not remove the scope, year, unit, or "
-                    "methodology needed to interpret a material "
-                    "metric."
+                    "Do not present elapsed schedule time "
+                    "as achieved emissions reduction."
                 ),
             }
         )
 
     return {
-        "assessment": assessment,
+        "assessment": (
+            _normalise_assessment_text(
+                assessment
+            )
+        ),
         "recommendations": (
             recommendations[:5]
         ),

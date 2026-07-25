@@ -1896,6 +1896,16 @@ def build_evidence(
                 "tCO₂e/M€"
             )
 
+            if intensity_target > 0:
+                multiple = (
+                    intensity
+                    / intensity_target
+                )
+                value += (
+                    f" ({multiple:,.1f}× the "
+                    "stated target)"
+                )
+
         add(
             "carbon_intensity",
             "Carbon intensity",
@@ -1904,7 +1914,9 @@ def build_evidence(
             "IFRS S2 metrics and targets",
             (
                 "Latest available lending-book "
-                "carbon-intensity value."
+                "carbon-intensity value and its "
+                "direct comparison with the stated "
+                "institutional target."
             ),
         )
 
@@ -1956,18 +1968,30 @@ def build_evidence(
             ).lower() == "high"
         )
 
+        severe_total = (
+            critical + high
+        )
+        severity_value = (
+            f"{critical} critical and {high} high "
+            f"out of {len(risks)} risks"
+        )
+
+        if severe_total == len(risks):
+            severity_value += (
+                "; all identified risks are "
+                "high or critical"
+            )
+
         add(
             "risk_register",
             "Risk-register severity",
-            (
-                f"{critical} critical and {high} high "
-                f"out of {len(risks)} risks"
-            ),
+            severity_value,
             "climate_risk_register",
             "IFRS S2 risk identification",
             (
                 "Counted directly from the prepared "
-                "risk register."
+                "risk register and expressed as a "
+                "share of all identified risks."
             ),
         )
 
@@ -1985,7 +2009,7 @@ def build_evidence(
             (
                 f"{top['hazard']}: "
                 f"€{top['exposure']:,.1f}M across "
-                f"{top['count']} exposure row(s)"
+                f"{top['count']} exposure records"
             ),
             "physical_risk_exposures",
             "IFRS S2 physical climate risk",
@@ -2025,22 +2049,42 @@ def build_evidence(
         )
 
         scenario_name = str(
-            worst_row.get("scenario_name")
-            or worst_row.get("scenario_type")
+            worst_row.get(
+                "scenario_name"
+            )
+            or worst_row.get(
+                "scenario_type"
+            )
             or "highest-impact scenario"
-        ).replace("_", " ")
+        ).replace(
+            "_",
+            " ",
+        )
         scenario_type = str(
-            worst_row.get("scenario_type")
+            worst_row.get(
+                "scenario_type"
+            )
             or ""
-        ).replace("_", " ")
+        ).replace(
+            "_",
+            " ",
+        )
         horizon = str(
             worst_row.get("horizon")
-            or worst_row.get("time_horizon")
+            or worst_row.get(
+                "time_horizon"
+            )
             or ""
-        ).replace("_", " ")
+        ).replace(
+            "_",
+            " ",
+        )
+        horizon_year = worst_row.get(
+            "horizon_year"
+        )
 
         scenario_parts = [
-            scenario_name
+            scenario_name,
         ]
 
         if (
@@ -2052,14 +2096,19 @@ def build_evidence(
                 f"({scenario_type})"
             )
 
-        if horizon:
-            scenario_parts.append(
-                f"— {horizon}"
-            )
-
         scenario_description = " ".join(
             scenario_parts
         )
+
+        if horizon:
+            scenario_description += (
+                f", {horizon}"
+            )
+
+        if horizon_year is not None:
+            scenario_description += (
+                f" ({horizon_year})"
+            )
 
         add(
             "scenario_impact",
@@ -2072,9 +2121,8 @@ def build_evidence(
             "IFRS S2 climate resilience",
             (
                 "Highest available revenue-at-risk "
-                "or financial-impact estimate, with "
-                "the scenario name, type, and horizon "
-                "retained for interpretation."
+                "or financial-impact estimate, retaining "
+                "the scenario name, type, and horizon."
             ),
         )
 
@@ -2145,7 +2193,7 @@ def build_evidence(
             "Equity-emissions proxy use",
             (
                 f"{proxy_rows} of "
-                f"{len(equity_rows)} equity row(s) "
+                f"{len(equity_rows)} equity records "
                 "use a proxy method"
             ),
             "financed_emissions_equity",

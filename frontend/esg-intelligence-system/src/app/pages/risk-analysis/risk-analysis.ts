@@ -176,13 +176,16 @@ export class RiskAnalysis
 
   get assessmentSegments():
     AssessmentSegment[] {
-    if (!this.assessment) {
+    const text =
+      this.normalisedAssessmentText;
+
+    if (!text) {
       return [];
     }
 
-    const parts =
-      this.assessment.assessment_text
-        .split(/(\[E\d+\])/g);
+    const parts = text.split(
+      /(\[E\d+\])/g
+    );
 
     return parts.map((part) => {
       const match = part.match(
@@ -212,7 +215,7 @@ export class RiskAnalysis
       return [];
     }
 
-    const sourceEvidence =
+    const preferredSource =
       this.assessment.evidence?.length
         ? this.assessment.evidence
         : (
@@ -220,45 +223,73 @@ export class RiskAnalysis
             []
           );
 
-    const evidenceById =
+    const sourceById =
       Object.fromEntries(
-        sourceEvidence.map(
+        preferredSource.map(
           (item) => [
             item.id,
             item,
           ]
         )
-      ) as Record<
-        string,
-        EvidenceItem
-      >;
+      );
 
-    const orderedIds: string[] = [];
+    const cited: EvidenceItem[] = [];
     const seen = new Set<string>();
+    const markerPattern =
+      /\[(E\d+)\]/g;
+    let match:
+      RegExpExecArray | null;
 
-    for (
-      const match of
-        this.assessment
-          .assessment_text
-          .matchAll(/\[(E\d+)\]/g)
+    while (
+      (
+        match = markerPattern.exec(
+          this.normalisedAssessmentText
+        )
+      ) !== null
     ) {
       const evidenceId = match[1];
 
-      if (
-        seen.has(evidenceId) ||
-        !evidenceById[evidenceId]
-      ) {
+      if (seen.has(evidenceId)) {
+        continue;
+      }
+
+      const evidence =
+        sourceById[evidenceId] ??
+        this.evidenceMap[evidenceId];
+
+      if (!evidence) {
         continue;
       }
 
       seen.add(evidenceId);
-      orderedIds.push(evidenceId);
+      cited.push(evidence);
     }
 
-    return orderedIds.map(
-      (evidenceId) =>
-        evidenceById[evidenceId]
-    );
+    return cited;
+  }
+
+  private get normalisedAssessmentText():
+    string {
+    const text =
+      this.assessment
+        ?.assessment_text ??
+      '';
+
+    return text
+      .replace(
+        /\s+\[(E\d+)\]\s*([,.;:!?])/g,
+        ' [$1]$2'
+      )
+      .replace(
+        /\[(E\d+)\]\s+([,.;:!?])/g,
+        '[$1]$2'
+      )
+      .replace(
+        /\s+([,.;:!?])/g,
+        '$1'
+      )
+      .replace(/\s{2,}/g, ' ')
+      .trim();
   }
 
   get riskMatrixCells():
@@ -576,13 +607,6 @@ export class RiskAnalysis
     analysis: RiskAnalysisSummary
   ): string {
     return analysis.id;
-  }
-
-  trackEvidence(
-    _index: number,
-    evidence: EvidenceItem
-  ): string {
-    return evidence.id;
   }
 
   private loadAnalysisHistory(
