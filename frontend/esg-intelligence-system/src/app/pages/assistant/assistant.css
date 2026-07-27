@@ -198,6 +198,7 @@
 .bubble {
   width: fit-content;
   max-width: 30rem;
+  min-width: 0;
   padding: 13px 15px;
   border-radius: 16px 16px 16px 4px;
   font-size: 14px;
@@ -213,7 +214,7 @@
   background: var(--accent-bg);
   border-color: var(--accent-border);
 }
-.bubble-text { white-space: pre-wrap; word-break: break-word; }
+.bubble-text { white-space: pre-wrap; word-break: break-word; max-width: 100%; }
 .bubble-text strong { color: #fff; font-weight: 600; }
 .bubble-text code {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
