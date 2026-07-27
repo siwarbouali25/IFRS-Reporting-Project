@@ -89,7 +89,16 @@
 
           <div class="bubble" [class.assistant]="m.role === 'assistant'">
             @if (m.role === 'assistant') {
-              <div class="bubble-text" [innerHTML]="renderContent(m.content)"></div>
+              @if (m.content) {
+                <div class="bubble-text" [innerHTML]="renderContent(m.content)"></div>
+              } @else if (m.streaming) {
+                <div class="stream-status">
+                  <span class="typing"><span></span><span></span><span></span></span>
+                  @if (streamStatus) {
+                    <span class="status-text">{{ streamStatus }}</span>
+                  }
+                </div>
+              }
             } @else {
               <div class="bubble-text">{{ m.content }}</div>
             }
@@ -136,17 +145,6 @@
           @if (m.role === 'user') {
             <div class="avatar user-avatar"><i class="pi pi-user"></i></div>
           }
-        </div>
-      }
-
-      @if (sending) {
-        <div class="row">
-          <div class="avatar assistant-avatar">AI</div>
-          <div class="bubble assistant">
-            <div class="typing">
-              <span></span><span></span><span></span>
-            </div>
-          </div>
         </div>
       }
 

@@ -1,214 +1,243 @@
-import {
-  Component,
-  ElementRef,
-  OnInit,
-  ViewChild,
-  AfterViewChecked,
-} from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { HttpErrorResponse } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
 
-import {
-  AssistantService,
-  ChatMessage,
-  ConversationSummary,
-} from '../../core/services/assistant';
-import {
-  Risk as RiskService,
-  PayloadManifestSummary,
-} from '../../core/services/risk';
+import { TokenService } from '../auth/token.service';
 
-interface BankOption {
-  code: string;
-  name: string;
+export type ChatRole =
+  | 'user'
+  | 'assistant'
+  | 'tool'
+  | 'system';
+
+export interface DataGap {
+  field: string;
+  reason: string;
+  instruction: string;
+  affected_years: number[];
 }
 
-@Component({
-  selector: 'app-assistant',
-  imports: [CommonModule, FormsModule],
-  templateUrl: './assistant.html',
-  styleUrl: './assistant.css',
+export interface Citation {
+  tool: string;
+  provenance: {
+    bank_code?: string;
+    source?: string;
+    [key: string]: unknown;
+  };
+  data_gaps: DataGap[];
+}
+
+export interface ChatMessage {
+  id: string;
+  role: ChatRole;
+  content: string;
+  citations: Citation[];
+  model_used: string;
+  is_fallback: boolean;
+  created_at: string;
+  streaming?: boolean;
+}
+
+export type StreamEvent =
+  | { type: 'status'; text: string }
+  | { type: 'token'; text: string }
+  | { type: 'citations'; citations: Citation[] }
+  | {
+      type: 'done';
+      conversation_id: string;
+      message_id: string;
+      model_used: string;
+      is_fallback: boolean;
+    }
+  | { type: 'error'; message: string };
+
+export interface Conversation {
+  id: string;
+  title: string;
+  bank_code: string | null;
+  created_at: string;
+  updated_at: string;
+  messages: ChatMessage[];
+}
+
+export interface ConversationSummary {
+  id: string;
+  title: string;
+  bank_code: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ChatResponse {
+  conversation_id: string;
+  message: ChatMessage;
+}
+
+interface ChatRequest {
+  message: string;
+  conversation_id?: string;
+  bank_code?: string;
+}
+
+type ListResponse<T> =
+  | T[]
+  | { results: T[] };
+
+@Injectable({
+  providedIn: 'root',
 })
-export class Assistant
-  implements OnInit, AfterViewChecked
-{
-  @ViewChild('scrollAnchor')
-  scrollAnchor?: ElementRef<HTMLDivElement>;
-
-  messages: ChatMessage[] = [];
-  conversations: ConversationSummary[] = [];
-  banks: BankOption[] = [];
-
-  conversationId: string | null = null;
-  bankCode = '';
-  draft = '';
-
-  sending = false;
-  error: string | null = null;
-
-  private shouldScroll = false;
+export class AssistantService {
+  private readonly apiUrl =
+    'http://127.0.0.1:8000/api';
 
   constructor(
-    private assistant: AssistantService,
-    private risk: RiskService
+    private http: HttpClient,
+    private tokenService: TokenService
   ) {}
 
-  ngOnInit(): void {
-    this.loadBanks();
-    this.loadConversations();
-  }
+  chat(
+    message: string,
+    conversationId?: string,
+    bankCode?: string
+  ): Observable<ChatResponse> {
+    const body: ChatRequest = { message };
 
-  ngAfterViewChecked(): void {
-    if (this.shouldScroll) {
-      this.scrollToBottom();
-      this.shouldScroll = false;
+    if (conversationId) {
+      body.conversation_id = conversationId;
     }
+    if (bankCode) {
+      body.bank_code = bankCode;
+    }
+
+    return this.http.post<ChatResponse>(
+      `${this.apiUrl}/assistant/chat/`,
+      body
+    );
   }
 
-  private loadBanks(): void {
-    this.risk.getPayloadManifests().subscribe({
-      next: (manifests) => {
-        const seen = new Set<string>();
-        const options: BankOption[] = [];
+  listConversations():
+    Observable<ConversationSummary[]> {
+    return this.http
+      .get<
+        ListResponse<ConversationSummary>
+      >(
+        `${this.apiUrl}/assistant/conversations/`
+      )
+      .pipe(
+        map((response) =>
+          Array.isArray(response)
+            ? response
+            : response.results
+        )
+      );
+  }
 
-        for (const m of manifests) {
-          if (m.bank_code && !seen.has(m.bank_code)) {
-            seen.add(m.bank_code);
-            options.push({
-              code: m.bank_code,
-              name: m.bank_name,
+  getConversation(
+    id: string
+  ): Observable<Conversation> {
+    return this.http.get<Conversation>(
+      `${this.apiUrl}/assistant/conversations/${id}/`
+    );
+  }
+
+  /**
+   * Streams a turn via SSE. EventSource can't send the JWT header, so we use
+   * fetch + a ReadableStream reader, attaching the Bearer token manually and
+   * parsing `data:` frames into StreamEvents.
+   */
+  chatStream(
+    message: string,
+    conversationId?: string,
+    bankCode?: string
+  ): Observable<StreamEvent> {
+    const body: ChatRequest = { message };
+    if (conversationId) {
+      body.conversation_id = conversationId;
+    }
+    if (bankCode) {
+      body.bank_code = bankCode;
+    }
+
+    const token = this.tokenService.getAccessToken();
+
+    return new Observable<StreamEvent>((subscriber) => {
+      const controller = new AbortController();
+
+      (async () => {
+        try {
+          const res = await fetch(
+            `${this.apiUrl}/assistant/chat/stream/`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                ...(token
+                  ? { Authorization: `Bearer ${token}` }
+                  : {}),
+              },
+              body: JSON.stringify(body),
+              signal: controller.signal,
+            }
+          );
+
+          if (!res.ok || !res.body) {
+            subscriber.next({
+              type: 'error',
+              message: `Request failed (${res.status}).`,
             });
+            subscriber.complete();
+            return;
+          }
+
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = '';
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) {
+              break;
+            }
+            buffer += decoder.decode(value, { stream: true });
+
+            // SSE frames are separated by a blank line.
+            const frames = buffer.split('\n\n');
+            buffer = frames.pop() ?? '';
+
+            for (const frame of frames) {
+              const line = frame
+                .split('\n')
+                .find((l) => l.startsWith('data:'));
+              if (!line) {
+                continue;
+              }
+              const payload = line.slice(5).trim();
+              if (!payload) {
+                continue;
+              }
+              try {
+                subscriber.next(
+                  JSON.parse(payload) as StreamEvent
+                );
+              } catch {
+                // ignore malformed frame
+              }
+            }
+          }
+          subscriber.complete();
+        } catch (err: unknown) {
+          if (
+            err instanceof DOMException &&
+            err.name === 'AbortError'
+          ) {
+            subscriber.complete();
+          } else {
+            subscriber.error(err);
           }
         }
-        this.banks = options.sort((a, b) =>
-          a.code.localeCompare(b.code)
-        );
-      },
-      error: () => {
-        // Bank scoping is optional; ignore load failures.
-      },
-    });
-  }
+      })();
 
-  private loadConversations(): void {
-    this.assistant.listConversations().subscribe({
-      next: (list) => {
-        this.conversations = list;
-      },
-      error: () => {},
-    });
-  }
-
-  newConversation(): void {
-    this.conversationId = null;
-    this.messages = [];
-    this.error = null;
-    this.draft = '';
-  }
-
-  openConversation(id: string): void {
-    this.assistant.getConversation(id).subscribe({
-      next: (conv) => {
-        this.conversationId = conv.id;
-        this.bankCode = conv.bank_code ?? '';
-        this.messages = conv.messages.filter(
-          (m) =>
-            m.role === 'user' ||
-            m.role === 'assistant'
-        );
-        this.shouldScroll = true;
-      },
-      error: () => {
-        this.error = 'Could not load conversation.';
-      },
-    });
-  }
-
-  send(): void {
-    const text = this.draft.trim();
-    if (!text || this.sending) {
-      return;
-    }
-
-    this.error = null;
-    this.sending = true;
-
-    // Optimistically render the user turn.
-    this.messages = [
-      ...this.messages,
-      this.localMessage('user', text),
-    ];
-    this.draft = '';
-    this.shouldScroll = true;
-
-    this.assistant
-      .chat(
-        text,
-        this.conversationId ?? undefined,
-        this.bankCode || undefined
-      )
-      .subscribe({
-        next: (res) => {
-          this.conversationId = res.conversation_id;
-          this.messages = [
-            ...this.messages,
-            res.message,
-          ];
-          this.sending = false;
-          this.shouldScroll = true;
-          this.loadConversations();
-        },
-        error: (err: HttpErrorResponse) => {
-          this.sending = false;
-          this.error =
-            err.status === 0
-              ? 'Cannot reach the server.'
-              : `Request failed (${err.status}).`;
-        },
-      });
-  }
-
-  onKeydown(event: KeyboardEvent): void {
-    if (
-      event.key === 'Enter' &&
-      !event.shiftKey
-    ) {
-      event.preventDefault();
-      this.send();
-    }
-  }
-
-  hasGaps(message: ChatMessage): boolean {
-    return message.citations.some(
-      (c) => c.data_gaps && c.data_gaps.length > 0
-    );
-  }
-
-  gapList(message: ChatMessage) {
-    return message.citations.flatMap(
-      (c) => c.data_gaps ?? []
-    );
-  }
-
-  private localMessage(
-    role: 'user' | 'assistant',
-    content: string
-  ): ChatMessage {
-    return {
-      id: `local-${Date.now()}`,
-      role,
-      content,
-      citations: [],
-      model_used: '',
-      is_fallback: false,
-      created_at: new Date().toISOString(),
-    };
-  }
-
-  private scrollToBottom(): void {
-    this.scrollAnchor?.nativeElement.scrollIntoView({
-      behavior: 'smooth',
+      return () => controller.abort();
     });
   }
 }

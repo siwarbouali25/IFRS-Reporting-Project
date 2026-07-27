@@ -167,7 +167,8 @@
 
 .row {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
+  flex: 0 0 auto;
   gap: 10px;
   animation: slideIn 0.28s ease;
 }
@@ -197,8 +198,10 @@
 
 .bubble {
   width: fit-content;
-  max-width: 30rem;
+  max-width: 26rem;
   min-width: 0;
+  align-self: flex-start;
+  height: fit-content;
   padding: 13px 15px;
   border-radius: 16px 16px 16px 4px;
   font-size: 14px;
@@ -308,6 +311,15 @@
 }
 
 /* typing */
+.stream-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.status-text {
+  font-size: 13px;
+  color: var(--muted);
+}
 .typing { display: flex; gap: 4px; padding: 4px 2px; }
 .typing span {
   width: 7px; height: 7px;

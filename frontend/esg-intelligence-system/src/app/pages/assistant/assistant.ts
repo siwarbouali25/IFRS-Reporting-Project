@@ -1,18 +1,19 @@
 import {
   Component,
   ElementRef,
+  NgZone,
   OnInit,
   ViewChild,
   AfterViewChecked,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpErrorResponse } from '@angular/common/http';
 
 import {
   AssistantService,
   ChatMessage,
   ConversationSummary,
+  StreamEvent,
 } from '../../core/services/assistant';
 import {
   Risk as RiskService,
@@ -45,6 +46,7 @@ export class Assistant
   draft = '';
 
   sending = false;
+  streamStatus: string | null = null;
   error: string | null = null;
 
   private shouldScroll = false;
@@ -57,7 +59,8 @@ export class Assistant
 
   constructor(
     private assistant: AssistantService,
-    private risk: RiskService
+    private risk: RiskService,
+    private zone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -139,40 +142,83 @@ export class Assistant
 
     this.error = null;
     this.sending = true;
+    this.streamStatus = null;
+
+    // Optimistic user turn + an empty assistant placeholder we fill live.
+    const assistantMsg = this.localMessage('assistant', '');
+    assistantMsg.streaming = true;
 
     this.messages = [
       ...this.messages,
       this.localMessage('user', text),
+      assistantMsg,
     ];
     this.draft = '';
     this.resetComposerHeight();
     this.shouldScroll = true;
 
     this.assistant
-      .chat(
+      .chatStream(
         text,
         this.conversationId ?? undefined,
         this.bankCode || undefined
       )
       .subscribe({
-        next: (res) => {
-          this.conversationId = res.conversation_id;
-          this.messages = [
-            ...this.messages,
-            res.message,
-          ];
-          this.sending = false;
-          this.shouldScroll = true;
-          this.loadConversations();
-        },
-        error: (err: HttpErrorResponse) => {
-          this.sending = false;
-          this.error =
-            err.status === 0
-              ? 'Cannot reach the server.'
-              : `Request failed (${err.status}).`;
-        },
+        next: (event) =>
+          this.zone.run(() =>
+            this.handleStreamEvent(event, assistantMsg)
+          ),
+        error: () =>
+          this.zone.run(() => {
+            this.error = 'Cannot reach the server.';
+            assistantMsg.streaming = false;
+            this.sending = false;
+            this.streamStatus = null;
+          }),
+        complete: () =>
+          this.zone.run(() => {
+            assistantMsg.streaming = false;
+            this.sending = false;
+            this.streamStatus = null;
+          }),
       });
+  }
+
+  private handleStreamEvent(
+    event: StreamEvent,
+    target: ChatMessage
+  ): void {
+    switch (event.type) {
+      case 'status':
+        this.streamStatus = event.text;
+        break;
+      case 'token':
+        target.content += event.text;
+        this.streamStatus = null;
+        this.shouldScroll = true;
+        break;
+      case 'citations':
+        target.citations = event.citations;
+        break;
+      case 'done':
+        this.conversationId = event.conversation_id;
+        target.model_used = event.model_used;
+        target.is_fallback = event.is_fallback;
+        target.streaming = false;
+        this.sending = false;
+        this.streamStatus = null;
+        this.shouldScroll = true;
+        this.loadConversations();
+        break;
+      case 'error':
+        this.error = event.message;
+        target.streaming = false;
+        this.sending = false;
+        this.streamStatus = null;
+        break;
+    }
+    // New array reference so change detection paints the streamed text.
+    this.messages = [...this.messages];
   }
 
   onKeydown(event: KeyboardEvent): void {
@@ -222,7 +268,15 @@ export class Assistant
       return '';
     }
 
+    // Collapse the model's blank lines (llama often double-spaces),
+    // trim ends, and drop trailing spaces per line so the bubble hugs
+    // its text vertically instead of stretching around empty lines.
     let out = text
+      .replace(/[ \t]+\n/g, '\n')
+      .replace(/\n{2,}/g, '\n')
+      .trim();
+
+    out = out
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
@@ -251,7 +305,7 @@ export class Assistant
     content: string
   ): ChatMessage {
     return {
-      id: `local-${Date.now()}`,
+      id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       role,
       content,
       citations: [],
