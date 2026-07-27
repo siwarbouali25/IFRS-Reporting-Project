@@ -59,12 +59,14 @@ _register_fonts()
 NAVY = colors.HexColor("#071A33")
 NAVY_LIGHT = colors.HexColor("#0D2D55")
 BLUE = colors.HexColor("#2D7FF9")
-BLUE_LIGHT = colors.HexColor("#DDEBFF")
-LIME = colors.HexColor("#D6F000")
-INK = colors.HexColor("#172033")
-MUTED = colors.HexColor("#5F6B7A")
-LINE = colors.HexColor("#D8E0EA")
-SURFACE = colors.HexColor("#F4F7FB")
+BLUE_LIGHT = colors.HexColor("#E8F0FF")
+BLUE_PALE = colors.HexColor("#F3F7FF")
+LIME = colors.HexColor("#CBEA22")
+INK = colors.HexColor("#142033")
+MUTED = colors.HexColor("#617086")
+LINE = colors.HexColor("#DCE4EE")
+SURFACE = colors.HexColor("#F4F7FA")
+PAPER = colors.HexColor("#FCFDFE")
 WHITE = colors.white
 
 MAJOR_SECTIONS = {
@@ -130,55 +132,165 @@ def _table_widths(rows: list[list[str]], available_width: float) -> list[float]:
 def _draw_cover_page(canvas, document):
     width, height = A4
     canvas.saveState()
-    canvas.setFillColor(NAVY)
+    canvas.setFillColor(PAPER)
     canvas.rect(0, 0, width, height, stroke=0, fill=1)
 
-    canvas.setFillColor(NAVY_LIGHT)
-    canvas.circle(width + 15 * mm, height - 28 * mm, 68 * mm, stroke=0, fill=1)
+    # Editorial split cover: a quiet publication area paired with a bold
+    # standards panel. All elements are vector-based and remain sharp at any
+    # zoom level in the Approval viewer.
+    panel_width = 62 * mm
+    panel_x = width - panel_width
+    canvas.setFillColor(NAVY)
+    canvas.rect(panel_x, 0, panel_width, height, stroke=0, fill=1)
     canvas.setFillColor(BLUE)
-    canvas.rect(0, height - 34 * mm, 9 * mm, 34 * mm, stroke=0, fill=1)
-    canvas.setFillColor(LIME)
-    canvas.rect(0, 0, width, 5 * mm, stroke=0, fill=1)
+    canvas.rect(panel_x, height - 111 * mm, panel_width, 111 * mm, stroke=0, fill=1)
 
-    canvas.setStrokeColor(colors.Color(1, 1, 1, alpha=0.08))
-    canvas.setLineWidth(0.6)
-    for offset in range(0, 90, 15):
-        canvas.line(
-            width - (82 - offset) * mm,
-            height,
-            width,
-            height - (82 - offset) * mm,
-        )
+    canvas.setFillColor(BLUE_LIGHT)
+    canvas.circle(width + 14 * mm, height - 43 * mm, 51 * mm, stroke=0, fill=1)
+    canvas.setFillColor(BLUE)
+    canvas.circle(width + 14 * mm, height - 43 * mm, 34 * mm, stroke=0, fill=1)
+
+    canvas.setFillColor(LIME)
+    canvas.rect(22 * mm, height - 25 * mm, 13 * mm, 2.6 * mm, stroke=0, fill=1)
+    canvas.rect(panel_x, 0, panel_width, 4 * mm, stroke=0, fill=1)
+
+    canvas.setFillColor(MUTED)
+    canvas.setFont(FONT_BOLD, 6.8)
+    canvas.drawString(
+        22 * mm,
+        height - 35 * mm,
+        "SUSTAINABILITY DISCLOSURE SERIES",
+    )
+    canvas.setFont(FONT_REGULAR, 6.8)
+    canvas.drawRightString(panel_x - 9 * mm, height - 35 * mm, str(document.reporting_year))
+
+    bank_name = document.bank_name.upper()[:74]
+    bank_size = 10.5
+    available_bank_width = panel_x - 31 * mm
+    while (
+        bank_size > 8
+        and pdfmetrics.stringWidth(bank_name, FONT_BOLD, bank_size)
+        > available_bank_width
+    ):
+        bank_size -= 0.5
+    canvas.setFillColor(NAVY)
+    canvas.setFont(FONT_BOLD, bank_size)
+    canvas.drawString(22 * mm, height - 54 * mm, bank_name)
+
+    canvas.setFillColor(NAVY)
+    canvas.setFont(FONT_BOLD, 22)
+    canvas.drawString(22 * mm, height - 94 * mm, "SUSTAINABILITY-")
+    canvas.drawString(22 * mm, height - 105 * mm, "RELATED FINANCIAL")
+    canvas.drawString(22 * mm, height - 116 * mm, "DISCLOSURES")
+
+    canvas.setFillColor(BLUE)
+    canvas.roundRect(
+        22 * mm,
+        height - 137 * mm,
+        49 * mm,
+        10 * mm,
+        5 * mm,
+        stroke=0,
+        fill=1,
+    )
+    canvas.setFillColor(WHITE)
+    canvas.setFont(FONT_BOLD, 7.5)
+    canvas.drawCentredString(
+        46.5 * mm,
+        height - 133.7 * mm,
+        "IFRS S1  /  IFRS S2",
+    )
+
+    canvas.setStrokeColor(LINE)
+    canvas.setLineWidth(0.7)
+    canvas.line(22 * mm, 88 * mm, panel_x - 10 * mm, 88 * mm)
+    metadata = [
+        ("REPORTING YEAR", str(document.reporting_year)),
+        ("REPORT VERSION", f"{document.version_number}.0"),
+        ("STATUS", "Internal review"),
+    ]
+    column_width = (panel_x - 32 * mm) / 3
+    for index, (label, value) in enumerate(metadata):
+        x = 22 * mm + index * column_width
+        canvas.setFillColor(MUTED)
+        canvas.setFont(FONT_BOLD, 6.4)
+        canvas.drawString(x, 79 * mm, label)
+        canvas.setFillColor(NAVY)
+        canvas.setFont(FONT_BOLD if index < 2 else FONT_REGULAR, 9)
+        canvas.drawString(x, 70 * mm, value)
+
+    canvas.setFillColor(MUTED)
+    canvas.setFont(FONT_BOLD, 6.5)
+    canvas.drawString(22 * mm, 23 * mm, "CONFIDENTIAL  /  INTERNAL USE")
+
+    canvas.setFillColor(WHITE)
+    canvas.setFont(FONT_BOLD, 7)
+    canvas.drawString(panel_x + 10 * mm, height - 29 * mm, "REPORTING YEAR")
+    canvas.setFont(FONT_BOLD, 46)
+    canvas.drawString(panel_x + 9 * mm, height - 52 * mm, str(document.reporting_year)[-2:])
+
+    canvas.setFillColor(colors.HexColor("#9DB5D4"))
+    canvas.setFont(FONT_BOLD, 7)
+    canvas.drawString(panel_x + 10 * mm, 96 * mm, "ISSB STANDARDS")
+    canvas.setFillColor(WHITE)
+    canvas.setFont(FONT_BOLD, 31)
+    canvas.drawString(panel_x + 9 * mm, 76 * mm, "S1")
+    canvas.setFillColor(LIME)
+    canvas.drawString(panel_x + 9 * mm, 57 * mm, "S2")
+    canvas.setFillColor(colors.HexColor("#9DB5D4"))
+    canvas.setFont(FONT_REGULAR, 7)
+    canvas.drawString(panel_x + 10 * mm, 30 * mm, "FINANCIAL DISCLOSURES")
     canvas.restoreState()
 
 
 def _draw_body_page(canvas, document):
     width, height = A4
     canvas.saveState()
-    canvas.setStrokeColor(LINE)
-    canvas.setLineWidth(0.6)
-    canvas.line(18 * mm, height - 16 * mm, width - 18 * mm, height - 16 * mm)
+    canvas.setFillColor(PAPER)
+    canvas.rect(0, 0, width, height, stroke=0, fill=1)
+
+    canvas.setFillColor(BLUE)
+    canvas.rect(18 * mm, height - 13.1 * mm, 3.2 * mm, 3.2 * mm, stroke=0, fill=1)
 
     canvas.setFillColor(NAVY)
     canvas.setFont(FONT_BOLD, 7.5)
-    canvas.drawString(18 * mm, height - 12 * mm, document.bank_name[:70])
+    canvas.drawString(24 * mm, height - 12 * mm, document.bank_name[:70])
     canvas.setFillColor(MUTED)
     canvas.setFont(FONT_REGULAR, 7.5)
     canvas.drawRightString(
         width - 18 * mm,
         height - 12 * mm,
-        f"IFRS S1/S2 · Reporting year {document.reporting_year}",
+        f"{document.reporting_year}  /  IFRS S1 + IFRS S2",
     )
-
+    canvas.setStrokeColor(BLUE)
+    canvas.setLineWidth(1.15)
+    canvas.line(18 * mm, height - 16 * mm, 49 * mm, height - 16 * mm)
     canvas.setStrokeColor(LINE)
-    canvas.line(18 * mm, 15 * mm, width - 18 * mm, 15 * mm)
+    canvas.setLineWidth(0.5)
+    canvas.line(49 * mm, height - 16 * mm, width - 18 * mm, height - 16 * mm)
+
+    canvas.setFillColor(SURFACE)
+    canvas.rect(0, 0, width, 16 * mm, stroke=0, fill=1)
+    canvas.setFillColor(LIME)
+    canvas.rect(width - 45 * mm, 15.2 * mm, 27 * mm, 0.8 * mm, stroke=0, fill=1)
     canvas.setFillColor(MUTED)
     canvas.setFont(FONT_REGULAR, 7)
-    canvas.drawString(18 * mm, 10.5 * mm, "CONFIDENTIAL · INTERNAL USE")
+    canvas.drawString(18 * mm, 7 * mm, "CONFIDENTIAL  /  INTERNAL USE")
+    canvas.setFillColor(BLUE)
+    canvas.roundRect(
+        width - 31 * mm,
+        4.1 * mm,
+        13 * mm,
+        7.8 * mm,
+        3.9 * mm,
+        stroke=0,
+        fill=1,
+    )
+    canvas.setFillColor(WHITE)
     canvas.setFont(FONT_BOLD, 7.5)
-    canvas.drawRightString(
-        width - 18 * mm,
-        10.5 * mm,
+    canvas.drawCentredString(
+        width - 24.5 * mm,
+        6.6 * mm,
         f"{canvas.getPageNumber():02d}",
     )
     canvas.restoreState()
@@ -187,21 +299,37 @@ def _draw_body_page(canvas, document):
 def _draw_divider_page(canvas, document):
     width, height = A4
     canvas.saveState()
-    canvas.setFillColor(NAVY)
+    canvas.setFillColor(PAPER)
     canvas.rect(0, 0, width, height, stroke=0, fill=1)
-    canvas.setFillColor(NAVY_LIGHT)
-    canvas.circle(width - 5 * mm, 38 * mm, 58 * mm, stroke=0, fill=1)
-    canvas.setFillColor(BLUE)
-    canvas.rect(0, 0, 9 * mm, height, stroke=0, fill=1)
-    canvas.setFillColor(LIME)
-    canvas.rect(9 * mm, 0, 35 * mm, 5 * mm, stroke=0, fill=1)
 
-    canvas.setFillColor(colors.Color(1, 1, 1, alpha=0.58))
+    canvas.setFillColor(NAVY)
+    canvas.rect(0, 0, 52 * mm, height, stroke=0, fill=1)
+    canvas.setFillColor(BLUE)
+    canvas.rect(52 * mm, height - 5 * mm, width - 52 * mm, 5 * mm, stroke=0, fill=1)
+    canvas.setFillColor(BLUE_PALE)
+    canvas.circle(width + 6 * mm, height - 45 * mm, 55 * mm, stroke=0, fill=1)
+    canvas.setStrokeColor(BLUE_LIGHT)
+    canvas.setLineWidth(12)
+    canvas.circle(width + 8 * mm, height - 47 * mm, 38 * mm, stroke=1, fill=0)
+    canvas.setFillColor(LIME)
+    canvas.rect(0, 0, 52 * mm, 4 * mm, stroke=0, fill=1)
+
+    canvas.saveState()
+    canvas.translate(20 * mm, 41 * mm)
+    canvas.rotate(90)
+    canvas.setFillColor(colors.HexColor("#91A8C3"))
+    canvas.setFont(FONT_BOLD, 7)
+    canvas.drawString(0, 0, "SUSTAINABILITY-RELATED FINANCIAL DISCLOSURES")
+    canvas.restoreState()
+
+    canvas.setFillColor(MUTED)
     canvas.setFont(FONT_REGULAR, 7)
-    canvas.drawString(24 * mm, 13 * mm, "CONFIDENTIAL · INTERNAL USE")
+    canvas.drawString(70 * mm, 15 * mm, "CONFIDENTIAL  /  INTERNAL USE")
+    canvas.setFillColor(NAVY)
+    canvas.setFont(FONT_BOLD, 7.5)
     canvas.drawRightString(
-        width - 20 * mm,
-        13 * mm,
+        width - 18 * mm,
+        15 * mm,
         f"{canvas.getPageNumber():02d}",
     )
     canvas.restoreState()
@@ -232,29 +360,30 @@ class _IFRSReportDocument(BaseDocTemplate):
         self.bank_name = bank_name
         self.reporting_year = reporting_year
         self.version_number = version_number
+        self.report_title = title
 
         width, height = A4
         cover_frame = Frame(
-            24 * mm,
             22 * mm,
-            width - 48 * mm,
-            height - 44 * mm,
+            20 * mm,
+            width - 44 * mm,
+            height - 40 * mm,
             id="cover-frame",
             showBoundary=0,
         )
         body_frame = Frame(
             18 * mm,
-            20 * mm,
+            18 * mm,
             width - 36 * mm,
-            height - 43 * mm,
+            height - 39 * mm,
             id="body-frame",
             showBoundary=0,
         )
         divider_frame = Frame(
-            28 * mm,
-            34 * mm,
-            width - 54 * mm,
-            height - 68 * mm,
+            70 * mm,
+            42 * mm,
+            width - 88 * mm,
+            height - 84 * mm,
             id="divider-frame",
             showBoundary=0,
         )
@@ -295,10 +424,10 @@ def _styles():
         "ReportBody",
         parent=sample["BodyText"],
         fontName=FONT_REGULAR,
-        fontSize=9.2,
-        leading=14.2,
+        fontSize=9,
+        leading=14,
         textColor=INK,
-        spaceAfter=7,
+        spaceAfter=7.5,
         alignment=TA_LEFT,
         splitLongWords=True,
     )
@@ -311,6 +440,15 @@ def _styles():
             leading=16,
             textColor=MUTED,
             spaceAfter=12,
+        ),
+        "eyebrow": ParagraphStyle(
+            "Eyebrow",
+            parent=body,
+            fontName=FONT_BOLD,
+            fontSize=7,
+            leading=10,
+            textColor=BLUE,
+            spaceAfter=7,
         ),
         "cover_bank": ParagraphStyle(
             "CoverBank",
@@ -359,26 +497,22 @@ def _styles():
             "PageTitle",
             parent=sample["Heading1"],
             fontName=FONT_BOLD,
-            fontSize=22,
-            leading=27,
+            fontSize=24,
+            leading=29,
             textColor=NAVY,
-            spaceAfter=7,
+            spaceAfter=6,
             keepWithNext=True,
         ),
         "h1": ParagraphStyle(
             "Heading1",
             parent=sample["Heading1"],
             fontName=FONT_BOLD,
-            fontSize=17,
-            leading=21,
+            fontSize=18,
+            leading=22,
             textColor=NAVY,
-            spaceBefore=10,
+            spaceBefore=11,
             spaceAfter=8,
             keepWithNext=True,
-            borderColor=BLUE,
-            borderWidth=0,
-            borderPadding=0,
-            leftIndent=0,
         ),
         "h2": ParagraphStyle(
             "Heading2",
@@ -397,7 +531,7 @@ def _styles():
             fontName=FONT_BOLD,
             fontSize=10.2,
             leading=14,
-            textColor=BLUE,
+            textColor=NAVY_LIGHT,
             spaceBefore=9,
             spaceAfter=5,
             keepWithNext=True,
@@ -444,6 +578,53 @@ def _styles():
             leading=9.8,
             textColor=INK,
         ),
+        "meta_label": ParagraphStyle(
+            "MetaLabel",
+            parent=body,
+            fontName=FONT_BOLD,
+            fontSize=7.2,
+            leading=10,
+            textColor=NAVY,
+        ),
+        "meta_value": ParagraphStyle(
+            "MetaValue",
+            parent=body,
+            fontSize=8.2,
+            leading=11,
+            textColor=INK,
+        ),
+        "meta_card_label": ParagraphStyle(
+            "MetaCardLabel",
+            parent=body,
+            fontName=FONT_BOLD,
+            fontSize=6.4,
+            leading=9,
+            textColor=MUTED,
+        ),
+        "meta_card_value": ParagraphStyle(
+            "MetaCardValue",
+            parent=body,
+            fontName=FONT_BOLD,
+            fontSize=11,
+            leading=14,
+            textColor=NAVY,
+        ),
+        "card_title": ParagraphStyle(
+            "CardTitle",
+            parent=body,
+            fontName=FONT_BOLD,
+            fontSize=8.5,
+            leading=12,
+            textColor=NAVY,
+            spaceAfter=5,
+        ),
+        "card_body": ParagraphStyle(
+            "CardBody",
+            parent=body,
+            fontSize=8,
+            leading=12,
+            textColor=MUTED,
+        ),
         "code": ParagraphStyle(
             "Code",
             parent=body,
@@ -466,9 +647,9 @@ def _styles():
             rightIndent=8,
             textColor=MUTED,
             borderColor=BLUE,
-            borderWidth=0,
+            borderWidth=0.8,
             borderPadding=7,
-            backColor=BLUE_LIGHT,
+            backColor=BLUE_PALE,
             spaceBefore=4,
             spaceAfter=9,
         ),
@@ -476,18 +657,18 @@ def _styles():
             "DividerNumber",
             parent=body,
             fontName=FONT_BOLD,
-            fontSize=11,
-            leading=14,
-            textColor=LIME,
-            spaceAfter=10,
+            fontSize=9,
+            leading=12,
+            textColor=BLUE,
+            spaceAfter=14,
         ),
         "divider_title": ParagraphStyle(
             "DividerTitle",
             parent=body,
             fontName=FONT_BOLD,
-            fontSize=31,
-            leading=36,
-            textColor=WHITE,
+            fontSize=30,
+            leading=35,
+            textColor=NAVY,
             spaceAfter=14,
         ),
         "divider_subtitle": ParagraphStyle(
@@ -495,7 +676,7 @@ def _styles():
             parent=body,
             fontSize=10,
             leading=15,
-            textColor=colors.HexColor("#BFD2EA"),
+            textColor=MUTED,
         ),
         "toc_0": ParagraphStyle(
             "TOCLevel0",
@@ -550,24 +731,106 @@ def _document_information_table(
     ]
     formatted = [
         [
-            Paragraph(_inline_markdown(label), styles["table_header"]),
-            Paragraph(_inline_markdown(value), styles["table_cell"]),
+            Paragraph(_inline_markdown(label.upper()), styles["meta_label"]),
+            Paragraph(_inline_markdown(value), styles["meta_value"]),
         ]
         for label, value in rows
     ]
-    table = Table(formatted, colWidths=[47 * mm, 112 * mm], hAlign="LEFT")
+    table = Table(formatted, colWidths=[43 * mm, 116 * mm], hAlign="LEFT")
     table.setStyle(
         TableStyle(
             [
-                ("BACKGROUND", (0, 0), (0, -1), NAVY),
-                ("BACKGROUND", (1, 0), (1, -1), SURFACE),
+                ("BACKGROUND", (0, 0), (0, -1), BLUE_PALE),
+                ("BACKGROUND", (1, 0), (1, -1), WHITE),
                 ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                ("BOX", (0, 0), (-1, -1), 0.7, LINE),
-                ("INNERGRID", (0, 0), (-1, -1), 0.35, LINE),
+                ("LINEBEFORE", (0, 0), (0, -1), 2.2, BLUE),
+                ("LINEBELOW", (0, 0), (-1, -1), 0.45, LINE),
                 ("LEFTPADDING", (0, 0), (-1, -1), 8),
                 ("RIGHTPADDING", (0, 0), (-1, -1), 8),
-                ("TOPPADDING", (0, 0), (-1, -1), 7),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 7),
+                ("TOPPADDING", (0, 0), (-1, -1), 6.5),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 6.5),
+            ]
+        )
+    )
+    return table
+
+
+def _metadata_summary_cards(*, reporting_year, version_number, styles):
+    labels = ["REPORTING YEAR", "REPORT VERSION", "DOCUMENT STATUS"]
+    values = [str(reporting_year), f"{version_number}.0", "Internal review"]
+    table = Table(
+        [
+            [
+                Paragraph(label, styles["meta_card_label"])
+                for label in labels
+            ],
+            [
+                Paragraph(value, styles["meta_card_value"])
+                for value in values
+            ],
+        ],
+        colWidths=[53 * mm, 53 * mm, 53 * mm],
+        hAlign="LEFT",
+    )
+    table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, -1), SURFACE),
+                ("LINEABOVE", (0, 0), (-1, 0), 2.2, BLUE),
+                ("LINEBEFORE", (1, 0), (-1, -1), 0.5, LINE),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("LEFTPADDING", (0, 0), (-1, -1), 9),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 9),
+                ("TOPPADDING", (0, 0), (-1, 0), 9),
+                ("BOTTOMPADDING", (0, 0), (-1, 0), 2),
+                ("TOPPADDING", (0, 1), (-1, 1), 1),
+                ("BOTTOMPADDING", (0, 1), (-1, 1), 10),
+            ]
+        )
+    )
+    return table
+
+
+def _purpose_cards(styles):
+    cards = [
+        (
+            "ABOUT THIS PUBLICATION",
+            "This report supports the institution's controlled sustainability "
+            "reporting and internal review process under IFRS S1 and IFRS S2.",
+        ),
+        (
+            "REVIEW CONTROL",
+            "Approval status is controlled in the platform. Downloaded copies "
+            "should be checked against the latest report version before use.",
+        ),
+    ]
+    cells = []
+    for title, text in cards:
+        cells.append(
+            [
+                Paragraph(title, styles["card_title"]),
+                Paragraph(text, styles["card_body"]),
+            ]
+        )
+
+    table = Table(
+        [[cells[0], cells[1]]],
+        colWidths=[77 * mm, 77 * mm],
+        hAlign="LEFT",
+    )
+    table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (0, 0), BLUE_PALE),
+                ("BACKGROUND", (1, 0), (1, 0), SURFACE),
+                ("LINEABOVE", (0, 0), (0, 0), 2.2, BLUE),
+                ("LINEABOVE", (1, 0), (1, 0), 2.2, LIME),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("LEFTPADDING", (0, 0), (-1, -1), 10),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 10),
+                ("TOPPADDING", (0, 0), (-1, -1), 10),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
+                ("LINEBEFORE", (1, 0), (1, 0), 5, WHITE),
             ]
         )
     )
@@ -579,9 +842,9 @@ def _append_major_section(story, section_number, section_title, styles, bookmark
         [
             NextPageTemplate("divider"),
             PageBreak(),
-            Spacer(1, 42 * mm),
+            Spacer(1, 50 * mm),
             Paragraph(
-                f"SECTION {section_number:02d}",
+                f"SECTION  /  {section_number:02d}",
                 styles["divider_number"],
             ),
         ]
@@ -596,25 +859,31 @@ def _append_major_section(story, section_number, section_title, styles, bookmark
         [
             divider_title,
             HRFlowable(
-                width=30 * mm,
-                thickness=3,
-                color=LIME,
+                width=28 * mm,
+                thickness=2.5,
+                color=BLUE,
                 hAlign="LEFT",
                 spaceBefore=2,
-                spaceAfter=12,
+                spaceAfter=14,
             ),
             Paragraph(
-                "Sustainability-related financial disclosures prepared for "
-                "internal review under the IFRS S1 and IFRS S2 framework.",
+                "Decision-useful sustainability-related financial information "
+                "prepared for internal review under the IFRS S1 and IFRS S2 "
+                "framework.",
                 styles["divider_subtitle"],
             ),
             NextPageTemplate("body"),
             PageBreak(),
+            Paragraph(
+                f"{section_number:02d}  /  DISCLOSURE SECTION",
+                styles["eyebrow"],
+            ),
             Paragraph(_inline_markdown(section_title), styles["h1"]),
             HRFlowable(
-                width="100%",
-                thickness=0.8,
-                color=LINE,
+                width=29 * mm,
+                thickness=2,
+                color=LIME,
+                hAlign="LEFT",
                 spaceAfter=10,
             ),
         ]
@@ -816,20 +1085,20 @@ def _append_markdown_body(story, markdown_text: str, styles):
                 splitByRow=True,
             )
             table_style = [
-                ("BACKGROUND", (0, 0), (-1, 0), NAVY),
+                ("BACKGROUND", (0, 0), (-1, 0), BLUE),
                 ("TEXTCOLOR", (0, 0), (-1, 0), WHITE),
                 ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                ("BOX", (0, 0), (-1, -1), 0.65, LINE),
-                ("LINEBELOW", (0, 1), (-1, -1), 0.35, LINE),
-                ("LEFTPADDING", (0, 0), (-1, -1), 6),
-                ("RIGHTPADDING", (0, 0), (-1, -1), 6),
-                ("TOPPADDING", (0, 0), (-1, -1), 5),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+                ("LINEBELOW", (0, 0), (-1, 0), 1.2, NAVY),
+                ("LINEBELOW", (0, 1), (-1, -1), 0.4, LINE),
+                ("LEFTPADDING", (0, 0), (-1, -1), 7),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 7),
+                ("TOPPADDING", (0, 0), (-1, -1), 6),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
             ]
             for row_index in range(1, len(rows)):
                 if row_index % 2 == 0:
                     table_style.append(
-                        ("BACKGROUND", (0, row_index), (-1, row_index), SURFACE)
+                        ("BACKGROUND", (0, row_index), (-1, row_index), BLUE_PALE)
                     )
             table.setStyle(TableStyle(table_style))
             story.extend([table, Spacer(1, 9)])
@@ -869,35 +1138,6 @@ def render_markdown_to_pdf_bytes(
         version_number=version_number,
     )
 
-    cover_metadata = Table(
-        [
-            [
-                Paragraph("REPORTING YEAR", styles["cover_label"]),
-                Paragraph("REPORT VERSION", styles["cover_label"]),
-                Paragraph("DOCUMENT STATUS", styles["cover_label"]),
-            ],
-            [
-                Paragraph(str(reporting_year), styles["cover_meta"]),
-                Paragraph(f"{version_number}.0", styles["cover_meta"]),
-                Paragraph("Internal review", styles["cover_meta"]),
-            ],
-        ],
-        colWidths=[46 * mm, 46 * mm, 55 * mm],
-        hAlign="LEFT",
-    )
-    cover_metadata.setStyle(
-        TableStyle(
-            [
-                ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                ("LINEABOVE", (0, 0), (-1, 0), 0.6, colors.HexColor("#527398")),
-                ("TOPPADDING", (0, 0), (-1, 0), 8),
-                ("BOTTOMPADDING", (0, 0), (-1, 0), 4),
-                ("LEFTPADDING", (0, 0), (-1, -1), 0),
-                ("RIGHTPADDING", (0, 0), (-1, -1), 8),
-            ]
-        )
-    )
-
     toc = TableOfContents()
     toc.levelStyles = [
         styles["toc_0"],
@@ -907,35 +1147,23 @@ def render_markdown_to_pdf_bytes(
     toc.dotsMinLevel = 0
 
     story = [
-        Spacer(1, 8 * mm),
-        Paragraph(_inline_markdown(bank_name.upper()), styles["cover_bank"]),
-        Spacer(1, 27 * mm),
-        Paragraph(
-            "SUSTAINABILITY-RELATED<br/>FINANCIAL DISCLOSURES",
-            styles["cover_title"],
-        ),
-        HRFlowable(
-            width=34 * mm,
-            thickness=3,
-            color=LIME,
-            hAlign="LEFT",
-            spaceBefore=4,
-            spaceAfter=8,
-        ),
-        Paragraph("IFRS S1 AND IFRS S2", styles["cover_standard"]),
-        Spacer(1, 42 * mm),
-        cover_metadata,
-        Spacer(1, 14 * mm),
-        Paragraph("CONFIDENTIAL · INTERNAL USE", styles["cover_label"]),
         NextPageTemplate("body"),
         PageBreak(),
-        Paragraph("Document information", styles["page_title"]),
+        Paragraph("01  /  DOCUMENT CONTROL", styles["eyebrow"]),
+        Paragraph("Report profile", styles["page_title"]),
         Paragraph(
-            "Control information for the sustainability-related financial "
-            "disclosures presented in this report.",
+            "Identity, status and controlled-use information for this "
+            "sustainability-related financial disclosure report.",
             styles["lead"],
         ),
-        Spacer(1, 4 * mm),
+        Spacer(1, 2 * mm),
+        _metadata_summary_cards(
+            reporting_year=reporting_year,
+            version_number=version_number,
+            styles=styles,
+        ),
+        Spacer(1, 8 * mm),
+        Paragraph("Document register", styles["h2"]),
         _document_information_table(
             title=title,
             bank_name=bank_name,
@@ -943,29 +1171,21 @@ def render_markdown_to_pdf_bytes(
             version_number=version_number,
             styles=styles,
         ),
-        Spacer(1, 12 * mm),
-        Paragraph("Purpose and use", styles["h2"]),
-        Paragraph(
-            "This document supports the institution's internal sustainability "
-            "reporting and review process. It is prepared for controlled use by "
-            "authorised auditors, reviewers and administrators.",
-            styles["body"],
-        ),
-        Paragraph(
-            "<b>Review notice:</b> Approval status is controlled in the platform. "
-            "A downloaded copy should be checked against the latest version before use.",
-            styles["quote"],
-        ),
+        Spacer(1, 9 * mm),
+        _purpose_cards(styles),
         PageBreak(),
-        Paragraph("Table of contents", styles["page_title"]),
+        Paragraph("02  /  NAVIGATION", styles["eyebrow"]),
+        Paragraph("Inside this report", styles["page_title"]),
         Paragraph(
-            "Major disclosure sections and their supporting subsections.",
+            "A structured view of the five IFRS disclosure areas and their "
+            "supporting subsections.",
             styles["lead"],
         ),
         HRFlowable(
-            width="100%",
-            thickness=1,
+            width=32 * mm,
+            thickness=2.2,
             color=BLUE,
+            hAlign="LEFT",
             spaceAfter=8,
         ),
         toc,
