@@ -10,6 +10,7 @@ import { ReportGeneration } from './pages/report-generation/report-generation';
 import { MfaVerify } from './pages/mfa-verify/mfa-verify';
 import { MfaSetup } from './pages/mfa-setup/mfa-setup';
 import { RiskAnalysis } from './pages/risk-analysis/risk-analysis';
+import { Assistant } from './pages/assistant/assistant';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
