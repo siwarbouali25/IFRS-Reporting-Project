@@ -157,7 +157,7 @@ class ReportVersionViewSet(viewsets.ReadOnlyModelViewSet):
         with transaction.atomic():
             report_version = (
                 ReportVersion.objects.select_related("created_by")
-                .select_for_update()
+                .select_for_update(of=("self",))
                 .get(id=pk)
             )
             self.check_object_permissions(request, report_version)
@@ -207,7 +207,7 @@ class ReportVersionViewSet(viewsets.ReadOnlyModelViewSet):
         with transaction.atomic():
             report_version = (
                 ReportVersion.objects.select_related("created_by")
-                .select_for_update()
+                .select_for_update(of=("self",))
                 .get(id=pk)
             )
             self.check_object_permissions(request, report_version)
@@ -250,7 +250,7 @@ class ReportVersionViewSet(viewsets.ReadOnlyModelViewSet):
         with transaction.atomic():
             report_version = (
                 ReportVersion.objects.select_related("created_by")
-                .select_for_update()
+                .select_for_update(of=("self",))
                 .get(id=pk)
             )
             self.check_object_permissions(request, report_version)
@@ -297,7 +297,7 @@ class ReportVersionViewSet(viewsets.ReadOnlyModelViewSet):
         with transaction.atomic():
             report_version = (
                 ReportVersion.objects.select_related("created_by")
-                .select_for_update()
+                .select_for_update(of=("self",))
                 .get(id=pk)
             )
             self.check_object_permissions(request, report_version)
