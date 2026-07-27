@@ -478,199 +478,50 @@
     </div>
   </section>
 
-  <div class="section-label">Approval</div>
+  <div class="section-label" *ngIf="currentReportVersion">
+    Review Workflow
+  </div>
 
-  <section class="approval-card">
-    <div class="approval-summary">
-      <div class="approval-title-row">
-        <div>
-          <p class="eyebrow">Review Workflow</p>
-          <h3>Report Approval</h3>
-          <p class="approval-description">
-            Submit the generated report for review, record reviewer feedback,
-            and preserve the decision history.
-          </p>
-        </div>
-
-        <span
-          class="status-pill"
-          *ngIf="currentReportVersion"
-          [ngClass]="getApprovalStatusClass(currentReportVersion.status)"
-        >
-          {{ formatStatus(currentReportVersion.status) }}
-        </span>
-      </div>
-
-      <div class="approval-metadata" *ngIf="currentReportVersion">
-        <div>
-          <small>Version</small>
-          <strong>v{{ currentReportVersion.version_number }}</strong>
-        </div>
-
-        <div>
-          <small>Submitted by</small>
-          <strong>
-            {{ currentReportVersion.submitted_by_name || 'Not submitted' }}
-          </strong>
-        </div>
-
-        <div>
-          <small>Submitted on</small>
-          <strong>
-            {{
-              currentReportVersion.submitted_at
-                ? (currentReportVersion.submitted_at | date:'medium')
-                : '—'
-            }}
-          </strong>
-        </div>
-
-        <div>
-          <small>Reviewed by</small>
-          <strong>
-            {{ currentReportVersion.reviewed_by_name || 'Not reviewed' }}
-          </strong>
-        </div>
-
-        <div>
-          <small>Decision date</small>
-          <strong>
-            {{
-              currentReportVersion.reviewed_at
-                ? (currentReportVersion.reviewed_at | date:'medium')
-                : '—'
-            }}
-          </strong>
-        </div>
-      </div>
-
-      <div class="approval-placeholder" *ngIf="!currentReportVersion">
-        Generate a report to start the approval workflow.
-      </div>
-
-      <div
-        class="decision-message approved"
-        *ngIf="currentReportVersion?.status === 'approved'"
-      >
-        <i class="pi pi-check-circle"></i>
-        <div>
-          <strong>Report approved</strong>
-          <p>
-            {{
-              currentReportVersion?.review_comment ||
-              'The report was approved without an additional comment.'
-            }}
-          </p>
-        </div>
-      </div>
-
-      <div
-        class="decision-message rejected"
-        *ngIf="currentReportVersion?.status === 'rejected'"
-      >
-        <i class="pi pi-times-circle"></i>
-        <div>
-          <strong>Report rejected</strong>
-          <p>{{ currentReportVersion?.review_comment }}</p>
-        </div>
-      </div>
-
-      <div
-        class="decision-message changes"
-        *ngIf="currentReportVersion?.status === 'changes_requested'"
-      >
-        <i class="pi pi-exclamation-circle"></i>
-        <div>
-          <strong>Changes requested</strong>
-          <p>{{ currentReportVersion?.review_comment }}</p>
-        </div>
-      </div>
+  <section
+    class="approval-workspace-card"
+    *ngIf="currentReportVersion"
+  >
+    <div class="approval-workspace-icon">
+      <i class="pi pi-check-circle"></i>
     </div>
 
-    <div class="approval-form" *ngIf="currentReportVersion">
-      <label for="approvalComment">Review comment</label>
+    <div>
+      <p class="eyebrow">Dedicated Review Workspace</p>
+      <h3>Continue to Approval</h3>
+      <p>
+        Review validation results and warnings, submit the report, record
+        decisions, and inspect the complete approval history in the dedicated
+        workspace.
+      </p>
+    </div>
 
-      <textarea
-        id="approvalComment"
-        rows="5"
-        [(ngModel)]="approvalComment"
-        [disabled]="
-          isApprovalActionRunning ||
-          currentReportVersion.status === 'approved' ||
-          currentReportVersion.status === 'rejected'
+    <div class="approval-workspace-actions">
+      <span
+        class="status-pill"
+        [ngClass]="
+          getApprovalStatusClass(
+            currentReportVersion.status
+          )
         "
-        placeholder="Add an optional note for submission or approval. A comment is required when requesting changes or rejecting."
-      ></textarea>
-
-      <div class="approval-actions">
-        <button
-          class="primary-btn"
-          type="button"
-          *ngIf="canSubmitReportForReview"
-          [disabled]="isApprovalActionRunning"
-          (click)="submitForReview()"
-        >
-          <i class="pi pi-send"></i>
-          Submit for Review
-        </button>
-
-        <ng-container *ngIf="isPendingReview">
-          <button
-            class="secondary-btn request-btn"
-            type="button"
-            [disabled]="isApprovalActionRunning"
-            (click)="requestChanges()"
-          >
-            Request Changes
-          </button>
-
-          <button
-            class="secondary-btn reject-btn"
-            type="button"
-            [disabled]="isApprovalActionRunning"
-            (click)="rejectReport()"
-          >
-            Reject
-          </button>
-
-          <button
-            class="primary-btn"
-            type="button"
-            [disabled]="isApprovalActionRunning"
-            (click)="approveReport()"
-          >
-            <i class="pi pi-check"></i>
-            Approve Report
-          </button>
-        </ng-container>
-
-        <span class="action-progress" *ngIf="isApprovalActionRunning">
-          <i class="pi pi-spin pi-spinner"></i>
-          Saving decision...
-        </span>
-      </div>
-
-      <div
-        class="approval-history"
-        *ngIf="currentReportVersion.approval_actions.length > 0"
       >
-        <h4>Decision History</h4>
+        {{ formatStatus(currentReportVersion.status) }}
+      </span>
 
-        <div
-          class="history-item"
-          *ngFor="let action of currentReportVersion.approval_actions"
-        >
-          <span class="history-dot"></span>
-          <div>
-            <strong>{{ formatStatus(action.action) }}</strong>
-            <p>
-              {{ action.actor_name || action.actor_email || 'System user' }}
-              · {{ action.created_at | date:'medium' }}
-            </p>
-            <small *ngIf="action.comment">{{ action.comment }}</small>
-          </div>
-        </div>
-      </div>
+      <a
+        class="primary-btn workspace-link"
+        routerLink="/approval"
+        [queryParams]="{
+          report: currentReportVersion.id
+        }"
+      >
+        Open Approval Workspace
+        <i class="pi pi-arrow-right"></i>
+      </a>
     </div>
   </section>
 </div>

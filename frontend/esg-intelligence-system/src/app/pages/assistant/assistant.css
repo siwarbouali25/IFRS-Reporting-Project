@@ -235,7 +235,8 @@
 
 /* data gaps */
 .gaps {
-  width: 100%;
+  width: 0;
+  min-width: 100%;
   box-sizing: border-box;
   margin-top: 12px;
   padding: 10px 12px;
@@ -270,7 +271,9 @@
 
 /* citations */
 .citations {
-  width: 100%;
+  width: 0;
+  min-width: 100%;
+  box-sizing: border-box;
   margin-top: 12px;
   padding-top: 11px;
   border-top: 1px solid var(--border);

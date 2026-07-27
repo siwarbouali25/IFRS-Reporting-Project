@@ -267,6 +267,20 @@ class StartReportGenerationJobSerializer(serializers.Serializer):
         )
 
 
+class ReportSectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReportSection
+        fields = [
+            "id",
+            "report_version",
+            "section_key",
+            "status",
+            "score",
+            "revision_count",
+            "created_at",
+        ]
+
+
 class ReportVersionSerializer(serializers.ModelSerializer):
     bank_code = serializers.CharField(source="bank.code", read_only=True)
     bank_name = serializers.CharField(source="bank.name", read_only=True)
@@ -281,6 +295,84 @@ class ReportVersionSerializer(serializers.ModelSerializer):
         read_only=True,
     )
     approval_actions = ReportApprovalActionSerializer(many=True, read_only=True)
+    sections = ReportSectionSerializer(many=True, read_only=True)
+    generation_status = serializers.CharField(source="job.status", read_only=True)
+    generation_completed_at = serializers.DateTimeField(
+        source="job.completed_at",
+        read_only=True,
+    )
+    warning_count = serializers.IntegerField(source="job.warning_count", read_only=True)
+    validation_summary = serializers.SerializerMethodField()
+    is_creator = serializers.SerializerMethodField()
+    can_submit = serializers.SerializerMethodField()
+    can_review = serializers.SerializerMethodField()
+    is_locked = serializers.SerializerMethodField()
+
+    def _request_user(self):
+        request = self.context.get("request")
+        return getattr(request, "user", None)
+
+    def get_validation_summary(self, obj):
+        sections = list(obj.sections.all())
+        scores = [section.score for section in sections if section.score is not None]
+        warning_statuses = {ReportSection.Status.WARNING}
+        failed_statuses = {
+            ReportSection.Status.FAILED,
+            ReportSection.Status.VALIDATION_FAILED,
+        }
+        ready_statuses = {
+            ReportSection.Status.GENERATED,
+            ReportSection.Status.REVISED,
+            ReportSection.Status.APPROVED,
+            ReportSection.Status.WARNING,
+        }
+        return {
+            "total_sections": len(sections),
+            "ready_sections": sum(
+                section.status in ready_statuses for section in sections
+            ),
+            "approved_sections": sum(
+                section.status == ReportSection.Status.APPROVED
+                for section in sections
+            ),
+            "warning_sections": sum(
+                section.status in warning_statuses for section in sections
+            ),
+            "failed_sections": sum(
+                section.status in failed_statuses for section in sections
+            ),
+            "average_score": round(sum(scores) / len(scores), 1) if scores else None,
+        }
+
+    def get_is_creator(self, obj):
+        user = self._request_user()
+        return bool(user and user.is_authenticated and obj.created_by_id == user.id)
+
+    def get_can_submit(self, obj):
+        user = self._request_user()
+        if not user or not user.is_authenticated:
+            return False
+        if obj.status not in {
+            ReportVersion.Status.DRAFT,
+            ReportVersion.Status.CHANGES_REQUESTED,
+        }:
+            return False
+        if user.role == "admin":
+            return True
+        return user.role == "auditor" and obj.created_by_id == user.id
+
+    def get_can_review(self, obj):
+        user = self._request_user()
+        if not user or not user.is_authenticated:
+            return False
+        if obj.status != ReportVersion.Status.PENDING_REVIEW:
+            return False
+        if user.role == "admin":
+            return True
+        return user.role == "expert_reviewer" and obj.created_by_id != user.id
+
+    def get_is_locked(self, obj):
+        return obj.status == ReportVersion.Status.APPROVED
 
     class Meta:
         model = ReportVersion
@@ -304,6 +396,15 @@ class ReportVersionSerializer(serializers.ModelSerializer):
             "reviewed_at",
             "review_comment",
             "approval_actions",
+            "sections",
+            "generation_status",
+            "generation_completed_at",
+            "warning_count",
+            "validation_summary",
+            "is_creator",
+            "can_submit",
+            "can_review",
+            "is_locked",
             "created_at",
         ]
 
@@ -315,17 +416,3 @@ class ReportReviewCommentSerializer(serializers.Serializer):
         trim_whitespace=True,
         max_length=5000,
     )
-
-
-class ReportSectionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ReportSection
-        fields = [
-            "id",
-            "report_version",
-            "section_key",
-            "status",
-            "score",
-            "revision_count",
-            "created_at",
-        ]

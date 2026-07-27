@@ -1,1 +1,516 @@
-<p>approval works!</p>
+<div class="approval-page">
+  <section class="hero">
+    <div>
+      <p class="eyebrow">Review &amp; Approval</p>
+      <h1>Approval <em>workspace</em></h1>
+      <p class="subtitle">
+        Review final IFRS S1/S2 reports, inspect validation evidence, record
+        decisions, and preserve a complete version history.
+      </p>
+    </div>
+
+    <div class="hero-actions">
+      <div class="role-chip" *ngIf="currentUser">
+        <i class="pi pi-shield"></i>
+        {{ formatStatus(currentUser.role) }}
+      </div>
+
+      <button
+        class="secondary-btn"
+        type="button"
+        (click)="loadVersions(currentVersion?.id)"
+        [disabled]="isLoadingVersions"
+      >
+        <i
+          class="pi"
+          [ngClass]="
+            isLoadingVersions
+              ? 'pi-spin pi-spinner'
+              : 'pi-refresh'
+          "
+        ></i>
+        {{ isLoadingVersions ? 'Refreshing...' : 'Refresh' }}
+      </button>
+    </div>
+  </section>
+
+  <div class="message error" *ngIf="errorMessage">
+    <i class="pi pi-exclamation-circle"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <div class="message success" *ngIf="successMessage">
+    <i class="pi pi-check-circle"></i>
+    <span>{{ successMessage }}</span>
+  </div>
+
+  <section
+    class="state-card loading-state"
+    *ngIf="isLoadingVersions && versions.length === 0"
+  >
+    <i class="pi pi-spin pi-spinner"></i>
+    <h2>Loading approval workspace</h2>
+    <p>Retrieving the latest report versions and review history.</p>
+  </section>
+
+  <section
+    class="state-card empty-state"
+    *ngIf="!isLoadingVersions && versions.length === 0"
+  >
+    <div class="state-icon">
+      <i class="pi pi-file-check"></i>
+    </div>
+    <h2>No report is ready for review</h2>
+    <p>
+      Generate an IFRS S1/S2 report first. The latest version will appear here
+      automatically.
+    </p>
+    <a class="primary-btn link-btn" routerLink="/report-generation">
+      <i class="pi pi-sparkles"></i>
+      Go to Report Generation
+    </a>
+  </section>
+
+  <ng-container *ngIf="currentVersion as report">
+    <section class="context-bar">
+      <div class="report-identity">
+        <div class="document-icon">
+          <i class="pi pi-file-pdf"></i>
+        </div>
+
+        <div>
+          <p class="eyebrow">Selected Report</p>
+          <h2>{{ report.bank_name }}</h2>
+          <p>
+            IFRS S1/S2 · Reporting year {{ report.reporting_year }} · Version
+            {{ report.version_number }}.0
+          </p>
+        </div>
+      </div>
+
+      <div class="context-actions">
+        <label class="version-select">
+          <span>Report version</span>
+          <select
+            [(ngModel)]="selectedVersionId"
+            (ngModelChange)="selectVersion($event)"
+            [disabled]="isLoadingWorkspace || isActionRunning"
+          >
+            <option
+              *ngFor="let version of versions"
+              [value]="version.id"
+            >
+              {{ version.bank_code }} · {{ version.reporting_year }} · v{{
+                version.version_number
+              }}.0 · {{ formatStatus(version.status) }}
+            </option>
+          </select>
+        </label>
+
+        <span
+          class="status-pill"
+          [ngClass]="getStatusClass(report.status)"
+        >
+          {{ formatStatus(report.status) }}
+        </span>
+
+        <button
+          class="secondary-btn"
+          type="button"
+          *ngIf="finalMarkdownArtifact"
+          (click)="downloadArtifact(finalMarkdownArtifact)"
+        >
+          <i class="pi pi-file-edit"></i>
+          Markdown
+        </button>
+
+        <button
+          class="secondary-btn"
+          type="button"
+          *ngIf="finalPdfArtifact"
+          (click)="openPdfFullScreen()"
+          [disabled]="isPreviewLoading"
+        >
+          <i class="pi pi-window-maximize"></i>
+          Full Screen
+        </button>
+
+        <button
+          class="primary-btn"
+          type="button"
+          *ngIf="finalPdfArtifact"
+          (click)="downloadArtifact(finalPdfArtifact)"
+        >
+          <i class="pi pi-download"></i>
+          Download PDF
+        </button>
+
+        <button
+          class="primary-btn"
+          type="button"
+          *ngIf="report.can_submit"
+          (click)="submitForReview()"
+          [disabled]="isActionRunning"
+        >
+          <i class="pi pi-send"></i>
+          Submit for Review
+        </button>
+
+        <button
+          class="primary-btn"
+          type="button"
+          *ngIf="report.can_review"
+          (click)="approveReport()"
+          [disabled]="isActionRunning"
+        >
+          <i class="pi pi-check"></i>
+          Approve
+        </button>
+      </div>
+    </section>
+
+    <div class="workspace-grid">
+      <section class="pdf-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Document Preview</p>
+            <h3>Final report PDF</h3>
+          </div>
+
+          <div class="file-summary" *ngIf="finalPdfArtifact">
+            <span>{{ formatBytes(finalPdfArtifact.size_bytes) }}</span>
+            <button
+              type="button"
+              (click)="previewPdf(finalPdfArtifact)"
+              [disabled]="isPreviewLoading"
+              aria-label="Reload PDF preview"
+            >
+              <i class="pi pi-refresh"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="pdf-stage">
+          <div
+            class="pdf-placeholder"
+            *ngIf="isLoadingWorkspace || isPreviewLoading"
+          >
+            <i class="pi pi-spin pi-spinner"></i>
+            <strong>Preparing document preview</strong>
+            <span>Loading the selected version securely.</span>
+          </div>
+
+          <iframe
+            class="pdf-frame"
+            *ngIf="
+              !isLoadingWorkspace &&
+              !isPreviewLoading &&
+              pdfPreviewUrl
+            "
+            [src]="pdfPreviewUrl"
+            title="Selected IFRS S1/S2 report preview"
+          ></iframe>
+
+          <div
+            class="pdf-placeholder"
+            *ngIf="
+              !isLoadingWorkspace &&
+              !isPreviewLoading &&
+              !pdfPreviewUrl
+            "
+          >
+            <i class="pi pi-file-pdf"></i>
+            <strong>PDF preview unavailable</strong>
+            <span>The final PDF artifact was not found for this version.</span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="review-panel">
+        <section class="review-section status-section">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Review Status</p>
+              <h3>{{ formatStatus(report.status) }}</h3>
+            </div>
+
+            <span
+              class="status-orb"
+              [ngClass]="getStatusClass(report.status)"
+            >
+              <i
+                class="pi"
+                [ngClass]="
+                  report.status === 'approved'
+                    ? 'pi-lock'
+                    : report.status === 'pending_review'
+                      ? 'pi-clock'
+                      : 'pi-file-edit'
+                "
+              ></i>
+            </span>
+          </div>
+
+          <p class="permission-note">
+            <i class="pi pi-info-circle"></i>
+            {{ permissionMessage }}
+          </p>
+
+          <div class="metadata-grid">
+            <div>
+              <small>Institution</small>
+              <strong>{{ report.bank_name }}</strong>
+            </div>
+            <div>
+              <small>Reporting year</small>
+              <strong>{{ report.reporting_year }}</strong>
+            </div>
+            <div>
+              <small>Version</small>
+              <strong>v{{ report.version_number }}.0</strong>
+            </div>
+            <div>
+              <small>Created by</small>
+              <strong>{{ report.created_by_name || 'System user' }}</strong>
+            </div>
+            <div>
+              <small>Generated</small>
+              <strong>
+                {{
+                  (report.generation_completed_at || report.created_at)
+                    | date:'medium'
+                }}
+              </strong>
+            </div>
+            <div>
+              <small>Reviewed by</small>
+              <strong>{{ report.reviewed_by_name || 'Pending' }}</strong>
+            </div>
+          </div>
+
+          <div class="lock-banner" *ngIf="report.is_locked">
+            <i class="pi pi-lock"></i>
+            <div>
+              <strong>Approved version locked</strong>
+              <span>
+                The decision history remains available, but this version can no
+                longer be changed.
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <section class="review-section">
+          <div class="section-heading compact">
+            <div>
+              <p class="eyebrow">Quality Controls</p>
+              <h3>Validation checklist</h3>
+            </div>
+
+            <span
+              class="score-chip"
+              *ngIf="
+                report.validation_summary.average_score !== null &&
+                report.validation_summary.average_score !== undefined
+              "
+            >
+              {{ report.validation_summary.average_score | number:'1.0-1' }}
+              avg.
+            </span>
+          </div>
+
+          <div class="checklist">
+            <div
+              class="check-item"
+              *ngFor="let check of validationChecks"
+              [ngClass]="check.state"
+            >
+              <span class="check-icon">
+                <i [class]="checkIcon(check.state)"></i>
+              </span>
+              <div>
+                <strong>{{ check.label }}</strong>
+                <p>{{ check.detail }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="section-status-list"
+            *ngIf="report.sections.length > 0"
+          >
+            <div
+              class="section-status"
+              *ngFor="let section of report.sections"
+            >
+              <span>{{ sectionLabel(section) }}</span>
+              <span
+                class="mini-status"
+                [ngClass]="getStatusClass(section.status)"
+              >
+                {{ formatStatus(section.status) }}
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <section class="review-section" *ngIf="warnings.length > 0">
+          <div class="section-heading compact">
+            <div>
+              <p class="eyebrow">Review Attention</p>
+              <h3>Warnings</h3>
+            </div>
+            <span class="warning-count">{{ warnings.length }}</span>
+          </div>
+
+          <div class="warning-list">
+            <article
+              class="warning-item"
+              *ngFor="let warning of warnings"
+            >
+              <i class="pi pi-exclamation-triangle"></i>
+              <div>
+                <strong>{{ warning.stage }}</strong>
+                <p>{{ warning.message }}</p>
+                <span>{{ formatStatus(warning.warning_type) }}</span>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="review-section">
+          <div class="section-heading compact">
+            <div>
+              <p class="eyebrow">Reviewer Input</p>
+              <h3>Decision comment</h3>
+            </div>
+          </div>
+
+          <textarea
+            rows="5"
+            [(ngModel)]="reviewComment"
+            [disabled]="report.is_locked || isActionRunning"
+            placeholder="Add a review note. A comment is required for change requests and rejection."
+          ></textarea>
+
+          <p class="comment-help" *ngIf="report.can_review">
+            Explain any material issue clearly so the report creator can act on
+            it.
+          </p>
+
+          <div class="decision-actions">
+            <button
+              class="primary-btn"
+              type="button"
+              *ngIf="report.can_submit"
+              (click)="submitForReview()"
+              [disabled]="isActionRunning"
+            >
+              <i class="pi pi-send"></i>
+              Submit for Review
+            </button>
+
+            <ng-container *ngIf="report.can_review">
+              <button
+                class="secondary-btn change-btn"
+                type="button"
+                (click)="requestChanges()"
+                [disabled]="isActionRunning"
+              >
+                Request Changes
+              </button>
+
+              <button
+                class="secondary-btn reject-btn"
+                type="button"
+                (click)="rejectReport()"
+                [disabled]="isActionRunning"
+              >
+                Reject
+              </button>
+
+              <button
+                class="primary-btn"
+                type="button"
+                (click)="approveReport()"
+                [disabled]="isActionRunning"
+              >
+                <i class="pi pi-check"></i>
+                Approve Report
+              </button>
+            </ng-container>
+
+            <span class="action-progress" *ngIf="isActionRunning">
+              <i class="pi pi-spin pi-spinner"></i>
+              Saving decision...
+            </span>
+          </div>
+        </section>
+
+        <section
+          class="review-section"
+          *ngIf="report.approval_actions.length > 0"
+        >
+          <div class="section-heading compact">
+            <div>
+              <p class="eyebrow">Audit Trail</p>
+              <h3>Decision history</h3>
+            </div>
+          </div>
+
+          <div class="timeline">
+            <article
+              class="timeline-item"
+              *ngFor="let action of report.approval_actions"
+            >
+              <span
+                class="timeline-marker"
+                [ngClass]="getStatusClass(action.action)"
+              ></span>
+              <div>
+                <div class="timeline-title">
+                  <strong>{{ formatStatus(action.action) }}</strong>
+                  <time>{{ action.created_at | date:'medium' }}</time>
+                </div>
+                <p>
+                  {{ action.actor_name || action.actor_email || 'System user' }}
+                </p>
+                <blockquote *ngIf="action.comment">
+                  {{ action.comment }}
+                </blockquote>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="review-section">
+          <div class="section-heading compact">
+            <div>
+              <p class="eyebrow">Version Control</p>
+              <h3>Version history</h3>
+            </div>
+          </div>
+
+          <div class="version-list">
+            <button
+              type="button"
+              class="version-item"
+              *ngFor="let version of relatedVersions"
+              [class.selected]="version.id === report.id"
+              (click)="selectVersion(version.id)"
+            >
+              <span class="version-number">
+                v{{ version.version_number }}.0
+              </span>
+              <span class="version-meta">
+                <strong>{{ formatStatus(version.status) }}</strong>
+                <small>{{ version.created_at | date:'mediumDate' }}</small>
+              </span>
+              <i class="pi pi-chevron-right"></i>
+            </button>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </ng-container>
+</div>

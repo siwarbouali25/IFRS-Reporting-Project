@@ -111,6 +111,31 @@ export interface ReportApprovalAction {
   created_at: string;
 }
 
+export interface ReportSection {
+  id: string;
+  report_version: string;
+  section_key: string;
+  status:
+    | 'generated'
+    | 'validation_failed'
+    | 'revised'
+    | 'approved'
+    | 'warning'
+    | 'failed';
+  score?: number | null;
+  revision_count: number;
+  created_at: string;
+}
+
+export interface ReportValidationSummary {
+  total_sections: number;
+  ready_sections: number;
+  approved_sections: number;
+  warning_sections: number;
+  failed_sections: number;
+  average_score?: number | null;
+}
+
 export interface ReportVersion {
   id: string;
   job: string;
@@ -131,6 +156,15 @@ export interface ReportVersion {
   reviewed_at?: string | null;
   review_comment: string;
   approval_actions: ReportApprovalAction[];
+  sections: ReportSection[];
+  generation_status: GenerationJobStatus;
+  generation_completed_at?: string | null;
+  warning_count: number;
+  validation_summary: ReportValidationSummary;
+  is_creator: boolean;
+  can_submit: boolean;
+  can_review: boolean;
+  is_locked: boolean;
   created_at: string;
 }
 
@@ -268,6 +302,37 @@ export class Report {
     return this.http.get<ReportVersion>(
       `${this.apiUrl}/reports/${reportVersionId}/`
     );
+  }
+
+  getReportVersions(
+    bankCode?: string,
+    reportingYear?: number
+  ): Observable<ReportVersion[]> {
+    let params = new HttpParams();
+
+    if (bankCode) {
+      params = params.set('bank_code', bankCode);
+    }
+
+    if (reportingYear) {
+      params = params.set(
+        'reporting_year',
+        String(reportingYear)
+      );
+    }
+
+    return this.http
+      .get<ListResponse<ReportVersion>>(
+        `${this.apiUrl}/reports/`,
+        { params }
+      )
+      .pipe(
+        map((response) =>
+          Array.isArray(response)
+            ? response
+            : response.results
+        )
+      );
   }
 
   submitForReview(

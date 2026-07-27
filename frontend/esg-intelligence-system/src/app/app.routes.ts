@@ -11,6 +11,7 @@ import { MfaVerify } from './pages/mfa-verify/mfa-verify';
 import { MfaSetup } from './pages/mfa-setup/mfa-setup';
 import { RiskAnalysis } from './pages/risk-analysis/risk-analysis';
 import { Assistant } from './pages/assistant/assistant';
+import { Approval } from './pages/approval/approval';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -26,6 +27,7 @@ export const routes: Routes = [
       { path: 'data-preparation', component: DataPreparation },
       { path: 'report-generation', component: ReportGeneration },
       { path: 'risk-analysis', component: RiskAnalysis },
+      { path: 'approval', component: Approval }
     ]
   },
   { path: 'login', component: Login },

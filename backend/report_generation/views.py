@@ -15,6 +15,7 @@ from .models import (
     ReportGenerationJob,
     ReportVersion,
 )
+from .permissions import CanReviewReport, CanSubmitReportForReview
 from .serializers import (
     GenerationWarningSerializer,
     ReportGenerationJobSerializer,
@@ -101,6 +102,15 @@ class ReportVersionViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ReportVersionSerializer
     permission_classes = [IsAuthenticated]
 
+    def get_permissions(self):
+        if self.action == "submit_for_review":
+            permission_classes = [CanSubmitReportForReview]
+        elif self.action in {"approve", "request_changes", "reject"}:
+            permission_classes = [CanReviewReport]
+        else:
+            permission_classes = self.permission_classes
+        return [permission() for permission in permission_classes]
+
     def get_queryset(self):
         queryset = (
             ReportVersion.objects.select_related(
@@ -110,18 +120,25 @@ class ReportVersionViewSet(viewsets.ReadOnlyModelViewSet):
                 "submitted_by",
                 "reviewed_by",
             )
-            .prefetch_related("approval_actions", "approval_actions__actor")
+            .prefetch_related(
+                "approval_actions",
+                "approval_actions__actor",
+                "sections",
+            )
             .all()
             .order_by("-created_at")
         )
 
         bank_code = self.request.query_params.get("bank_code")
         reporting_year = self.request.query_params.get("reporting_year")
+        report_status = self.request.query_params.get("status")
 
         if bank_code:
-            queryset = queryset.filter(bank__code=bank_code)
+            queryset = queryset.filter(bank__code__iexact=bank_code)
         if reporting_year:
             queryset = queryset.filter(reporting_year=reporting_year)
+        if report_status:
+            queryset = queryset.filter(status=report_status)
         return queryset
 
     def _read_comment(self, request) -> str:
@@ -131,14 +148,19 @@ class ReportVersionViewSet(viewsets.ReadOnlyModelViewSet):
 
     def _response(self, report_version: ReportVersion) -> Response:
         refreshed = self.get_queryset().get(id=report_version.id)
-        return Response(ReportVersionSerializer(refreshed).data)
+        return Response(self.get_serializer(refreshed).data)
 
     @action(detail=True, methods=["post"], url_path="submit-for-review")
     def submit_for_review(self, request, pk=None):
         comment = self._read_comment(request)
 
         with transaction.atomic():
-            report_version = ReportVersion.objects.select_for_update().get(id=pk)
+            report_version = (
+                ReportVersion.objects.select_related("created_by")
+                .select_for_update()
+                .get(id=pk)
+            )
+            self.check_object_permissions(request, report_version)
             if report_version.status not in {
                 ReportVersion.Status.DRAFT,
                 ReportVersion.Status.CHANGES_REQUESTED,
@@ -183,7 +205,12 @@ class ReportVersionViewSet(viewsets.ReadOnlyModelViewSet):
         comment = self._read_comment(request)
 
         with transaction.atomic():
-            report_version = ReportVersion.objects.select_for_update().get(id=pk)
+            report_version = (
+                ReportVersion.objects.select_related("created_by")
+                .select_for_update()
+                .get(id=pk)
+            )
+            self.check_object_permissions(request, report_version)
             if report_version.status != ReportVersion.Status.PENDING_REVIEW:
                 return Response(
                     {"detail": "Only a report pending review can be approved."},
@@ -221,7 +248,12 @@ class ReportVersionViewSet(viewsets.ReadOnlyModelViewSet):
             )
 
         with transaction.atomic():
-            report_version = ReportVersion.objects.select_for_update().get(id=pk)
+            report_version = (
+                ReportVersion.objects.select_related("created_by")
+                .select_for_update()
+                .get(id=pk)
+            )
+            self.check_object_permissions(request, report_version)
             if report_version.status != ReportVersion.Status.PENDING_REVIEW:
                 return Response(
                     {
@@ -263,7 +295,12 @@ class ReportVersionViewSet(viewsets.ReadOnlyModelViewSet):
             )
 
         with transaction.atomic():
-            report_version = ReportVersion.objects.select_for_update().get(id=pk)
+            report_version = (
+                ReportVersion.objects.select_related("created_by")
+                .select_for_update()
+                .get(id=pk)
+            )
+            self.check_object_permissions(request, report_version)
             if report_version.status != ReportVersion.Status.PENDING_REVIEW:
                 return Response(
                     {"detail": "Only a report pending review can be rejected."},

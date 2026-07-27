@@ -1,11 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import {
   DomSanitizer,
   SafeResourceUrl,
 } from '@angular/platform-browser';
-import { Observable } from 'rxjs';
+import { RouterLink } from '@angular/router';
 
 import {
   GenerationJob,
@@ -21,7 +20,7 @@ import {
 
 @Component({
   selector: 'app-report-generation',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './report-generation.html',
   styleUrl: './report-generation.css',
 })
@@ -45,14 +44,12 @@ export class ReportGeneration implements OnInit, OnDestroy {
   selectedPreviewArtifact: ReportArtifact | null = null;
   pdfPreviewUrl: SafeResourceUrl | null = null;
   currentReportVersion: ReportVersion | null = null;
-  approvalComment = '';
 
   isStarting = false;
   isLoadingJobs = false;
   isLoadingPayloadManifest = false;
   isPolling = false;
   isPreviewLoading = false;
-  isApprovalActionRunning = false;
   errorMessage = '';
 
   private pollingTimeout?: ReturnType<typeof setTimeout>;
@@ -91,7 +88,6 @@ export class ReportGeneration implements OnInit, OnDestroy {
     this.warnings = [];
     this.artifacts = [];
     this.currentReportVersion = null;
-    this.approvalComment = '';
     this.clearPdfPreview();
     this.isStarting = true;
 
@@ -241,7 +237,6 @@ export class ReportGeneration implements OnInit, OnDestroy {
     this.warnings = [];
     this.artifacts = [];
     this.currentReportVersion = null;
-    this.approvalComment = '';
     this.clearPdfPreview();
     this.errorMessage = '';
 
@@ -377,7 +372,6 @@ export class ReportGeneration implements OnInit, OnDestroy {
     this.reportService.getReportVersion(reportVersionId).subscribe({
       next: (version) => {
         this.currentReportVersion = version;
-        this.approvalComment = version.review_comment ?? '';
       },
       error: () => {
         this.errorMessage =
@@ -436,96 +430,6 @@ export class ReportGeneration implements OnInit, OnDestroy {
       },
       error: () => {
         this.errorMessage = 'Could not download the report file.';
-      },
-    });
-  }
-
-  submitForReview(): void {
-    if (!this.currentReportVersion) {
-      return;
-    }
-
-    this.runApprovalAction(
-      this.reportService.submitForReview(
-        this.currentReportVersion.id,
-        this.approvalComment
-      )
-    );
-  }
-
-  approveReport(): void {
-    if (!this.currentReportVersion) {
-      return;
-    }
-
-    this.runApprovalAction(
-      this.reportService.approveReport(
-        this.currentReportVersion.id,
-        this.approvalComment
-      )
-    );
-  }
-
-  requestChanges(): void {
-    if (!this.currentReportVersion) {
-      return;
-    }
-
-    if (!this.approvalComment.trim()) {
-      this.errorMessage =
-        'Add a review comment before requesting changes.';
-      return;
-    }
-
-    this.runApprovalAction(
-      this.reportService.requestChanges(
-        this.currentReportVersion.id,
-        this.approvalComment
-      )
-    );
-  }
-
-  rejectReport(): void {
-    if (!this.currentReportVersion) {
-      return;
-    }
-
-    if (!this.approvalComment.trim()) {
-      this.errorMessage =
-        'Add a rejection reason before rejecting the report.';
-      return;
-    }
-
-    if (!window.confirm('Reject this report version?')) {
-      return;
-    }
-
-    this.runApprovalAction(
-      this.reportService.rejectReport(
-        this.currentReportVersion.id,
-        this.approvalComment
-      )
-    );
-  }
-
-  private runApprovalAction(
-    request: Observable<ReportVersion>
-  ): void {
-    this.isApprovalActionRunning = true;
-    this.errorMessage = '';
-
-    request.subscribe({
-      next: (version) => {
-        this.currentReportVersion = version;
-        this.approvalComment = version.review_comment ?? '';
-        this.isApprovalActionRunning = false;
-      },
-      error: (error) => {
-        this.isApprovalActionRunning = false;
-        this.errorMessage = this.extractErrorMessage(
-          error,
-          'The approval action could not be completed.'
-        );
       },
     });
   }
@@ -604,17 +508,6 @@ export class ReportGeneration implements OnInit, OnDestroy {
       this.currentJob?.status === 'queued' ||
       this.currentJob?.status === 'running'
     );
-  }
-
-  get canSubmitReportForReview(): boolean {
-    return (
-      this.currentReportVersion?.status === 'draft' ||
-      this.currentReportVersion?.status === 'changes_requested'
-    );
-  }
-
-  get isPendingReview(): boolean {
-    return this.currentReportVersion?.status === 'pending_review';
   }
 
   get generationDuration(): string {
