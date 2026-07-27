@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 from decouple import config
 from datetime import timedelta
+import os
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
@@ -95,6 +96,7 @@ INSTALLED_APPS = [
     "report_artifacts",
     "data_preparation",
     "kpi_dashboard",
+    "assistant",
 ]
 
 MIDDLEWARE = [

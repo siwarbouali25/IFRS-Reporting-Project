@@ -32,6 +32,7 @@ urlpatterns = [
     path("api/", include("report_artifacts.urls")),
     path("api/data-preparation/", include("data_preparation.urls")),
     path("api/kpi-dashboard/", include("kpi_dashboard.urls")),
+    path("api/assistant/", include("assistant.urls")),
 
 ]
 
