@@ -1,37 +1,58 @@
 <div class="assistant">
-  <!-- Conversation history rail -->
   <aside class="history">
-    <button class="new-btn" (click)="newConversation()">
+    <button
+      class="new-btn"
+      (click)="newConversation()"
+    >
       <i class="pi pi-plus"></i>
       New chat
     </button>
 
     <div class="history-list">
-      @for (c of conversations; track c.id) {
+      @for (
+        c of conversations;
+        track c.id
+      ) {
         <button
           class="history-item"
-          [class.active]="c.id === conversationId"
-          (click)="openConversation(c.id)"
+          [class.active]="
+            c.id === conversationId
+          "
+          (click)="
+            openConversation(c.id)
+          "
         >
-          <span class="history-title">{{ c.title || 'Untitled' }}</span>
-          @if (c.bank_code) {
-            <span class="history-bank">{{ c.bank_code }}</span>
+          <span class="history-title">
+            {{ c.title || 'Untitled' }}
+          </span>
+
+          @if (c.bank_name) {
+            <span class="history-bank">
+              {{ c.bank_name }}
+            </span>
           }
         </button>
       } @empty {
-        <p class="history-empty">No conversations yet.</p>
+        <p class="history-empty">
+          No conversations yet.
+        </p>
       }
     </div>
   </aside>
 
-  <!-- Main chat column -->
   <section class="chat">
     <header class="chat-header">
       <div class="chat-title">
-        <div class="header-mark">AI</div>
+        <div class="header-mark">
+          AI
+        </div>
         <div>
           <h1>Data Assistant</h1>
-          <p>Grounded in your reporting data — every figure shows its source.</p>
+          <p>
+            Grounded in your reporting
+            data — every figure shows
+            its source.
+          </p>
         </div>
       </div>
 
@@ -39,12 +60,22 @@
         <span>Bank scope</span>
         <select
           [(ngModel)]="bankCode"
-          [disabled]="messages.length > 0"
+          [disabled]="
+            messages.length > 0
+          "
         >
-          <option value="">All banks</option>
-          @for (b of banks; track b.code) {
-            <option [value]="b.code">
-              {{ b.code }} — {{ b.name }}
+          <option value="">
+            All banks
+          </option>
+
+          @for (
+            bank of banks;
+            track bank.code
+          ) {
+            <option
+              [value]="bank.code"
+            >
+              {{ bank.name }}
             </option>
           }
         </select>
@@ -52,89 +83,257 @@
     </header>
 
     <div class="messages">
-      @if (messages.length === 0) {
+      @if (
+        messages.length === 0
+      ) {
         <div class="welcome">
-          <div class="welcome-mark">AI</div>
-          <h2>What would you like to know?</h2>
+          <div class="welcome-mark">
+            AI
+          </div>
+          <h2>
+            What would you like
+            to know?
+          </h2>
           <p>
-            Ask about emissions, targets, governance, climate risks or data
-            gaps. Try one of these:
+            Ask about emissions,
+            targets, governance,
+            climate risks or data gaps.
           </p>
+
+          @if (selectedBankName) {
+            <p class="selected-scope">
+              Current scope:
+              <strong>
+                {{ selectedBankName }}
+              </strong>
+            </p>
+          }
+
           <div class="suggestions">
-            <button (click)="draft = 'What were BANK01 scope 1, 2 and 3 emissions in 2024?'; send()">
+            <button
+              (click)="
+                useSuggestion(
+                  'What were scope 1, 2 and 3 emissions in 2024?'
+                )
+              "
+            >
               <i class="pi pi-chart-bar"></i>
-              Scope 1–3 emissions for BANK01 (2024)
+              Scope 1–3 emissions
+              for 2024
             </button>
-            <button (click)="draft = 'List BANK01 climate targets and their status.'; send()">
+
+            <button
+              (click)="
+                useSuggestion(
+                  'List the climate targets and their status.'
+                )
+              "
+            >
               <i class="pi pi-flag"></i>
-              BANK01 climate targets
+              Climate targets
             </button>
-            <button (click)="draft = 'Compare financed emissions across all banks.'; send()">
+
+            <button
+              (click)="
+                useSuggestion(
+                  'Compare financed emissions across all banks.'
+                )
+              "
+            >
               <i class="pi pi-arrows-h"></i>
-              Compare financed emissions across banks
+              Compare financed emissions
             </button>
-            <button (click)="draft = 'What data gaps are declared for BANK01?'; send()">
-              <i class="pi pi-exclamation-triangle"></i>
-              Declared data gaps for BANK01
+
+            <button
+              (click)="
+                useSuggestion(
+                  'What data gaps are declared?'
+                )
+              "
+            >
+              <i
+                class="
+                  pi
+                  pi-exclamation-triangle
+                "
+              ></i>
+              Declared data gaps
             </button>
           </div>
         </div>
       }
 
-      @for (m of messages; track m.id) {
-        <div class="row" [class.user]="m.role === 'user'">
-          @if (m.role === 'assistant') {
-            <div class="avatar assistant-avatar">AI</div>
+      @for (
+        message of messages;
+        track message.id
+      ) {
+        <div
+          class="row"
+          [class.user]="
+            message.role === 'user'
+          "
+        >
+          @if (
+            message.role ===
+            'assistant'
+          ) {
+            <div
+              class="
+                avatar
+                assistant-avatar
+              "
+            >
+              AI
+            </div>
           }
 
-          <div class="bubble" [class.assistant]="m.role === 'assistant'">
-            @if (m.role === 'assistant') {
-              @if (m.content) {
-                <div class="bubble-text" [innerHTML]="renderContent(m.content)"></div>
-              } @else if (m.streaming) {
-                <div class="stream-status">
-                  <span class="typing"><span></span><span></span><span></span></span>
+          <div
+            class="bubble"
+            [class.assistant]="
+              message.role ===
+              'assistant'
+            "
+          >
+            @if (
+              message.role ===
+              'assistant'
+            ) {
+              @if (message.content) {
+                <div
+                  class="bubble-text"
+                  [innerHTML]="
+                    renderContent(
+                      message.content
+                    )
+                  "
+                ></div>
+              } @else if (
+                message.streaming
+              ) {
+                <div
+                  class="stream-status"
+                >
+                  <span class="typing">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </span>
+
                   @if (streamStatus) {
-                    <span class="status-text">{{ streamStatus }}</span>
+                    <span
+                      class="status-text"
+                    >
+                      {{ streamStatus }}
+                    </span>
                   }
                 </div>
               }
             } @else {
-              <div class="bubble-text">{{ m.content }}</div>
-            }
-
-            @if (m.role === 'assistant' && m.is_fallback) {
-              <div class="fallback-note">
-                <i class="pi pi-info-circle"></i>
-                Model unavailable — showing retrieved data only.
+              <div class="bubble-text">
+                {{ message.content }}
               </div>
             }
 
-            <!-- Data-gap caveats -->
-            @if (m.role === 'assistant' && hasGaps(m)) {
+            @if (
+              message.role ===
+                'assistant' &&
+              message.is_fallback
+            ) {
+              <div
+                class="fallback-note"
+              >
+                <i
+                  class="
+                    pi
+                    pi-info-circle
+                  "
+                ></i>
+                Model unavailable —
+                showing the safe
+                fallback.
+              </div>
+            }
+
+            @if (
+              message.role ===
+                'assistant' &&
+              hasGaps(message)
+            ) {
               <div class="gaps">
-                <div class="gaps-title">
-                  <i class="pi pi-exclamation-triangle"></i>
+                <div
+                  class="gaps-title"
+                >
+                  <i
+                    class="
+                      pi
+                      pi-exclamation-triangle
+                    "
+                  ></i>
                   Data limitations
                 </div>
-                @for (g of gapList(m); track g.field) {
+
+                @for (
+                  gap of
+                    gapList(message);
+                  track gap.field
+                ) {
                   <div class="gap">
-                    <span class="gap-field">{{ g.field }}</span>
-                    <span class="gap-instruction">{{ g.instruction }}</span>
+                    <span
+                      class="gap-field"
+                    >
+                      {{ gap.field }}
+                    </span>
+                    <span
+                      class="
+                        gap-instruction
+                      "
+                    >
+                      {{
+                        gap.instruction
+                      }}
+                    </span>
                   </div>
                 }
               </div>
             }
 
-            <!-- Provenance chips -->
-            @if (m.role === 'assistant' && m.citations.length > 0) {
+            @if (
+              message.role ===
+                'assistant' &&
+              message.citations
+                .length > 0
+            ) {
               <div class="citations">
-                @for (c of m.citations; track $index) {
+                @for (
+                  citation of
+                    message.citations;
+                  track $index
+                ) {
                   <span class="chip">
-                    <i class="pi pi-database"></i>
-                    {{ c.provenance.source || c.tool }}
-                    @if (c.provenance.bank_code) {
-                      · {{ c.provenance.bank_code }}
+                    <i
+                      class="
+                        pi
+                        pi-database
+                      "
+                    ></i>
+                    {{
+                      citation
+                        .provenance
+                        .source
+                      || citation.tool
+                    }}
+
+                    @if (
+                      citation
+                        .provenance
+                        .bank_name
+                    ) {
+                      ·
+                      {{
+                        citation
+                          .provenance
+                          .bank_name
+                      }}
                     }
                   </span>
                 }
@@ -142,8 +341,17 @@
             }
           </div>
 
-          @if (m.role === 'user') {
-            <div class="avatar user-avatar"><i class="pi pi-user"></i></div>
+          @if (
+            message.role === 'user'
+          ) {
+            <div
+              class="
+                avatar
+                user-avatar
+              "
+            >
+              <i class="pi pi-user"></i>
+            </div>
           }
         </div>
       }
@@ -153,7 +361,12 @@
 
     @if (error) {
       <div class="error-bar">
-        <i class="pi pi-times-circle"></i>
+        <i
+          class="
+            pi
+            pi-times-circle
+          "
+        ></i>
         {{ error }}
       </div>
     }
@@ -161,14 +374,23 @@
     <footer class="composer">
       <textarea
         [(ngModel)]="draft"
-        (keydown)="onKeydown($event)"
+        (keydown)="
+          onKeydown($event)
+        "
         (input)="autoGrow($event)"
-        placeholder="Ask a question about your reporting data…"
+        placeholder="
+          Ask a question about
+          your reporting data…
+        "
         rows="1"
       ></textarea>
+
       <button
         class="send-btn"
-        [disabled]="sending || !draft.trim()"
+        [disabled]="
+          sending ||
+          !draft.trim()
+        "
         (click)="send()"
       >
         <i class="pi pi-send"></i>

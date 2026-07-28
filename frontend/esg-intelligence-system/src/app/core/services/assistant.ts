@@ -21,6 +21,7 @@ export interface Citation {
   tool: string;
   provenance: {
     bank_code?: string;
+    bank_name?: string;
     source?: string;
     [key: string]: unknown;
   };
@@ -41,7 +42,10 @@ export interface ChatMessage {
 export type StreamEvent =
   | { type: 'status'; text: string }
   | { type: 'token'; text: string }
-  | { type: 'citations'; citations: Citation[] }
+  | {
+      type: 'citations';
+      citations: Citation[];
+    }
   | {
       type: 'done';
       conversation_id: string;
@@ -49,12 +53,16 @@ export type StreamEvent =
       model_used: string;
       is_fallback: boolean;
     }
-  | { type: 'error'; message: string };
+  | {
+      type: 'error';
+      message: string;
+    };
 
 export interface Conversation {
   id: string;
   title: string;
   bank_code: string | null;
+  bank_name: string | null;
   created_at: string;
   updated_at: string;
   messages: ChatMessage[];
@@ -64,6 +72,7 @@ export interface ConversationSummary {
   id: string;
   title: string;
   bank_code: string | null;
+  bank_name: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -105,6 +114,7 @@ export class AssistantService {
     if (conversationId) {
       body.conversation_id = conversationId;
     }
+
     if (bankCode) {
       body.bank_code = bankCode;
     }
@@ -118,9 +128,7 @@ export class AssistantService {
   listConversations():
     Observable<ConversationSummary[]> {
     return this.http
-      .get<
-        ListResponse<ConversationSummary>
-      >(
+      .get<ListResponse<ConversationSummary>>(
         `${this.apiUrl}/assistant/conversations/`
       )
       .pipe(
@@ -140,104 +148,132 @@ export class AssistantService {
     );
   }
 
-  /**
-   * Streams a turn via SSE. EventSource can't send the JWT header, so we use
-   * fetch + a ReadableStream reader, attaching the Bearer token manually and
-   * parsing `data:` frames into StreamEvents.
-   */
   chatStream(
     message: string,
     conversationId?: string,
     bankCode?: string
   ): Observable<StreamEvent> {
     const body: ChatRequest = { message };
+
     if (conversationId) {
       body.conversation_id = conversationId;
     }
+
     if (bankCode) {
       body.bank_code = bankCode;
     }
 
-    const token = this.tokenService.getAccessToken();
+    const token =
+      this.tokenService.getAccessToken();
 
-    return new Observable<StreamEvent>((subscriber) => {
-      const controller = new AbortController();
+    return new Observable<StreamEvent>(
+      (subscriber) => {
+        const controller =
+          new AbortController();
 
-      (async () => {
-        try {
-          const res = await fetch(
-            `${this.apiUrl}/assistant/chat/stream/`,
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                ...(token
-                  ? { Authorization: `Bearer ${token}` }
-                  : {}),
-              },
-              body: JSON.stringify(body),
-              signal: controller.signal,
+        (async () => {
+          try {
+            const response = await fetch(
+              `${this.apiUrl}/assistant/chat/stream/`,
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type':
+                    'application/json',
+                  ...(token
+                    ? {
+                        Authorization:
+                          `Bearer ${token}`,
+                      }
+                    : {}),
+                },
+                body: JSON.stringify(body),
+                signal: controller.signal,
+              }
+            );
+
+            if (
+              !response.ok ||
+              !response.body
+            ) {
+              subscriber.next({
+                type: 'error',
+                message:
+                  `Request failed (${response.status}).`,
+              });
+              subscriber.complete();
+              return;
             }
-          );
 
-          if (!res.ok || !res.body) {
-            subscriber.next({
-              type: 'error',
-              message: `Request failed (${res.status}).`,
-            });
+            const reader =
+              response.body.getReader();
+            const decoder =
+              new TextDecoder();
+            let buffer = '';
+
+            while (true) {
+              const { done, value } =
+                await reader.read();
+
+              if (done) {
+                break;
+              }
+
+              buffer += decoder.decode(
+                value,
+                { stream: true }
+              );
+
+              const frames =
+                buffer.split('\n\n');
+              buffer =
+                frames.pop() ?? '';
+
+              for (const frame of frames) {
+                const line = frame
+                  .split('\n')
+                  .find((item) =>
+                    item.startsWith('data:')
+                  );
+
+                if (!line) {
+                  continue;
+                }
+
+                const payload =
+                  line.slice(5).trim();
+
+                if (!payload) {
+                  continue;
+                }
+
+                try {
+                  subscriber.next(
+                    JSON.parse(
+                      payload
+                    ) as StreamEvent
+                  );
+                } catch {
+                  // Ignore malformed SSE frames.
+                }
+              }
+            }
+
             subscriber.complete();
-            return;
-          }
-
-          const reader = res.body.getReader();
-          const decoder = new TextDecoder();
-          let buffer = '';
-
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) {
-              break;
-            }
-            buffer += decoder.decode(value, { stream: true });
-
-            // SSE frames are separated by a blank line.
-            const frames = buffer.split('\n\n');
-            buffer = frames.pop() ?? '';
-
-            for (const frame of frames) {
-              const line = frame
-                .split('\n')
-                .find((l) => l.startsWith('data:'));
-              if (!line) {
-                continue;
-              }
-              const payload = line.slice(5).trim();
-              if (!payload) {
-                continue;
-              }
-              try {
-                subscriber.next(
-                  JSON.parse(payload) as StreamEvent
-                );
-              } catch {
-                // ignore malformed frame
-              }
+          } catch (error: unknown) {
+            if (
+              error instanceof DOMException &&
+              error.name === 'AbortError'
+            ) {
+              subscriber.complete();
+            } else {
+              subscriber.error(error);
             }
           }
-          subscriber.complete();
-        } catch (err: unknown) {
-          if (
-            err instanceof DOMException &&
-            err.name === 'AbortError'
-          ) {
-            subscriber.complete();
-          } else {
-            subscriber.error(err);
-          }
-        }
-      })();
+        })();
 
-      return () => controller.abort();
-    });
+        return () => controller.abort();
+      }
+    );
   }
 }

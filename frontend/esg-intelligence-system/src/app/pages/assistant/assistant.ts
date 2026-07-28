@@ -17,7 +17,6 @@ import {
 } from '../../core/services/assistant';
 import {
   Risk as RiskService,
-  PayloadManifestSummary,
 } from '../../core/services/risk';
 
 interface BankOption {
@@ -51,9 +50,6 @@ export class Assistant
 
   private shouldScroll = false;
 
-  // Matches a decimal number (integer part + fractional part) that is not
-  // part of a longer dotted token such as a version string or IP. Integers
-  // without a decimal point (years, ids) are deliberately never touched.
   private readonly decimalRe =
     /(?<![\d.])(\d+\.\d+)(?!\.?\d)/g;
 
@@ -75,38 +71,65 @@ export class Assistant
     }
   }
 
-  private loadBanks(): void {
-    this.risk.getPayloadManifests().subscribe({
-      next: (manifests) => {
-        const seen = new Set<string>();
-        const options: BankOption[] = [];
+  get selectedBankName(): string {
+    return (
+      this.banks.find(
+        (bank) =>
+          bank.code === this.bankCode
+      )?.name ?? ''
+    );
+  }
 
-        for (const m of manifests) {
-          if (m.bank_code && !seen.has(m.bank_code)) {
-            seen.add(m.bank_code);
-            options.push({
-              code: m.bank_code,
-              name: m.bank_name,
-            });
+  private loadBanks(): void {
+    this.risk
+      .getPayloadManifests()
+      .subscribe({
+        next: (manifests) => {
+          const seen =
+            new Set<string>();
+          const options:
+            BankOption[] = [];
+
+          for (const manifest of manifests) {
+            if (
+              manifest.bank_code &&
+              !seen.has(
+                manifest.bank_code
+              )
+            ) {
+              seen.add(
+                manifest.bank_code
+              );
+              options.push({
+                code:
+                  manifest.bank_code,
+                name:
+                  manifest.bank_name,
+              });
+            }
           }
-        }
-        this.banks = options.sort((a, b) =>
-          a.code.localeCompare(b.code)
-        );
-      },
-      error: () => {
-        // Bank scoping is optional; ignore load failures.
-      },
-    });
+
+          this.banks = options.sort(
+            (a, b) =>
+              a.name.localeCompare(
+                b.name
+              )
+          );
+        },
+        error: () => {},
+      });
   }
 
   private loadConversations(): void {
-    this.assistant.listConversations().subscribe({
-      next: (list) => {
-        this.conversations = list;
-      },
-      error: () => {},
-    });
+    this.assistant
+      .listConversations()
+      .subscribe({
+        next: (list) => {
+          this.conversations =
+            list;
+        },
+        error: () => {},
+      });
   }
 
   newConversation(): void {
@@ -116,26 +139,46 @@ export class Assistant
     this.draft = '';
   }
 
-  openConversation(id: string): void {
-    this.assistant.getConversation(id).subscribe({
-      next: (conv) => {
-        this.conversationId = conv.id;
-        this.bankCode = conv.bank_code ?? '';
-        this.messages = conv.messages.filter(
-          (m) =>
-            m.role === 'user' ||
-            m.role === 'assistant'
-        );
-        this.shouldScroll = true;
-      },
-      error: () => {
-        this.error = 'Could not load conversation.';
-      },
-    });
+  openConversation(
+    id: string
+  ): void {
+    this.assistant
+      .getConversation(id)
+      .subscribe({
+        next: (conversation) => {
+          this.conversationId =
+            conversation.id;
+          this.bankCode =
+            conversation.bank_code
+            ?? '';
+          this.messages =
+            conversation.messages.filter(
+              (message) =>
+                message.role ===
+                  'user' ||
+                message.role ===
+                  'assistant'
+            );
+          this.shouldScroll = true;
+        },
+        error: () => {
+          this.error =
+            'Could not load conversation.';
+        },
+      });
+  }
+
+  useSuggestion(
+    question: string
+  ): void {
+    this.draft = question;
+    this.send();
   }
 
   send(): void {
-    const text = this.draft.trim();
+    const text =
+      this.draft.trim();
+
     if (!text || this.sending) {
       return;
     }
@@ -144,15 +187,23 @@ export class Assistant
     this.sending = true;
     this.streamStatus = null;
 
-    // Optimistic user turn + an empty assistant placeholder we fill live.
-    const assistantMsg = this.localMessage('assistant', '');
-    assistantMsg.streaming = true;
+    const assistantMessage =
+      this.localMessage(
+        'assistant',
+        ''
+      );
+    assistantMessage.streaming =
+      true;
 
     this.messages = [
       ...this.messages,
-      this.localMessage('user', text),
-      assistantMsg,
+      this.localMessage(
+        'user',
+        text
+      ),
+      assistantMessage,
     ];
+
     this.draft = '';
     this.resetComposerHeight();
     this.shouldScroll = true;
@@ -160,24 +211,32 @@ export class Assistant
     this.assistant
       .chatStream(
         text,
-        this.conversationId ?? undefined,
-        this.bankCode || undefined
+        this.conversationId
+          ?? undefined,
+        this.bankCode
+          || undefined
       )
       .subscribe({
         next: (event) =>
           this.zone.run(() =>
-            this.handleStreamEvent(event, assistantMsg)
+            this.handleStreamEvent(
+              event,
+              assistantMessage
+            )
           ),
         error: () =>
           this.zone.run(() => {
-            this.error = 'Cannot reach the server.';
-            assistantMsg.streaming = false;
+            this.error =
+              'Cannot reach the server.';
+            assistantMessage.streaming =
+              false;
             this.sending = false;
             this.streamStatus = null;
           }),
         complete: () =>
           this.zone.run(() => {
-            assistantMsg.streaming = false;
+            assistantMessage.streaming =
+              false;
             this.sending = false;
             this.streamStatus = null;
           }),
@@ -190,38 +249,53 @@ export class Assistant
   ): void {
     switch (event.type) {
       case 'status':
-        this.streamStatus = event.text;
+        this.streamStatus =
+          event.text;
         break;
+
       case 'token':
-        target.content += event.text;
+        target.content +=
+          event.text;
         this.streamStatus = null;
         this.shouldScroll = true;
         break;
+
       case 'citations':
-        target.citations = event.citations;
+        target.citations =
+          event.citations;
         break;
+
       case 'done':
-        this.conversationId = event.conversation_id;
-        target.model_used = event.model_used;
-        target.is_fallback = event.is_fallback;
+        this.conversationId =
+          event.conversation_id;
+        target.model_used =
+          event.model_used;
+        target.is_fallback =
+          event.is_fallback;
         target.streaming = false;
         this.sending = false;
         this.streamStatus = null;
         this.shouldScroll = true;
         this.loadConversations();
         break;
+
       case 'error':
-        this.error = event.message;
+        this.error =
+          event.message;
         target.streaming = false;
         this.sending = false;
         this.streamStatus = null;
         break;
     }
-    // New array reference so change detection paints the streamed text.
-    this.messages = [...this.messages];
+
+    this.messages = [
+      ...this.messages,
+    ];
   }
 
-  onKeydown(event: KeyboardEvent): void {
+  onKeydown(
+    event: KeyboardEvent
+  ): void {
     if (
       event.key === 'Enter' &&
       !event.shiftKey
@@ -232,72 +306,106 @@ export class Assistant
   }
 
   autoGrow(event: Event): void {
-    const el = event.target as HTMLTextAreaElement;
-    el.style.height = 'auto';
-    el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
+    const element = event.target;
+
+    if (!(element instanceof HTMLTextAreaElement)) {
+      return;
+    }
+
+    element.style.height = 'auto';
+    element.style.height = `${Math.min(
+      element.scrollHeight,
+      160
+    )}px`;
   }
 
-  private resetComposerHeight(): void {
-    const el = document.querySelector(
-      '.composer textarea'
-    ) as HTMLTextAreaElement | null;
-    if (el) {
-      el.style.height = 'auto';
+  private resetComposerHeight():
+    void {
+    const element =
+      document.querySelector(
+        '.composer textarea'
+      ) as
+        | HTMLTextAreaElement
+        | null;
+
+    if (element) {
+      element.style.height =
+        'auto';
     }
   }
 
-  hasGaps(message: ChatMessage): boolean {
+  hasGaps(
+    message: ChatMessage
+  ): boolean {
     return message.citations.some(
-      (c) => c.data_gaps && c.data_gaps.length > 0
+      (citation) =>
+        citation.data_gaps &&
+        citation.data_gaps.length > 0
     );
   }
 
-  gapList(message: ChatMessage) {
+  gapList(
+    message: ChatMessage
+  ) {
     return message.citations.flatMap(
-      (c) => c.data_gaps ?? []
+      (citation) =>
+        citation.data_gaps
+        ?? []
     );
   }
 
-  /**
-   * Renders assistant text: HTML-escaped, numbers capped at 3 decimals with
-   * thousands grouping, and lightweight markdown (**bold**, `code`). Angular
-   * sanitises the result on [innerHTML] binding.
-   */
-  renderContent(text: string): string {
+  renderContent(
+    text: string
+  ): string {
     if (!text) {
       return '';
     }
 
-    // Collapse the model's blank lines (llama often double-spaces),
-    // trim ends, and drop trailing spaces per line so the bubble hugs
-    // its text vertically instead of stretching around empty lines.
-    let out = text
-      .replace(/[ \t]+\n/g, '\n')
-      .replace(/\n{2,}/g, '\n')
+    let output = text
+      .replace(
+        /[ \t]+\n/g,
+        '\n'
+      )
+      .replace(
+        /\n{2,}/g,
+        '\n'
+      )
       .trim();
 
-    out = out
+    output = output
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
 
-    out = out.replace(this.decimalRe, (m) => {
-      const n = Number(m);
-      return isFinite(n)
-        ? n.toLocaleString('en-US', {
-            maximumFractionDigits: 3,
-          })
-        : m;
-    });
+    output = output.replace(
+      this.decimalRe,
+      (match) => {
+        const number =
+          Number(match);
 
-    out = out
+        return isFinite(number)
+          ? number.toLocaleString(
+              'en-US',
+              {
+                maximumFractionDigits:
+                  3,
+              }
+            )
+          : match;
+      }
+    );
+
+    output = output
       .replace(
         /\*\*(.+?)\*\*/g,
         '<strong>$1</strong>'
       )
-      .replace(/`([^`]+)`/g, '<code>$1</code>');
+      .replace(
+        /`([^`]+)`/g,
+        '<code>$1</code>'
+      );
 
-    return out;
+    return output;
   }
 
   private localMessage(
@@ -305,19 +413,27 @@ export class Assistant
     content: string
   ): ChatMessage {
     return {
-      id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      id:
+        `local-${Date.now()}-`
+        + Math.random()
+          .toString(36)
+          .slice(2, 8),
       role,
       content,
       citations: [],
       model_used: '',
       is_fallback: false,
-      created_at: new Date().toISOString(),
+      created_at:
+        new Date().toISOString(),
     };
   }
 
-  private scrollToBottom(): void {
-    this.scrollAnchor?.nativeElement.scrollIntoView({
-      behavior: 'smooth',
-    });
+  private scrollToBottom():
+    void {
+    this.scrollAnchor
+      ?.nativeElement
+      .scrollIntoView({
+        behavior: 'smooth',
+      });
   }
 }
