@@ -9,6 +9,7 @@ class ReportGenerationJob(models.Model):
     class Status(models.TextChoices):
         QUEUED = "queued", "Queued"
         RUNNING = "running", "Running"
+        PAUSED = "paused", "Paused"
         COMPLETED = "completed", "Completed"
         COMPLETED_WITH_WARNINGS = (
             "completed_with_warnings",
@@ -52,6 +53,8 @@ class ReportGenerationJob(models.Model):
     warning_count = models.IntegerField(default=0)
     error_message = models.TextField(blank=True)
     celery_task_id = models.CharField(max_length=255, blank=True)
+    pause_requested = models.BooleanField(default=False)
+    paused_at = models.DateTimeField(null=True, blank=True)
     langgraph_thread_id = models.CharField(max_length=255, blank=True)
     config = models.JSONField(default=dict)
     final_summary = models.JSONField(default=dict)
@@ -65,14 +68,65 @@ class ReportGenerationJob(models.Model):
     def mark_running(self):
         self.status = self.Status.RUNNING
         self.current_stage = "starting"
-        self.started_at = timezone.now()
+        if self.started_at is None:
+            self.started_at = timezone.now()
         self.save(update_fields=["status", "current_stage", "started_at"])
+
+    def request_pause(self):
+        self.pause_requested = True
+        if self.status != self.Status.PAUSED:
+            self.current_stage = "pause_requested"
+        self.save(update_fields=["pause_requested", "current_stage"])
+
+    def mark_paused(self, *, stage=None, progress_percent=None):
+        self.status = self.Status.PAUSED
+        self.pause_requested = True
+        self.paused_at = timezone.now()
+        if stage:
+            self.current_stage = stage
+        if progress_percent is not None:
+            self.progress_percent = progress_percent
+
+        update_fields = [
+            "status",
+            "pause_requested",
+            "paused_at",
+            "current_stage",
+        ]
+        if progress_percent is not None:
+            update_fields.append("progress_percent")
+
+        self.save(update_fields=update_fields)
+
+    def resume(self):
+        self.pause_requested = False
+        self.status = self.Status.RUNNING
+        self.current_stage = "resuming"
+        self.paused_at = None
+        self.save(
+            update_fields=[
+                "pause_requested",
+                "status",
+                "current_stage",
+                "paused_at",
+            ]
+        )
 
     def mark_failed(self, message):
         self.status = self.Status.FAILED
         self.error_message = message
         self.completed_at = timezone.now()
-        self.save(update_fields=["status", "error_message", "completed_at"])
+        self.pause_requested = False
+        self.paused_at = None
+        self.save(
+            update_fields=[
+                "status",
+                "error_message",
+                "completed_at",
+                "pause_requested",
+                "paused_at",
+            ]
+        )
 
     def mark_completed(self, warning_count=0):
         self.warning_count = warning_count
@@ -84,6 +138,8 @@ class ReportGenerationJob(models.Model):
         self.current_stage = "completed"
         self.progress_percent = 100
         self.completed_at = timezone.now()
+        self.pause_requested = False
+        self.paused_at = None
         self.save(
             update_fields=[
                 "status",
@@ -91,6 +147,8 @@ class ReportGenerationJob(models.Model):
                 "progress_percent",
                 "warning_count",
                 "completed_at",
+                "pause_requested",
+                "paused_at",
             ]
         )
 

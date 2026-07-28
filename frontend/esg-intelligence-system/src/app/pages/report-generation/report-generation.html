@@ -22,6 +22,16 @@
       </button>
 
       <button
+        class="secondary-btn"
+        type="button"
+        (click)="viewLastCompletedReport()"
+        [disabled]="!hasLastCompletedReport"
+      >
+        <i class="pi pi-history"></i>
+        View Last Completed
+      </button>
+
+      <button
         class="primary-btn"
         type="button"
         (click)="generateDraft()"
@@ -120,11 +130,38 @@
       </span>
     </div>
 
-    <div class="running-note" *ngIf="isRunningJob">
+    <div
+      class="running-note"
+      *ngIf="
+        isRunningJob &&
+        currentJob?.status !== 'paused' &&
+        !currentJob?.pause_requested
+      "
+    >
       <i class="pi pi-spin pi-spinner"></i>
-      The report is being generated. This can take several minutes while the
-      system reviews the available information, drafts the report, performs
-      quality checks, and prepares the final version.
+      The report is being generated. The last completed report remains
+      available below while this new version is running.
+    </div>
+
+    <div
+      class="running-note pause-requested-note"
+      *ngIf="
+        currentJob?.pause_requested &&
+        currentJob?.status !== 'paused'
+      "
+    >
+      <i class="pi pi-clock"></i>
+      Pause requested. The current notebook cell will finish before the
+      generation pauses safely.
+    </div>
+
+    <div
+      class="running-note paused-note"
+      *ngIf="currentJob?.status === 'paused'"
+    >
+      <i class="pi pi-pause-circle"></i>
+      Generation is paused. The notebook state is preserved in the running
+      Celery worker and can be resumed from the next cell.
     </div>
 
     <div class="progress-actions">
@@ -134,6 +171,42 @@
         (click)="refreshCurrentJob()"
       >
         Refresh Status
+      </button>
+
+      <button
+        class="pause-btn"
+        type="button"
+        (click)="pauseAndViewLastCompleted()"
+        *ngIf="canPauseCurrentJob && hasLastCompletedReport"
+        [disabled]="isPausing"
+      >
+        <i class="pi pi-pause"></i>
+        {{
+          isPausing
+            ? 'Requesting Pause...'
+            : 'Pause and View Last Completed'
+        }}
+      </button>
+
+      <button
+        class="resume-btn"
+        type="button"
+        (click)="resumeGeneration()"
+        *ngIf="canResumeCurrentJob"
+        [disabled]="isResuming"
+      >
+        <i class="pi pi-play"></i>
+        {{ isResuming ? 'Resuming...' : 'Resume Generation' }}
+      </button>
+
+      <button
+        class="secondary-btn"
+        type="button"
+        (click)="viewLastCompletedReport()"
+        *ngIf="hasLastCompletedReport"
+      >
+        <i class="pi pi-history"></i>
+        View Last Completed
       </button>
 
       <button
@@ -228,7 +301,7 @@
     <div
       class="job-row"
       *ngFor="let job of recentJobs; let i = index"
-      [class.selected]="currentJob?.job_id === job.job_id"
+      [class.selected]="currentJob?.job_id === job.job_id || displayedReportJob?.job_id === job.job_id"
       (click)="selectJob(job)"
     >
       <div>
@@ -291,7 +364,7 @@
     class="section-label"
     *ngIf="artifacts.length > 0"
   >
-    Final Report
+    Displayed Completed Report
   </div>
 
   <section
@@ -305,16 +378,24 @@
         </div>
 
         <div>
-          <p class="eyebrow">Final Deliverable</p>
+          <div class="deliverable-title-row">
+            <p class="eyebrow">Stable Completed Report</p>
+            <span
+              class="status-pill success"
+              *ngIf="displayedReportJob"
+            >
+              {{ formatStatus(displayedReportJob.status) }}
+            </span>
+          </div>
           <h3>IFRS S1/S2 Report</h3>
 
           <p class="report-file-meta">
             {{
-              currentJob?.bank_name ||
+              displayedReportJob?.bank_name ||
               activePayloadManifest?.bank_name ||
               bankCode
             }}
-            · Reporting year {{ reportingYear }}
+            · Reporting year {{ displayedReportJob?.reporting_year || reportingYear }}
 
             <span *ngIf="currentReportVersion">
               · Version

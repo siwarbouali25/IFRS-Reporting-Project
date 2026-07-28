@@ -39,6 +39,111 @@ except Exception:
 EVIDENCE_STOP_MARKER = "CELL 9B — STRICT EVIDENCE"
 FULL_REPORT_STOP_MARKER = "CELL 22 — AUDIT SUMMARY"
 
+PAUSE_POLL_INTERVAL_SECONDS = 1.0
+
+
+class NotebookGenerationCancelled(RuntimeError):
+    """Raised when a report job is cancelled between notebook cells."""
+
+
+def _job_progress_percent(completed_cells: int, total_cells: int) -> int:
+    if total_cells <= 0:
+        return 5
+
+    ratio = max(0.0, min(1.0, completed_cells / total_cells))
+    return min(94, max(5, round(5 + ratio * 89)))
+
+
+def _sync_generation_job_between_cells(
+    *,
+    job_id: str | None,
+    completed_cells: int,
+    total_cells: int,
+    checkpoint_name: str,
+) -> None:
+    """
+    Persist notebook-cell progress and cooperatively pause between cells.
+
+    The Celery task remains alive while paused, preserving the notebook
+    namespace in memory. This is intended for a live demo and resumes as long
+    as the worker process remains running.
+    """
+
+    if not job_id:
+        return
+
+    from django.db import close_old_connections
+    from django.utils import timezone
+    from report_generation.models import ReportGenerationJob
+
+    progress = _job_progress_percent(completed_cells, total_cells)
+    safe_checkpoint = str(checkpoint_name)[:70]
+    running_stage = f"notebook:{safe_checkpoint}"[:100]
+
+    close_old_connections()
+    job = ReportGenerationJob.objects.get(id=job_id)
+
+    if job.status == ReportGenerationJob.Status.CANCELLED:
+        raise NotebookGenerationCancelled(
+            f"Report generation job {job_id} was cancelled."
+        )
+
+    update_fields = []
+
+    if job.progress_percent != progress:
+        job.progress_percent = progress
+        update_fields.append("progress_percent")
+
+    if not job.pause_requested and job.status != ReportGenerationJob.Status.PAUSED:
+        if job.current_stage != running_stage:
+            job.current_stage = running_stage
+            update_fields.append("current_stage")
+
+    if update_fields:
+        job.save(update_fields=update_fields)
+
+    if not job.pause_requested:
+        return
+
+    paused_stage = f"paused_after:{safe_checkpoint}"[:100]
+    job.status = ReportGenerationJob.Status.PAUSED
+    job.current_stage = paused_stage
+    job.paused_at = timezone.now()
+    job.save(
+        update_fields=[
+            "status",
+            "current_stage",
+            "paused_at",
+            "progress_percent",
+        ]
+    )
+
+    while True:
+        time.sleep(PAUSE_POLL_INTERVAL_SECONDS)
+        close_old_connections()
+
+        job = ReportGenerationJob.objects.get(id=job_id)
+
+        if job.status == ReportGenerationJob.Status.CANCELLED:
+            raise NotebookGenerationCancelled(
+                f"Report generation job {job_id} was cancelled."
+            )
+
+        if job.pause_requested:
+            continue
+
+        job.status = ReportGenerationJob.Status.RUNNING
+        job.current_stage = f"resuming_after:{safe_checkpoint}"[:100]
+        job.paused_at = None
+        job.save(
+            update_fields=[
+                "status",
+                "current_stage",
+                "paused_at",
+            ]
+        )
+        return
+
 
 def _noop_display(*args, **kwargs):
     return None
@@ -468,6 +573,7 @@ def _execute_notebook_until_marker(
     style_asset_prefix: str,
     output_dir: Path,
     stop_marker: str,
+    job_id: str | None = None,
 ) -> tuple[dict[str, Any], list[str]]:
     notebook_path = Path(notebook_path).resolve()
     input_root = Path(input_root).resolve()
@@ -518,9 +624,16 @@ def _execute_notebook_until_marker(
 
     executed_cells: list[str] = []
 
+    _sync_generation_job_between_cells(
+        job_id=job_id,
+        completed_cells=0,
+        total_cells=len(selected_cells),
+        checkpoint_name="notebook_start",
+    )
+
     with temporary_env(env_values):
         with temporary_working_directory(notebook_path.parent):
-            for cell_name, source in selected_cells:
+            for cell_index, (cell_name, source) in enumerate(selected_cells, start=1):
                 _refresh_runtime_namespace(
                     namespace,
                     input_root=input_root,
@@ -554,6 +667,13 @@ def _execute_notebook_until_marker(
                     output_dir=output_dir,
                 )
 
+                _sync_generation_job_between_cells(
+                    job_id=job_id,
+                    completed_cells=cell_index,
+                    total_cells=len(selected_cells),
+                    checkpoint_name=cell_name,
+                )
+
     return namespace, executed_cells
 
 
@@ -565,6 +685,7 @@ def run_notebook_evidence_stage(
     ifrs_asset_prefix: str,
     style_asset_prefix: str,
     output_dir: Path,
+    job_id: str | None = None,
 ) -> dict[str, Any]:
     """
     Runs notebook cells from the start until strict evidence.
@@ -579,6 +700,7 @@ def run_notebook_evidence_stage(
         style_asset_prefix=style_asset_prefix,
         output_dir=output_dir,
         stop_marker=EVIDENCE_STOP_MARKER,
+        job_id=job_id,
     )
 
     required_outputs = [
@@ -641,6 +763,7 @@ def run_notebook_full_generation_stage(
     ifrs_asset_prefix: str,
     style_asset_prefix: str,
     output_dir: Path,
+    job_id: str | None = None,
 ) -> dict[str, Any]:
     """
     Runs the full notebook report-generation pipeline.
@@ -659,6 +782,7 @@ def run_notebook_full_generation_stage(
         style_asset_prefix=style_asset_prefix,
         output_dir=output_dir,
         stop_marker=FULL_REPORT_STOP_MARKER,
+        job_id=job_id,
     )
 
     required_outputs = [

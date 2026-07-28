@@ -38,6 +38,7 @@ export class ReportGeneration implements OnInit, OnDestroy {
 
   jobs: GenerationJob[] = [];
   currentJob: GenerationJob | null = null;
+  displayedReportJob: GenerationJob | null = null;
   warnings: GenerationWarning[] = [];
   artifacts: ReportArtifact[] = [];
 
@@ -50,6 +51,8 @@ export class ReportGeneration implements OnInit, OnDestroy {
   isLoadingPayloadManifest = false;
   isPolling = false;
   isPreviewLoading = false;
+  isPausing = false;
+  isResuming = false;
   errorMessage = '';
 
   private pollingTimeout?: ReturnType<typeof setTimeout>;
@@ -85,10 +88,7 @@ export class ReportGeneration implements OnInit, OnDestroy {
       return;
     }
 
-    this.warnings = [];
-    this.artifacts = [];
-    this.currentReportVersion = null;
-    this.clearPdfPreview();
+    // Keep the last completed report visible while the new job runs.
     this.isStarting = true;
 
     const payload: StartGenerationRequest = {
@@ -114,6 +114,72 @@ export class ReportGeneration implements OnInit, OnDestroy {
         );
       },
     });
+  }
+
+  pauseAndViewLastCompleted(): void {
+    if (!this.currentJob || !this.canPauseCurrentJob) {
+      return;
+    }
+
+    this.errorMessage = '';
+    this.isPausing = true;
+
+    this.reportService
+      .pauseGenerationJob(this.currentJob.job_id)
+      .subscribe({
+        next: (job) => {
+          this.isPausing = false;
+          this.currentJob = job;
+          this.upsertJob(job);
+          this.viewLastCompletedReport();
+        },
+        error: (error) => {
+          this.isPausing = false;
+          this.errorMessage = this.extractErrorMessage(
+            error,
+            'Could not pause report generation.'
+          );
+        },
+      });
+  }
+
+  resumeGeneration(): void {
+    if (!this.currentJob || !this.canResumeCurrentJob) {
+      return;
+    }
+
+    this.errorMessage = '';
+    this.isResuming = true;
+
+    this.reportService
+      .resumeGenerationJob(this.currentJob.job_id)
+      .subscribe({
+        next: (job) => {
+          this.isResuming = false;
+          this.currentJob = job;
+          this.upsertJob(job);
+          this.startPolling(job.job_id);
+        },
+        error: (error) => {
+          this.isResuming = false;
+          this.errorMessage = this.extractErrorMessage(
+            error,
+            'Could not resume report generation.'
+          );
+        },
+      });
+  }
+
+  viewLastCompletedReport(): void {
+    const completedJob = this.latestCompletedJob;
+
+    if (!completedJob) {
+      this.errorMessage =
+        'No completed report is available yet.';
+      return;
+    }
+
+    this.loadJobOutputs(completedJob.job_id);
   }
 
   private loadActivePayloadManifest(): void {
@@ -215,8 +281,24 @@ export class ReportGeneration implements OnInit, OnDestroy {
       next: (jobs) => {
         this.jobs = jobs;
 
-        if (!this.currentJob && jobs.length > 0) {
-          this.selectJob(jobs[0]);
+        const activeJob = jobs.find(
+          (job) =>
+            this.matchesCurrentContext(job) &&
+            this.isActiveStatus(job.status)
+        );
+
+        if (activeJob) {
+          this.currentJob = activeJob;
+          this.startPolling(activeJob.job_id);
+        } else if (!this.currentJob && jobs.length > 0) {
+          this.currentJob = jobs[0];
+        }
+
+        if (!this.displayedReportJob) {
+          const completedJob = this.latestCompletedJob;
+          if (completedJob) {
+            this.loadJobOutputs(completedJob.job_id);
+          }
         }
 
         this.isLoadingJobs = false;
@@ -232,21 +314,17 @@ export class ReportGeneration implements OnInit, OnDestroy {
   }
 
   selectJob(job: GenerationJob): void {
-    this.stopPolling();
-    this.currentJob = job;
-    this.warnings = [];
-    this.artifacts = [];
-    this.currentReportVersion = null;
-    this.clearPdfPreview();
     this.errorMessage = '';
-
-    this.refreshCurrentJob(false);
 
     if (this.isTerminalStatus(job.status)) {
       this.loadJobOutputs(job.job_id);
-    } else {
-      this.startPolling(job.job_id);
+      return;
     }
+
+    this.stopPolling();
+    this.currentJob = job;
+    this.refreshCurrentJob(false);
+    this.startPolling(job.job_id);
   }
 
   refreshCurrentJob(showLoadingError = true): void {
@@ -327,6 +405,19 @@ export class ReportGeneration implements OnInit, OnDestroy {
   }
 
   loadJobOutputs(jobId: string): void {
+    const job = this.jobs.find(
+      (item) => item.job_id === jobId
+    );
+
+    if (job) {
+      this.displayedReportJob = job;
+    }
+
+    this.warnings = [];
+    this.artifacts = [];
+    this.currentReportVersion = null;
+    this.clearPdfPreview();
+
     this.loadWarnings(jobId);
     this.loadArtifacts(jobId);
   }
@@ -355,7 +446,7 @@ export class ReportGeneration implements OnInit, OnDestroy {
         const reportVersionId =
           this.finalPdfArtifact?.report_version ??
           this.finalMarkdownArtifact?.report_version ??
-          this.currentJob?.report_version_id;
+          this.displayedReportJob?.report_version_id;
 
         if (reportVersionId) {
           this.loadReportVersion(reportVersionId);
@@ -457,9 +548,64 @@ export class ReportGeneration implements OnInit, OnDestroy {
     );
   }
 
+  private isActiveStatus(status: GenerationJobStatus): boolean {
+    return (
+      status === 'queued' ||
+      status === 'running' ||
+      status === 'paused'
+    );
+  }
+
+  private matchesCurrentContext(job: GenerationJob): boolean {
+    return (
+      job.bank_code === this.bankCode &&
+      job.reporting_year === this.reportingYear
+    );
+  }
+
+
+  get latestCompletedJob(): GenerationJob | null {
+    return (
+      this.jobs.find(
+        (job) =>
+          this.matchesCurrentContext(job) &&
+          (
+            job.status === 'completed' ||
+            job.status === 'completed_with_warnings'
+          )
+      ) ?? null
+    );
+  }
+
+  get hasLastCompletedReport(): boolean {
+    return this.latestCompletedJob !== null;
+  }
+
+  get canPauseCurrentJob(): boolean {
+    return Boolean(
+      this.currentJob &&
+      (
+        this.currentJob.status === 'queued' ||
+        this.currentJob.status === 'running'
+      ) &&
+      !this.currentJob.pause_requested
+    );
+  }
+
+  get canResumeCurrentJob(): boolean {
+    return Boolean(
+      this.currentJob &&
+      (
+        this.currentJob.status === 'paused' ||
+        this.currentJob.pause_requested
+      )
+    );
+  }
 
   get recentJobs(): GenerationJob[] {
-    return this.jobs.slice(0, 3);
+    return this.jobs
+      .filter((job) => this.matchesCurrentContext(job))
+      .slice(0, 3);
   }
 
   get visibleArtifacts(): ReportArtifact[] {
@@ -491,9 +637,18 @@ export class ReportGeneration implements OnInit, OnDestroy {
   }
 
   get statusLabel(): string {
-    return this.currentJob
-      ? this.formatStatus(this.currentJob.status)
-      : 'Not started';
+    if (!this.currentJob) {
+      return 'Not started';
+    }
+
+    if (
+      this.currentJob.pause_requested &&
+      this.currentJob.status !== 'paused'
+    ) {
+      return 'Pause requested';
+    }
+
+    return this.formatStatus(this.currentJob.status);
   }
 
   get canSubmitForApproval(): boolean {
@@ -506,7 +661,8 @@ export class ReportGeneration implements OnInit, OnDestroy {
   get isRunningJob(): boolean {
     return (
       this.currentJob?.status === 'queued' ||
-      this.currentJob?.status === 'running'
+      this.currentJob?.status === 'running' ||
+      this.currentJob?.status === 'paused'
     );
   }
 
@@ -579,6 +735,9 @@ export class ReportGeneration implements OnInit, OnDestroy {
     if (status === 'failed' || status === 'cancelled') {
       return 'danger';
     }
+    if (status === 'paused') {
+      return 'warning';
+    }
     if (status === 'running' || status === 'queued') {
       return 'active';
     }
@@ -631,6 +790,9 @@ export class ReportGeneration implements OnInit, OnDestroy {
     if (this.currentJob.status === 'queued') {
       return 6;
     }
+    if (this.currentJob.status === 'paused') {
+      return this.currentJob.progress_percent || 6;
+    }
     if (this.currentJob.status === 'running') {
       const startTime = this.currentJob.started_at
         ? new Date(this.currentJob.started_at).getTime()
@@ -664,10 +826,25 @@ export class ReportGeneration implements OnInit, OnDestroy {
     if (!this.currentJob) {
       return 'Not started';
     }
+    if (
+      this.currentJob.pause_requested &&
+      this.currentJob.status !== 'paused'
+    ) {
+      return 'Finishing the current step before pausing';
+    }
+    if (this.currentJob.status === 'paused') {
+      return 'Generation paused safely';
+    }
     if (this.currentJob.status === 'queued') {
       return 'Preparing your report request';
     }
     if (this.currentJob.status === 'running') {
+      if (this.currentJob.current_stage?.startsWith('notebook:')) {
+        return 'Generating report content';
+      }
+      if (this.currentJob.current_stage === 'finalizing_report') {
+        return 'Preparing final report files';
+      }
       return 'Generating the IFRS S1/S2 report';
     }
     if (this.currentJob.status === 'completed') {

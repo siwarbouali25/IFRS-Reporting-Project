@@ -1241,3 +1241,62 @@ h3 {
     min-height: 500px;
   }
 }
+
+
+/* Pause / resume demo controls */
+
+.pause-btn,
+.resume-btn {
+  border: none;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.pause-btn {
+  color: var(--warning);
+  border: 1px solid rgba(255, 209, 102, 0.35);
+  background: rgba(255, 209, 102, 0.1);
+}
+
+.resume-btn {
+  color: #000;
+  background: var(--acid);
+}
+
+.pause-btn:disabled,
+.resume-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.pause-requested-note {
+  border-color: rgba(255, 209, 102, 0.35);
+  background: rgba(255, 209, 102, 0.08);
+}
+
+.paused-note {
+  border-color: var(--acid-border);
+  background: var(--acid-bg);
+}
+
+.deliverable-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.deliverable-title-row .eyebrow {
+  margin-bottom: 0;
+}
+
+@media (max-width: 700px) {
+  .pause-btn,
+  .resume-btn {
+    width: 100%;
+  }
+}

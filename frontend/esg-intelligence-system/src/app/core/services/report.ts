@@ -8,6 +8,7 @@ import { Observable, map } from 'rxjs';
 export type GenerationJobStatus =
   | 'queued'
   | 'running'
+  | 'paused'
   | 'completed'
   | 'completed_with_warnings'
   | 'failed'
@@ -64,6 +65,8 @@ export interface GenerationJob {
   warning_count: number;
   error_message: string;
   celery_task_id?: string;
+  pause_requested: boolean;
+  paused_at?: string | null;
   config: any;
   final_summary: any;
   report_version_id?: string | null;
@@ -219,6 +222,26 @@ export class Report {
     return this.http.post<GenerationJob>(
       `${this.apiUrl}/report-generation/jobs/`,
       payload
+    );
+  }
+
+
+
+  pauseGenerationJob(
+    jobId: string
+  ): Observable<GenerationJob> {
+    return this.http.post<GenerationJob>(
+      `${this.apiUrl}/report-generation/jobs/${jobId}/pause/`,
+      {}
+    );
+  }
+
+  resumeGenerationJob(
+    jobId: string
+  ): Observable<GenerationJob> {
+    return this.http.post<GenerationJob>(
+      `${this.apiUrl}/report-generation/jobs/${jobId}/resume/`,
+      {}
     );
   }
 

@@ -80,6 +80,23 @@ def run_real_report_generation_job(job_id: str):
         }
 
         final_state = run_ifrs_report_graph(initial_state)
+
+        job.refresh_from_db()
+        job.status = ReportGenerationJob.Status.RUNNING
+        job.current_stage = "finalizing_report"
+        job.progress_percent = max(job.progress_percent, 96)
+        job.pause_requested = False
+        job.paused_at = None
+        job.save(
+            update_fields=[
+                "status",
+                "current_stage",
+                "progress_percent",
+                "pause_requested",
+                "paused_at",
+            ]
+        )
+
         final_markdown = final_state.get("final_markdown", "")
         final_summary = dict(final_state.get("final_summary", {}))
         audit_summary = final_state.get("audit_summary", {})

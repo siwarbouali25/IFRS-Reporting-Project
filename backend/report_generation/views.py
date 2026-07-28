@@ -63,6 +63,95 @@ class ReportGenerationJobViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
         )
 
+
+    @action(detail=True, methods=["post"], url_path="pause")
+    def pause(self, request, pk=None):
+        with transaction.atomic():
+            job = (
+                ReportGenerationJob.objects.select_for_update()
+                .get(id=pk)
+            )
+
+            if job.status == ReportGenerationJob.Status.PAUSED:
+                return Response(
+                    ReportGenerationJobSerializer(job).data,
+                    status=status.HTTP_200_OK,
+                )
+
+            if job.status not in {
+                ReportGenerationJob.Status.QUEUED,
+                ReportGenerationJob.Status.RUNNING,
+            }:
+                return Response(
+                    {
+                        "detail": (
+                            "Only a queued or running report generation "
+                            "can be paused."
+                        )
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            job.request_pause()
+
+        return Response(
+            ReportGenerationJobSerializer(job).data,
+            status=status.HTTP_200_OK,
+        )
+
+    @action(detail=True, methods=["post"], url_path="resume")
+    def resume(self, request, pk=None):
+        with transaction.atomic():
+            job = (
+                ReportGenerationJob.objects.select_for_update()
+                .get(id=pk)
+            )
+
+            if job.status not in {
+                ReportGenerationJob.Status.PAUSED,
+                ReportGenerationJob.Status.RUNNING,
+                ReportGenerationJob.Status.QUEUED,
+            }:
+                return Response(
+                    {
+                        "detail": (
+                            "Only a paused generation or a pending pause "
+                            "request can be resumed."
+                        )
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            if not job.pause_requested and job.status != ReportGenerationJob.Status.PAUSED:
+                return Response(
+                    {
+                        "detail": "This generation is not paused."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            if job.status == ReportGenerationJob.Status.PAUSED:
+                job.resume()
+            else:
+                job.pause_requested = False
+                if job.current_stage == "pause_requested":
+                    job.current_stage = (
+                        "queued"
+                        if job.status == ReportGenerationJob.Status.QUEUED
+                        else "running"
+                    )
+                job.save(
+                    update_fields=[
+                        "pause_requested",
+                        "current_stage",
+                    ]
+                )
+
+        return Response(
+            ReportGenerationJobSerializer(job).data,
+            status=status.HTTP_200_OK,
+        )
+
     @action(detail=True, methods=["get"], url_path="warnings")
     def warnings(self, request, pk=None):
         warnings = GenerationWarning.objects.filter(

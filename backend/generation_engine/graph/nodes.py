@@ -85,6 +85,7 @@ def run_full_notebook_generation_node(
             "style_asset_prefix"
         ],
         output_dir=output_dir,
+        job_id=str(job_id),
     )
 
     final_summary = {

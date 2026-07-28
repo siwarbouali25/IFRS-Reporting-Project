@@ -96,6 +96,8 @@ class ReportGenerationJobSerializer(serializers.ModelSerializer):
             "warning_count",
             "error_message",
             "celery_task_id",
+            "pause_requested",
+            "paused_at",
             "config",
             "final_summary",
             "report_version_id",
