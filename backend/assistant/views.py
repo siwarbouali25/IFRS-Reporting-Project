@@ -2,13 +2,16 @@ import json
 
 from django.http import StreamingHttpResponse
 from rest_framework import status
-from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.generics import (
+    ListAPIView,
+    RetrieveAPIView,
+)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .agent import run_turn
-from .models import Conversation, Message
+from .models import Conversation
 from .serializers import (
     ChatRequestSerializer,
     ConversationSerializer,
@@ -22,14 +25,14 @@ def _user_conversations(request):
 
 
 def resolve_conversation(request, data) -> Conversation:
-    """Shared by both chat endpoints: fetch an existing conversation (scoped
-    to the user) or create a new one, optionally bank-scoped."""
     conv_id = data.get("conversation_id")
+
     if conv_id:
         return _user_conversations(request).get(id=conv_id)
 
     bank = None
     bank_code = data.get("bank_code")
+
     if bank_code:
         from organizations.models import Bank
 
@@ -43,12 +46,6 @@ def resolve_conversation(request, data) -> Conversation:
 
 
 class ChatView(APIView):
-    """
-    POST /api/assistant/chat/
-    Body: {message, conversation_id?, bank_code?}
-    Non-streaming: runs one agent turn, returns the full assistant message.
-    """
-
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -57,25 +54,23 @@ class ChatView(APIView):
         data = serializer.validated_data
 
         conversation = resolve_conversation(request, data)
-        assistant_msg = run_turn(conversation, data["message"])
+        assistant_msg = run_turn(
+            conversation,
+            data["message"],
+        )
 
         return Response(
             {
                 "conversation_id": str(conversation.id),
-                "message": MessageSerializer(assistant_msg).data,
+                "message": MessageSerializer(
+                    assistant_msg
+                ).data,
             },
             status=status.HTTP_200_OK,
         )
 
 
 class ChatStreamView(APIView):
-    """
-    POST /api/assistant/chat/stream/
-    Body: {message, conversation_id?, bank_code?}
-    Streams the turn as Server-Sent Events (text/event-stream): status while
-    tools run, tokens as the model writes, then citations and a done event.
-    """
-
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -86,19 +81,40 @@ class ChatStreamView(APIView):
         conversation = resolve_conversation(request, data)
 
         def event_stream():
+            # Open the SSE response immediately. Comment frames are valid SSE
+            # and are ignored by the Angular parser.
+            yield ": connected\n\n"
+
             try:
-                for event in run_turn_streamed(conversation, data["message"]):
-                    yield f"data: {json.dumps(event, default=str)}\n\n"
-            except Exception:  # last-resort guard so the socket closes cleanly
-                yield f'data: {json.dumps({"type": "error", "message": "stream failed"})}\n\n'
+                for event in run_turn_streamed(
+                    conversation,
+                    data["message"],
+                ):
+                    yield (
+                        "data: "
+                        + json.dumps(event, default=str)
+                        + "\n\n"
+                    )
+            except Exception:
+                error_event = {
+                    "type": "error",
+                    "message": "The assistant stream failed.",
+                }
+                yield (
+                    "data: "
+                    + json.dumps(error_event)
+                    + "\n\n"
+                )
 
         response = StreamingHttpResponse(
             event_stream(),
             content_type="text/event-stream",
         )
-        # Defeat proxy/server buffering that would otherwise batch the stream.
-        response["Cache-Control"] = "no-cache"
+        response["Cache-Control"] = (
+            "no-cache, no-transform"
+        )
         response["X-Accel-Buffering"] = "no"
+        response["Content-Encoding"] = "identity"
         return response
 
 

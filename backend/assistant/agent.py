@@ -1,8 +1,4 @@
-"""
-Turn orchestration: takes a Conversation and a new user message, replays prior
-turns into OpenAI message format, runs the LangGraph agent, and persists both
-the user message and the assistant reply (with citations) for audit.
-"""
+"""Turn orchestration for the non-streaming assistant endpoint."""
 
 from __future__ import annotations
 
@@ -14,28 +10,53 @@ MAX_ITERATIONS = 5
 
 
 def _history_to_messages(conversation: Conversation) -> list[dict]:
-    """Replay stored user/assistant turns (tool turns are not replayed)."""
-    messages: list[dict] = [{"role": "system", "content": SYSTEM_PROMPT}]
-    for m in conversation.messages.filter(
-        role__in=[Message.Role.USER, Message.Role.ASSISTANT]
+    """Replay stored user/assistant turns; tool turns are not replayed."""
+    messages: list[dict] = [
+        {"role": "system", "content": SYSTEM_PROMPT}
+    ]
+
+    for message in conversation.messages.filter(
+        role__in=[
+            Message.Role.USER,
+            Message.Role.ASSISTANT,
+        ]
     ).order_by("created_at"):
-        if m.content:
-            messages.append({"role": m.role, "content": m.content})
+        if message.content:
+            messages.append(
+                {
+                    "role": message.role,
+                    "content": message.content,
+                }
+            )
+
     return messages
 
 
-def run_turn(conversation: Conversation, user_text: str) -> Message:
-    # Persist the user turn first.
+def run_turn(
+    conversation: Conversation,
+    user_text: str,
+) -> Message:
+    # Build history before saving the current user turn. The previous version
+    # saved first and then appended user_text again, duplicating the prompt.
+    messages = _history_to_messages(conversation)
+    messages.append(
+        {
+            "role": "user",
+            "content": user_text,
+        }
+    )
+
     Message.objects.create(
         conversation=conversation,
         role=Message.Role.USER,
         content=user_text,
     )
 
-    messages = _history_to_messages(conversation)
-    messages.append({"role": "user", "content": user_text})
-
-    bank_scope = conversation.bank.code if conversation.bank_id else None
+    bank_scope = (
+        conversation.bank.code
+        if conversation.bank_id
+        else None
+    )
 
     graph = get_assistant_graph()
     final_state = graph.invoke(
@@ -54,7 +75,11 @@ def run_turn(conversation: Conversation, user_text: str) -> Message:
         content=final_state.get("answer", ""),
         citations=final_state.get("citations", []),
         model_used=final_state.get("model_used", ""),
-        is_fallback=final_state.get("is_fallback", False),
+        is_fallback=final_state.get(
+            "is_fallback",
+            False,
+        ),
     )
+
     conversation.save(update_fields=["updated_at"])
     return assistant_msg
