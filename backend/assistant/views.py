@@ -1,4 +1,5 @@
 import json
+import logging
 
 from django.http import StreamingHttpResponse
 from rest_framework import status
@@ -19,16 +20,27 @@ from .serializers import (
 )
 from .streaming import run_turn_streamed
 
+logger = logging.getLogger(__name__)
+
 
 def _user_conversations(request):
-    return Conversation.objects.filter(user=request.user)
+    return Conversation.objects.filter(
+        user=request.user
+    )
 
 
-def resolve_conversation(request, data) -> Conversation:
-    conv_id = data.get("conversation_id")
+def resolve_conversation(
+    request,
+    data,
+) -> Conversation:
+    conversation_id = data.get(
+        "conversation_id"
+    )
 
-    if conv_id:
-        return _user_conversations(request).get(id=conv_id)
+    if conversation_id:
+        return _user_conversations(
+            request
+        ).get(id=conversation_id)
 
     bank = None
     bank_code = data.get("bank_code")
@@ -36,7 +48,9 @@ def resolve_conversation(request, data) -> Conversation:
     if bank_code:
         from organizations.models import Bank
 
-        bank = Bank.objects.filter(code=bank_code).first()
+        bank = Bank.objects.filter(
+            code=bank_code
+        ).first()
 
     return Conversation.objects.create(
         user=request.user,
@@ -46,24 +60,37 @@ def resolve_conversation(request, data) -> Conversation:
 
 
 class ChatView(APIView):
+    """
+    Normal non-streaming fallback endpoint.
+    """
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        serializer = ChatRequestSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        serializer = ChatRequestSerializer(
+            data=request.data
+        )
+        serializer.is_valid(
+            raise_exception=True
+        )
         data = serializer.validated_data
 
-        conversation = resolve_conversation(request, data)
-        assistant_msg = run_turn(
+        conversation = resolve_conversation(
+            request,
+            data,
+        )
+        assistant_message = run_turn(
             conversation,
             data["message"],
         )
 
         return Response(
             {
-                "conversation_id": str(conversation.id),
+                "conversation_id": str(
+                    conversation.id
+                ),
                 "message": MessageSerializer(
-                    assistant_msg
+                    assistant_message
                 ).data,
             },
             status=status.HTTP_200_OK,
@@ -71,18 +98,31 @@ class ChatView(APIView):
 
 
 class ChatStreamView(APIView):
+    """
+    POST /api/assistant/chat/stream/
+
+    Django forwards Azure content deltas as browser-facing SSE events while
+    preserving status, citation, error, and completion event types.
+    """
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        serializer = ChatRequestSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        serializer = ChatRequestSerializer(
+            data=request.data
+        )
+        serializer.is_valid(
+            raise_exception=True
+        )
         data = serializer.validated_data
 
-        conversation = resolve_conversation(request, data)
+        conversation = resolve_conversation(
+            request,
+            data,
+        )
 
         def event_stream():
-            # Open the SSE response immediately. Comment frames are valid SSE
-            # and are ignored by the Angular parser.
+            # Valid SSE comment that opens the browser connection immediately.
             yield ": connected\n\n"
 
             try:
@@ -92,17 +132,26 @@ class ChatStreamView(APIView):
                 ):
                     yield (
                         "data: "
-                        + json.dumps(event, default=str)
+                        + json.dumps(
+                            event,
+                            default=str,
+                        )
                         + "\n\n"
                     )
             except Exception:
-                error_event = {
-                    "type": "error",
-                    "message": "The assistant stream failed.",
-                }
+                logger.exception(
+                    "Assistant SSE response failed"
+                )
                 yield (
                     "data: "
-                    + json.dumps(error_event)
+                    + json.dumps(
+                        {
+                            "type": "error",
+                            "message": (
+                                "The assistant stream failed."
+                            ),
+                        }
+                    )
                     + "\n\n"
                 )
 
@@ -118,18 +167,30 @@ class ChatStreamView(APIView):
         return response
 
 
-class ConversationListView(ListAPIView):
+class ConversationListView(
+    ListAPIView
+):
     permission_classes = [IsAuthenticated]
-    serializer_class = ConversationSerializer
+    serializer_class = (
+        ConversationSerializer
+    )
 
     def get_queryset(self):
-        return _user_conversations(self.request)
+        return _user_conversations(
+            self.request
+        )
 
 
-class ConversationDetailView(RetrieveAPIView):
+class ConversationDetailView(
+    RetrieveAPIView
+):
     permission_classes = [IsAuthenticated]
-    serializer_class = ConversationSerializer
+    serializer_class = (
+        ConversationSerializer
+    )
     lookup_field = "id"
 
     def get_queryset(self):
-        return _user_conversations(self.request)
+        return _user_conversations(
+            self.request
+        )

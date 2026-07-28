@@ -1,4 +1,6 @@
-"""Turn orchestration for the non-streaming assistant endpoint."""
+"""
+Turn orchestration for the non-streaming LangGraph endpoint.
+"""
 
 from __future__ import annotations
 
@@ -6,13 +8,26 @@ from .graph import get_assistant_graph
 from .models import Conversation, Message
 from .system_prompt import SYSTEM_PROMPT
 
-MAX_ITERATIONS = 5
+# Sequential tool use means one multi-part question can require several graph
+# passes. Eight leaves room for multiple retrievals plus the final answer.
+MAX_ITERATIONS = 8
 
 
-def _history_to_messages(conversation: Conversation) -> list[dict]:
-    """Replay stored user/assistant turns; tool turns are not replayed."""
+def _history_to_messages(
+    conversation: Conversation,
+) -> list[dict]:
+    """
+    Replay stored user/assistant turns.
+
+    Tool messages are intentionally not replayed across separate user turns;
+    each new LangGraph execution retrieves fresh data through the tools.
+    """
+
     messages: list[dict] = [
-        {"role": "system", "content": SYSTEM_PROMPT}
+        {
+            "role": "system",
+            "content": SYSTEM_PROMPT,
+        }
     ]
 
     for message in conversation.messages.filter(
@@ -36,9 +51,15 @@ def run_turn(
     conversation: Conversation,
     user_text: str,
 ) -> Message:
-    # Build history before saving the current user turn. The previous version
-    # saved first and then appended user_text again, duplicating the prompt.
-    messages = _history_to_messages(conversation)
+    """
+    Run one non-streamed turn through the existing LangGraph StateGraph.
+    """
+
+    # Build history first. Saving the current turn before this call would make
+    # the same user prompt appear twice in the model context.
+    messages = _history_to_messages(
+        conversation
+    )
     messages.append(
         {
             "role": "user",
@@ -64,22 +85,35 @@ def run_turn(
             "messages": messages,
             "bank_scope": bank_scope,
             "iterations": 0,
-            "max_iterations": MAX_ITERATIONS,
+            "max_iterations": (
+                MAX_ITERATIONS
+            ),
             "citations": [],
         }
     )
 
-    assistant_msg = Message.objects.create(
+    assistant_message = Message.objects.create(
         conversation=conversation,
         role=Message.Role.ASSISTANT,
-        content=final_state.get("answer", ""),
-        citations=final_state.get("citations", []),
-        model_used=final_state.get("model_used", ""),
+        content=final_state.get(
+            "answer",
+            "",
+        ),
+        citations=final_state.get(
+            "citations",
+            [],
+        ),
+        model_used=final_state.get(
+            "model_used",
+            "",
+        ),
         is_fallback=final_state.get(
             "is_fallback",
             False,
         ),
     )
 
-    conversation.save(update_fields=["updated_at"])
-    return assistant_msg
+    conversation.save(
+        update_fields=["updated_at"]
+    )
+    return assistant_message

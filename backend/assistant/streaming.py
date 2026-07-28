@@ -1,9 +1,15 @@
 """
-Reliable SSE orchestration for an OpenAI-compatible model that supports only
-one tool call per assistant turn.
+LangGraph-compatible ReAct orchestration with genuine Azure SSE forwarding.
 
-The browser still receives SSE status/token/citation/done events. The upstream
-provider call is non-streaming to avoid provider-side socket resets.
+The browser connection remains Django SSE. Each ReAct model pass is sent to
+AZURE_OPENAI_FAST_DEPLOYMENT_URL using the raw full-URL REST client from
+assistant.llm:
+
+Azure SSE -> Django StreamingHttpResponse -> Angular fetch reader
+
+The model may request one tool per pass. The tool result is appended to the
+conversation, and another streamed model pass begins until the final grounded
+answer is produced.
 """
 
 from __future__ import annotations
@@ -14,8 +20,18 @@ import re
 import time
 from typing import Iterator
 
-from .agent import MAX_ITERATIONS, _history_to_messages
-from .llm import LLMUnavailable, get_client_and_model
+from .agent import (
+    MAX_ITERATIONS,
+    _history_to_messages,
+)
+from .llm import (
+    AssistantMessage,
+    AzureStreamInterrupted,
+    LLMUnavailable,
+    chat_with_tools,
+    get_azure_fast_config,
+    stream_chat_with_tools,
+)
 from .models import Conversation, Message
 from .repository import PayloadRepository
 from .tools import TOOL_SCHEMAS, dispatch
@@ -28,7 +44,9 @@ _STATUS_LABELS = {
     "get_kpi": "Reading reporting KPIs…",
     "get_emissions": "Looking up emissions…",
     "list_targets": "Fetching climate targets…",
-    "get_financed_emissions_breakdown": "Aggregating financed emissions…",
+    "get_financed_emissions_breakdown": (
+        "Aggregating financed emissions…"
+    ),
     "get_governance": "Reading governance data…",
     "get_climate_risks": "Reviewing climate risks…",
     "get_data_gaps": "Checking declared data gaps…",
@@ -37,12 +55,17 @@ _STATUS_LABELS = {
 }
 
 
-def _status_for(name: str) -> str:
-    return _STATUS_LABELS.get(name, "Retrieving data…")
+def _status_for(tool_name: str) -> str:
+    return _STATUS_LABELS.get(
+        tool_name,
+        "Retrieving data…",
+    )
 
 
-def _text_chunks(text: str, target_size: int = 28) -> Iterator[str]:
-    """Split a completed answer into small whitespace-preserving SSE chunks."""
+def _text_chunks(
+    text: str,
+    target_size: int = 28,
+) -> Iterator[str]:
     buffer = ""
 
     for token in re.findall(r"\S+\s*", text):
@@ -55,32 +78,52 @@ def _text_chunks(text: str, target_size: int = 28) -> Iterator[str]:
         yield buffer
 
 
-def _single_tool_call_message(call, content: str = "") -> dict:
-    """Create an OpenAI assistant message containing exactly one tool call."""
+def _assistant_message_dict(
+    message: AssistantMessage,
+) -> dict:
     return {
         "role": "assistant",
-        "content": content,
+        "content": message.content or "",
         "tool_calls": [
-            {
-                "id": call.id,
-                "type": "function",
-                "function": {
-                    "name": call.function.name,
-                    "arguments": call.function.arguments or "{}",
-                },
-            }
+            call.model_dump()
+            for call in message.tool_calls
         ],
     }
+
+
+def _fallback_provider_turn(
+    messages: list[dict],
+) -> AssistantMessage:
+    """
+    If an upstream SSE socket is interrupted, retry the current model pass as a
+    normal REST completion. The outer Django response remains open.
+    """
+
+    return chat_with_tools(
+        messages,
+        TOOL_SCHEMAS,
+    )
 
 
 def run_turn_streamed(
     conversation: Conversation,
     user_text: str,
 ) -> Iterator[dict]:
-    # Build model history before saving this user message; otherwise the current
-    # message is replayed by _history_to_messages and then appended a second time.
-    messages = _history_to_messages(conversation)
-    messages.append({"role": "user", "content": user_text})
+    """
+    Run one assistant turn and yield Angular-facing SSE event objects.
+    """
+
+    # Build history before saving the current user message. Saving first would
+    # replay it from the database and then append it a second time.
+    messages = _history_to_messages(
+        conversation
+    )
+    messages.append(
+        {
+            "role": "user",
+            "content": user_text,
+        }
+    )
 
     Message.objects.create(
         conversation=conversation,
@@ -88,8 +131,18 @@ def run_turn_streamed(
         content=user_text,
     )
 
-    bank_scope = conversation.bank.code if conversation.bank_id else None
-    repo = PayloadRepository()
+    bank_scope = (
+        conversation.bank.code
+        if conversation.bank_id
+        else None
+    )
+    repository = PayloadRepository()
+
+    citations: list[dict] = []
+    final_answer = ""
+    model_used = (
+        get_azure_fast_config().model_label
+    )
 
     yield {
         "type": "status",
@@ -97,62 +150,121 @@ def run_turn_streamed(
     }
 
     try:
-        client, model = get_client_and_model()
-    except LLMUnavailable as exc:
-        yield from _fallback_stream(conversation, str(exc))
-        return
+        for _iteration in range(
+            MAX_ITERATIONS
+        ):
+            assistant_message: (
+                AssistantMessage | None
+            ) = None
+            streamed_text = ""
+            used_real_sse = False
 
-    citations: list[dict] = []
-    answer_text = ""
+            try:
+                for event in stream_chat_with_tools(
+                    messages,
+                    TOOL_SCHEMAS,
+                ):
+                    if event["type"] == "content_delta":
+                        text = event["text"]
+                        streamed_text += text
+                        yield {
+                            "type": "token",
+                            "text": text,
+                        }
 
-    try:
-        for _ in range(MAX_ITERATIONS):
-            response = client.chat.completions.create(
-                model=model,
-                messages=messages,
-                tools=TOOL_SCHEMAS,
-                tool_choice="auto",
-                parallel_tool_calls=False,
-                temperature=0.1,
-                stream=False,
+                    elif event["type"] == "complete":
+                        assistant_message = event[
+                            "message"
+                        ]
+                        used_real_sse = bool(
+                            event.get("sse")
+                        )
+
+            except (
+                AzureStreamInterrupted,
+                LLMUnavailable,
+            ) as exc:
+                logger.warning(
+                    "Azure SSE pass failed; retrying current "
+                    "ReAct pass without upstream streaming: %s",
+                    exc,
+                )
+                assistant_message = (
+                    _fallback_provider_turn(
+                        messages
+                    )
+                )
+
+                # Do not duplicate a prefix that may already have reached the
+                # browser before the stream disconnected.
+                fallback_text = (
+                    assistant_message.content or ""
+                )
+                if (
+                    streamed_text
+                    and fallback_text.startswith(
+                        streamed_text
+                    )
+                ):
+                    fallback_text = fallback_text[
+                        len(streamed_text):
+                    ]
+
+                for chunk in _text_chunks(
+                    fallback_text
+                ):
+                    yield {
+                        "type": "token",
+                        "text": chunk,
+                    }
+                    time.sleep(0.012)
+
+            if assistant_message is None:
+                raise LLMUnavailable(
+                    "Azure returned no assistant message."
+                )
+
+            model_used = (
+                assistant_message.model
+                or model_used
             )
 
-            assistant = response.choices[0].message
-            returned_tool_calls = list(assistant.tool_calls or [])
+            tool_call = (
+                assistant_message.tool_calls[0]
+                if assistant_message.tool_calls
+                else None
+            )
 
-            if not returned_tool_calls:
-                answer_text = (assistant.content or "").strip()
+            if tool_call is None:
+                final_answer = (
+                    assistant_message.content or ""
+                ).strip()
                 break
 
-            # The selected NIM model accepts only one tool call in each assistant
-            # message. Even if the provider ignores parallel_tool_calls=False,
-            # keep only the first call and let the next ReAct iteration request
-            # another tool if needed.
-            if len(returned_tool_calls) > 1:
-                logger.warning(
-                    "Provider returned %s tool calls; executing only the first "
-                    "because the model supports one tool call per turn.",
-                    len(returned_tool_calls),
-                )
-
-            call = returned_tool_calls[0]
-            tool_name = call.function.name
-
+            # A streamed tool-use pass normally contains no prose. If the model
+            # emitted a short preamble, it has already reached the browser, but
+            # only the final grounded pass is persisted as the answer.
             messages.append(
-                _single_tool_call_message(
-                    call,
-                    assistant.content or "",
+                _assistant_message_dict(
+                    assistant_message
                 )
+            )
+
+            tool_name = (
+                tool_call.function.name
             )
 
             yield {
                 "type": "status",
-                "text": _status_for(tool_name),
+                "text": _status_for(
+                    tool_name
+                ),
             }
 
             try:
                 arguments = json.loads(
-                    call.function.arguments or "{}"
+                    tool_call.function.arguments
+                    or "{}"
                 )
             except json.JSONDecodeError:
                 arguments = {}
@@ -160,34 +272,63 @@ def run_turn_streamed(
             result = dispatch(
                 tool_name,
                 arguments,
-                repo,
+                repository,
                 bank_scope=bank_scope,
             )
 
-            if result.get("ok") and result.get("provenance"):
+            if (
+                result.get("ok")
+                and result.get("provenance")
+            ):
                 citations.append(
                     {
                         "tool": tool_name,
-                        "provenance": result["provenance"],
-                        "data_gaps": result.get("data_gaps", []),
+                        "provenance": result[
+                            "provenance"
+                        ],
+                        "data_gaps": result.get(
+                            "data_gaps",
+                            [],
+                        ),
                     }
                 )
 
             messages.append(
                 {
                     "role": "tool",
-                    "tool_call_id": call.id,
-                    "content": json.dumps(result, default=str),
+                    "tool_call_id": (
+                        tool_call.id
+                    ),
+                    "content": json.dumps(
+                        result,
+                        default=str,
+                    ),
                 }
             )
+
+            yield {
+                "type": "status",
+                "text": "Preparing the grounded answer…",
+            }
+
         else:
-            answer_text = (
-                "I could not complete the grounded tool workflow within "
-                "the allowed number of steps."
+            final_answer = (
+                "I could not complete the grounded tool workflow "
+                "within the allowed number of steps."
             )
+            for chunk in _text_chunks(
+                final_answer
+            ):
+                yield {
+                    "type": "token",
+                    "text": chunk,
+                }
+                time.sleep(0.012)
 
     except Exception as exc:
-        logger.exception("Assistant provider/tool error")
+        logger.exception(
+            "Azure assistant turn failed"
+        )
         yield from _fallback_stream(
             conversation,
             str(exc),
@@ -195,24 +336,32 @@ def run_turn_streamed(
         )
         return
 
-    if not answer_text:
-        answer_text = (
-            "The requested information is not available in the retrieved data."
+    if not final_answer:
+        final_answer = (
+            "The requested information is not available "
+            "in the retrieved data."
         )
+        for chunk in _text_chunks(
+            final_answer
+        ):
+            yield {
+                "type": "token",
+                "text": chunk,
+            }
+            time.sleep(0.012)
 
-    for chunk in _text_chunks(answer_text):
-        yield {"type": "token", "text": chunk}
-        time.sleep(0.015)
-
-    msg = Message.objects.create(
+    assistant_record = Message.objects.create(
         conversation=conversation,
         role=Message.Role.ASSISTANT,
-        content=answer_text,
+        content=final_answer,
         citations=citations,
-        model_used=model,
+        model_used=model_used,
         is_fallback=False,
     )
-    conversation.save(update_fields=["updated_at"])
+
+    conversation.save(
+        update_fields=["updated_at"]
+    )
 
     if citations:
         yield {
@@ -222,9 +371,13 @@ def run_turn_streamed(
 
     yield {
         "type": "done",
-        "conversation_id": str(conversation.id),
-        "message_id": str(msg.id),
-        "model_used": model,
+        "conversation_id": str(
+            conversation.id
+        ),
+        "message_id": str(
+            assistant_record.id
+        ),
+        "model_used": model_used,
         "is_fallback": False,
     }
 
@@ -234,26 +387,35 @@ def _fallback_stream(
     reason: str,
     citations: list[dict] | None = None,
 ) -> Iterator[dict]:
-    logger.warning("Assistant fallback used: %s", reason)
+    logger.warning(
+        "Assistant fallback used: %s",
+        reason,
+    )
 
     text = (
-        "The assistant is temporarily unavailable because the model provider "
-        "request failed. Please retry shortly."
+        "The assistant is temporarily unavailable because "
+        "the Azure model connection failed. Please retry shortly."
     )
 
     for chunk in _text_chunks(text):
-        yield {"type": "token", "text": chunk}
-        time.sleep(0.015)
+        yield {
+            "type": "token",
+            "text": chunk,
+        }
+        time.sleep(0.012)
 
-    msg = Message.objects.create(
+    assistant_record = Message.objects.create(
         conversation=conversation,
         role=Message.Role.ASSISTANT,
         content=text,
         citations=citations or [],
-        model_used="fallback",
+        model_used="azure-fast-fallback",
         is_fallback=True,
     )
-    conversation.save(update_fields=["updated_at"])
+
+    conversation.save(
+        update_fields=["updated_at"]
+    )
 
     if citations:
         yield {
@@ -263,8 +425,12 @@ def _fallback_stream(
 
     yield {
         "type": "done",
-        "conversation_id": str(conversation.id),
-        "message_id": str(msg.id),
-        "model_used": "fallback",
+        "conversation_id": str(
+            conversation.id
+        ),
+        "message_id": str(
+            assistant_record.id
+        ),
+        "model_used": "azure-fast-fallback",
         "is_fallback": True,
     }
