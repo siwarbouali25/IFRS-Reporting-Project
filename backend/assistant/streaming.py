@@ -1,17 +1,9 @@
 """
-Reliable SSE delivery for the assistant.
+Reliable SSE orchestration for an OpenAI-compatible model that supports only
+one tool call per assistant turn.
 
-The upstream LLM call is intentionally non-streaming because some OpenAI-
-compatible providers can reset long-lived streaming connections on Windows
-(httpx.ReadError / WinError 10054), especially during tool-calling turns.
-
-The browser still receives a real SSE response:
-- an immediate status event opens the connection;
-- tool status events are sent between ReAct steps;
-- the final grounded answer is emitted in small token-like chunks;
-- citations and the done event are emitted at the end.
-
-This keeps the UI responsive without depending on upstream token streaming.
+The browser still receives SSE status/token/citation/done events. The upstream
+provider call is non-streaming to avoid provider-side socket resets.
 """
 
 from __future__ import annotations
@@ -50,7 +42,7 @@ def _status_for(name: str) -> str:
 
 
 def _text_chunks(text: str, target_size: int = 28) -> Iterator[str]:
-    """Split text into small whitespace-preserving chunks."""
+    """Split a completed answer into small whitespace-preserving SSE chunks."""
     buffer = ""
 
     for token in re.findall(r"\S+\s*", text):
@@ -63,11 +55,12 @@ def _text_chunks(text: str, target_size: int = 28) -> Iterator[str]:
         yield buffer
 
 
-def _serialise_tool_calls(tool_calls) -> list[dict]:
-    serialised = []
-
-    for call in tool_calls or []:
-        serialised.append(
+def _single_tool_call_message(call, content: str = "") -> dict:
+    """Create an OpenAI assistant message containing exactly one tool call."""
+    return {
+        "role": "assistant",
+        "content": content,
+        "tool_calls": [
             {
                 "id": call.id,
                 "type": "function",
@@ -76,17 +69,16 @@ def _serialise_tool_calls(tool_calls) -> list[dict]:
                     "arguments": call.function.arguments or "{}",
                 },
             }
-        )
-
-    return serialised
+        ],
+    }
 
 
 def run_turn_streamed(
     conversation: Conversation,
     user_text: str,
 ) -> Iterator[dict]:
-    # Build history before persisting the new user turn. Otherwise the newest
-    # user message is included by _history_to_messages and appended twice.
+    # Build model history before saving this user message; otherwise the current
+    # message is replayed by _history_to_messages and then appended a second time.
     messages = _history_to_messages(conversation)
     messages.append({"role": "user", "content": user_text})
 
@@ -115,69 +107,79 @@ def run_turn_streamed(
 
     try:
         for _ in range(MAX_ITERATIONS):
-            # Non-streaming upstream avoids provider-side socket resets while
-            # preserving SSE streaming to the browser.
             response = client.chat.completions.create(
                 model=model,
                 messages=messages,
                 tools=TOOL_SCHEMAS,
                 tool_choice="auto",
+                parallel_tool_calls=False,
                 temperature=0.1,
                 stream=False,
             )
 
             assistant = response.choices[0].message
-            tool_calls = assistant.tool_calls or []
+            returned_tool_calls = list(assistant.tool_calls or [])
 
-            if not tool_calls:
+            if not returned_tool_calls:
                 answer_text = (assistant.content or "").strip()
                 break
 
+            # The selected NIM model accepts only one tool call in each assistant
+            # message. Even if the provider ignores parallel_tool_calls=False,
+            # keep only the first call and let the next ReAct iteration request
+            # another tool if needed.
+            if len(returned_tool_calls) > 1:
+                logger.warning(
+                    "Provider returned %s tool calls; executing only the first "
+                    "because the model supports one tool call per turn.",
+                    len(returned_tool_calls),
+                )
+
+            call = returned_tool_calls[0]
+            tool_name = call.function.name
+
             messages.append(
-                {
-                    "role": "assistant",
-                    "content": assistant.content or "",
-                    "tool_calls": _serialise_tool_calls(tool_calls),
-                }
+                _single_tool_call_message(
+                    call,
+                    assistant.content or "",
+                )
             )
 
-            for call in tool_calls:
-                tool_name = call.function.name
-                yield {
-                    "type": "status",
-                    "text": _status_for(tool_name),
-                }
+            yield {
+                "type": "status",
+                "text": _status_for(tool_name),
+            }
 
-                try:
-                    arguments = json.loads(
-                        call.function.arguments or "{}"
-                    )
-                except json.JSONDecodeError:
-                    arguments = {}
-
-                result = dispatch(
-                    tool_name,
-                    arguments,
-                    repo,
-                    bank_scope=bank_scope,
+            try:
+                arguments = json.loads(
+                    call.function.arguments or "{}"
                 )
+            except json.JSONDecodeError:
+                arguments = {}
 
-                if result.get("ok") and result.get("provenance"):
-                    citations.append(
-                        {
-                            "tool": tool_name,
-                            "provenance": result["provenance"],
-                            "data_gaps": result.get("data_gaps", []),
-                        }
-                    )
+            result = dispatch(
+                tool_name,
+                arguments,
+                repo,
+                bank_scope=bank_scope,
+            )
 
-                messages.append(
+            if result.get("ok") and result.get("provenance"):
+                citations.append(
                     {
-                        "role": "tool",
-                        "tool_call_id": call.id,
-                        "content": json.dumps(result, default=str),
+                        "tool": tool_name,
+                        "provenance": result["provenance"],
+                        "data_gaps": result.get("data_gaps", []),
                     }
                 )
+
+            messages.append(
+                {
+                    "role": "tool",
+                    "tool_call_id": call.id,
+                    "content": json.dumps(result, default=str),
+                }
+            )
         else:
             answer_text = (
                 "I could not complete the grounded tool workflow within "
@@ -198,8 +200,6 @@ def run_turn_streamed(
             "The requested information is not available in the retrieved data."
         )
 
-    # Emit token-like SSE chunks. The short delay prevents WSGI/browser layers
-    # from coalescing the entire answer into one visible update.
     for chunk in _text_chunks(answer_text):
         yield {"type": "token", "text": chunk}
         time.sleep(0.015)
@@ -238,7 +238,7 @@ def _fallback_stream(
 
     text = (
         "The assistant is temporarily unavailable because the model provider "
-        "connection failed. Please retry shortly."
+        "request failed. Please retry shortly."
     )
 
     for chunk in _text_chunks(text):
