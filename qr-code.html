@@ -1,4 +1,1 @@
-curl -N -X POST http://127.0.0.1:8000/api/assistant/chat/stream/ \
-  -H "Authorization: Bearer <your-access-token>" \
-  -H "Content-Type: application/json" \
-  -d "{\"message\":\"BANK01 scope 1 and financed emissions 2024?\",\"bank_code\":\"BANK01\"}"
+$token=(Get-Clipboard).Trim(); curl.exe -N -X POST "http://127.0.0.1:8000/api/assistant/chat/stream/" -H "Authorization: Bearer $token" -H "Content-Type: application/json" --data-raw '{"message":"BANK01 scope 1 and financed emissions 2024?","bank_code":"BANK01"}'
