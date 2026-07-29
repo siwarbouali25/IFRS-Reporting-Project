@@ -390,6 +390,11 @@ def chunk_markdown(
     current_lines: list[str] = []
     current_path: tuple[str, ...] = ()
 
+    # Generated reports normally begin with one H1 document title. That title
+    # is report metadata and should not be repeated in every section path.
+    document_title: str | None = None
+    first_heading_seen = False
+
     def flush_section() -> None:
         nonlocal current_lines
 
@@ -416,6 +421,8 @@ def chunk_markdown(
             )
             continue
 
+        # Save the body belonging to the previous heading before changing the
+        # active hierarchy.
         flush_section()
 
         level = len(
@@ -425,11 +432,37 @@ def chunk_markdown(
             match.group(2)
         )
 
-        heading_stack = (
-            heading_stack[:level - 1]
+        # Only the first H1 is treated as the report title.
+        if (
+            not first_heading_seen
+            and level == 1
+        ):
+            document_title = title
+            first_heading_seen = True
+            heading_stack = []
+            current_path = ()
+            continue
+
+        first_heading_seen = True
+
+        # Removing the document title shifts later levels by one:
+        # H2 -> top-level section, H3 -> subsection.
+        effective_level = (
+            max(level - 1, 1)
+            if document_title is not None
+            else level
         )
 
-        while len(heading_stack) < level - 1:
+        heading_stack = (
+            heading_stack[
+                :effective_level - 1
+            ]
+        )
+
+        while (
+            len(heading_stack)
+            < effective_level - 1
+        ):
             heading_stack.append("")
 
         heading_stack.append(title)
