@@ -3,6 +3,7 @@ import logging
 
 from django.http import StreamingHttpResponse
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import (
     ListAPIView,
     RetrieveAPIView,
@@ -29,40 +30,98 @@ def _user_conversations(request):
     )
 
 
+def _get_bank(bank_code: str | None):
+    """
+    Resolve the code sent by the Angular bank selector.
+
+    The selector displays the real name but intentionally sends the stable
+    internal code used by the existing foreign keys and payload files.
+    """
+
+    if not bank_code:
+        return None
+
+    from organizations.models import Bank
+
+    bank = Bank.objects.filter(
+        code=bank_code
+    ).first()
+
+    if bank is None:
+        raise ValidationError(
+            {
+                "bank_code": (
+                    f"No bank exists with code "
+                    f"'{bank_code}'."
+                )
+            }
+        )
+
+    return bank
+
+
 def resolve_conversation(
     request,
     data,
 ) -> Conversation:
+    """
+    Resolve or create a conversation and apply the selected bank scope.
+
+    For an older conversation that was accidentally created without a bank,
+    the bank sent by the current request is attached automatically. A
+    conversation that is already scoped cannot silently switch banks.
+    """
+
     conversation_id = data.get(
         "conversation_id"
     )
+    requested_bank = _get_bank(
+        data.get("bank_code")
+    )
 
     if conversation_id:
-        return _user_conversations(
+        conversation = _user_conversations(
             request
         ).get(id=conversation_id)
 
-    bank = None
-    bank_code = data.get("bank_code")
+        if requested_bank is not None:
+            if conversation.bank_id is None:
+                conversation.bank = (
+                    requested_bank
+                )
+                conversation.save(
+                    update_fields=[
+                        "bank",
+                        "updated_at",
+                    ]
+                )
+            elif (
+                conversation.bank_id
+                != requested_bank.pk
+            ):
+                raise ValidationError(
+                    {
+                        "bank_code": (
+                            "This conversation is already "
+                            f"scoped to "
+                            f"'{conversation.bank.name}'. "
+                            "Start a new chat to use another "
+                            "bank."
+                        )
+                    }
+                )
 
-    if bank_code:
-        from organizations.models import Bank
-
-        bank = Bank.objects.filter(
-            code=bank_code
-        ).first()
+        return conversation
 
     return Conversation.objects.create(
         user=request.user,
-        bank=bank,
+        bank=requested_bank,
         title=data["message"][:60],
     )
 
 
 class ChatView(APIView):
-    """
-    Normal non-streaming fallback endpoint.
-    """
+    """Normal non-streaming fallback endpoint."""
 
     permission_classes = [IsAuthenticated]
 
@@ -99,10 +158,10 @@ class ChatView(APIView):
 
 class ChatStreamView(APIView):
     """
-    POST /api/assistant/chat/stream/
+    Stream Azure assistant events to Angular.
 
-    Django forwards Azure content deltas as browser-facing SSE events while
-    preserving status, citation, error, and completion event types.
+    The conversation has already been assigned the selected bank before the
+    generator builds the system prompt.
     """
 
     permission_classes = [IsAuthenticated]
@@ -122,7 +181,6 @@ class ChatStreamView(APIView):
         )
 
         def event_stream():
-            # Valid SSE comment that opens the browser connection immediately.
             yield ": connected\n\n"
 
             try:
@@ -148,7 +206,8 @@ class ChatStreamView(APIView):
                         {
                             "type": "error",
                             "message": (
-                                "The assistant stream failed."
+                                "The assistant stream "
+                                "failed."
                             ),
                         }
                     )
@@ -171,9 +230,7 @@ class ConversationListView(
     ListAPIView
 ):
     permission_classes = [IsAuthenticated]
-    serializer_class = (
-        ConversationSerializer
-    )
+    serializer_class = ConversationSerializer
 
     def get_queryset(self):
         return _user_conversations(
@@ -185,9 +242,7 @@ class ConversationDetailView(
     RetrieveAPIView
 ):
     permission_classes = [IsAuthenticated]
-    serializer_class = (
-        ConversationSerializer
-    )
+    serializer_class = ConversationSerializer
     lookup_field = "id"
 
     def get_queryset(self):
