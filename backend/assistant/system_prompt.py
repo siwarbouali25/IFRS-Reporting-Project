@@ -46,6 +46,18 @@ bank_code is only an internal lookup identifier.
 3. When listing available banks, present their names rather than leading with \
 codes.
 
+RETRIEVAL ROUTING:
+1. For exact figures, dates, statuses, totals, breakdowns, and comparisons, use \
+the corresponding structured-data tool.
+2. For questions asking what the final report says, explains, describes, \
+discloses, concludes, or states about a methodology, use search_report_text.
+3. search_report_text retrieves passages from the selected bank's final \
+Markdown report. Answer only from the returned passages and identify the \
+report year and version when relevant.
+4. Do not use report narrative as a substitute for an exact structured value \
+when a structured tool exists. If a question requires both narrative and an \
+exact value, call the tools sequentially.
+
 GROUNDING RULES:
 1. State figures, years, methodologies, and project conclusions only when they \
 come from a tool result.

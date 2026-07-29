@@ -546,65 +546,40 @@ def search_report_text(
     repo: PayloadRepository,
     bank_code: str,
     query: str,
+    reporting_year: int | None = None,
+    approved_only: bool = False,
+    top_k: int = 5,
 ) -> dict:
-    from risk_analysis.models import (
-        AssessmentResult,
-    )
+    """
+    Retrieve heading-aware passages from the selected bank's final report
+    Markdown.
 
+    Exact numeric questions must continue to use the structured tools. This
+    tool is for report wording, explanations, disclosures, methodologies, and
+    conclusions.
+    """
+
+    # Resolve the bank through the same repository used by all structured
+    # tools, then let the Markdown retriever select the report version.
     identity = repo.resolve_bank(
         bank_code
     )
-    terms = [
-        term
-        for term in query.lower().split()
-        if len(term) > 3
-    ]
-    hits = []
 
-    queryset = AssessmentResult.objects.filter(
-        analysis__bank_id=identity.code
-    ).order_by("-created_at")[:5]
-
-    for assessment in queryset:
-        text = (
-            assessment.assessment_text
-            or ""
-        )
-        score = sum(
-            text.lower().count(term)
-            for term in terms
-        )
-
-        if score:
-            hits.append(
-                {
-                    "assessment_id": str(
-                        assessment.id
-                    ),
-                    "score": score,
-                    "excerpt": text[:600],
-                    "model_used": (
-                        assessment.model_used
-                    ),
-                }
-            )
-
-    hits.sort(
-        key=lambda hit: hit["score"],
-        reverse=True,
+    from .retrieval import (
+        ReportMarkdownNotFound,
+        search_final_report_markdown,
     )
 
-    return {
-        "ok": True,
-        "data": hits[:3],
-        "bank_name": identity.name,
-        "bank_code": identity.code,
-        "provenance": {
-            "bank_name": identity.name,
-            "bank_code": identity.code,
-            "source": "AssessmentResult",
-        },
-    }
+    try:
+        return search_final_report_markdown(
+            identity.code,
+            query,
+            reporting_year=reporting_year,
+            approved_only=approved_only,
+            top_k=top_k,
+        )
+    except ReportMarkdownNotFound as exc:
+        return _err(str(exc))
 
 
 REGISTRY: dict[
@@ -855,15 +830,46 @@ TOOL_SCHEMAS: list[dict] = [
         "function": {
             "name": "search_report_text",
             "description": (
-                "Search generated narrative "
-                "text for a bank."
+                "Retrieve relevant passages from a bank's final report "
+                "Markdown. Use this for questions about what the report says, "
+                "describes, explains, discloses, concludes, or states about a "
+                "methodology. Do not use it instead of exact structured tools "
+                "for numeric emissions or KPI lookups."
             ),
             "parameters": {
                 "type": "object",
                 "properties": {
                     "bank_code": _bank_arg(),
                     "query": {
-                        "type": "string"
+                        "type": "string",
+                        "description": (
+                            "A focused narrative retrieval query preserving "
+                            "the user's main report topic."
+                        ),
+                    },
+                    "reporting_year": {
+                        "type": "integer",
+                        "description": (
+                            "Optional report year. Omit to use the newest "
+                            "available report year."
+                        ),
+                    },
+                    "approved_only": {
+                        "type": "boolean",
+                        "description": (
+                            "Set true only when the user explicitly asks for "
+                            "the approved report. Otherwise the retriever "
+                            "prefers an approved version and falls back to "
+                            "the latest generated version."
+                        ),
+                    },
+                    "top_k": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 8,
+                        "description": (
+                            "Maximum passages to retrieve. Usually 3 to 5."
+                        ),
                     },
                 },
                 "required": [
