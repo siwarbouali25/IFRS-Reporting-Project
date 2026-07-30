@@ -499,6 +499,9 @@
 
 .panel {
   min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   padding: 20px;
   overflow: hidden;
 }
@@ -551,23 +554,32 @@
 .assessment-layout {
   display: grid;
   grid-template-columns: 1.45fr 1fr;
-  align-items: start;
+  align-items: stretch;
   gap: 14px;
 }
 
 .assessment-panel,
 .side-panels {
-  align-self: start;
   min-height: 0;
 }
 
 .assessment-panel {
-  height: auto;
+  height: 100%;
+}
+
+.assessment-panel .evidence-strip {
+  margin-top: auto;
 }
 
 .side-panels {
+  height: 100%;
   display: grid;
+  grid-template-rows: 1fr 1fr;
   gap: 14px;
+}
+
+.side-panels > .panel {
+  min-height: 0;
 }
 
 .assessment-body {
@@ -934,9 +946,19 @@
 .content-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  align-items: start;
+  align-items: stretch;
   gap: 14px;
   margin-bottom: 14px;
+}
+
+.content-grid > .panel {
+  min-height: 0;
+}
+
+.transition-grid,
+.physical-grid,
+.confidence-grid {
+  grid-auto-rows: 1fr;
 }
 
 .content-grid.full {
@@ -952,15 +974,15 @@
 }
 
 .chart-wrap--intensity {
-  height: 270px;
+  height: 255px;
 }
 
 .chart-wrap--doughnut {
-  height: 310px;
+  height: 255px;
 }
 
 .chart-wrap--quality {
-  height: 300px;
+  height: 220px;
 }
 
 .chart-wrap--risk-category {
@@ -968,11 +990,38 @@
 }
 
 .chart-wrap--physical {
-  height: 285px;
+  height: 330px;
 }
 
 .chart-wrap--scenario {
-  height: 330px;
+  height: 300px;
+}
+
+/*
+ * Balance the specific paired rows without forcing every chart to use the
+ * same dimensions.
+ */
+.transition-grid .chart-wrap {
+  flex: 1 1 auto;
+  min-height: 255px;
+}
+
+.physical-grid .chart-wrap--physical {
+  flex: 1 1 auto;
+  min-height: 330px;
+}
+
+.confidence-grid .quality-list {
+  flex: 1 1 auto;
+}
+
+.confidence-grid .chart-wrap--quality {
+  flex: 0 0 220px;
+}
+
+.confidence-grid .panel-note {
+  margin-top: auto;
+  padding-top: 10px;
 }
 
 :host ::ng-deep .chart-wrap p-chart,
@@ -994,6 +1043,11 @@
 .quality-list {
   display: grid;
   gap: 7px;
+}
+
+.physical-grid .country-list,
+.confidence-grid .quality-list {
+  align-content: space-between;
 }
 
 .country-row,
@@ -1223,18 +1277,30 @@ td.warn-cell {
     grid-template-columns: 24px 1fr;
   }
 
+  .assessment-layout,
+  .side-panels {
+    height: auto;
+  }
+
+  .side-panels {
+    grid-template-rows: auto;
+  }
+
   .chart-wrap--intensity,
   .chart-wrap--physical,
   .chart-wrap--risk-category {
     height: 260px;
+    min-height: 260px;
   }
 
   .chart-wrap--doughnut,
   .chart-wrap--quality {
-    height: 290px;
+    height: 270px;
+    min-height: 270px;
+    flex-basis: 270px;
   }
 
   .chart-wrap--scenario {
-    height: 360px;
+    height: 320px;
   }
 }

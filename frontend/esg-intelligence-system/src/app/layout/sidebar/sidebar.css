@@ -47,33 +47,24 @@
   margin-bottom: 34px;
 }
 
-.brand-mark {
-  width: 42px;
-  height: 42px;
+.brand-logo {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  display: block;
+  object-fit: cover;
+  border: 1px solid var(--border);
   border-radius: 14px;
-  background:
-    linear-gradient(
-      135deg,
-      var(--acid),
-      var(--accent)
-    );
-  color: #000;
-  display: grid;
-  place-items: center;
-  font-weight: 900;
-  font-size: 20px;
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .brand h2 {
+  max-width: 165px;
   margin: 0;
   color: #fff;
-  font-size: 18px;
-}
-
-.brand p {
-  margin: 3px 0 0;
-  color: var(--muted);
-  font-size: 12px;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.2;
 }
 
 .nav {
