@@ -160,6 +160,13 @@ _STRONG_PROJECT_PATTERNS = _compile(
         r"\bexposures?\b",
         r"\bgenerated\s+report\b",
         r"\breport\s+(?:section|content|version|status)\b",
+        r"\b(?:loan|lending|loan\s+book|credit)\b",
+        r"\b(?:industr(?:y|ies)|sectors?)\b",
+        r"\b(?:fossil\s*fuel|high[-\s]?carbon|carbon[-\s]?intensive|dirty)\b",
+        r"\b(?:green\s+(?:loans?|lending)|net\s*zero|renewable)\b",
+        r"\b(?:carbon\s+(?:credits?|offsets?)|offsets?|additionality|permanence)\b",
+        r"\b(?:mortgages?|flood|agricultur(?:e|al)|farming)\b",
+        r"\b(?:remuneration|pay|assurance|NGFS|NZBA)\b",
     ]
 )
 
@@ -381,11 +388,15 @@ def evaluate_user_input(
             requires_grounding=True,
         )
 
+    # Fail open to the model rather than refusing on an unrecognised phrasing.
+    # Clear off-topic, injection, sensitive and control requests were already
+    # blocked above; anything else is deferred to the scoped system prompt,
+    # which grounds the answer or declines if it is genuinely out of scope.
     return GuardrailDecision(
-        allowed=False,
-        category="out_of_scope",
-        reason="no_project_scope_match",
-        response=OUT_OF_SCOPE_RESPONSE,
+        allowed=True,
+        category="project_data",
+        reason="deferred_to_model_scope",
+        requires_grounding=True,
     )
 
 

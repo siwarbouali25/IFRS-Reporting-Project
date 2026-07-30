@@ -304,38 +304,79 @@
                 .length > 0
             ) {
               <div class="citations">
+                <div class="citations-title">
+                  <i class="pi pi-book"></i>
+                  Sources used
+                </div>
+
                 @for (
                   citation of
                     message.citations;
                   track $index
                 ) {
-                  <span class="chip">
-                    <i
-                      class="
-                        pi
-                        pi-database
-                      "
-                    ></i>
-                    {{
-                      citation
-                        .provenance
-                        .source
-                      || citation.tool
-                    }}
+                  <div class="citation-card">
+                    <div class="citation-head">
+                      <span class="citation-source">
+                        <i class="pi pi-file"></i>
+                        {{
+                          citation
+                            .provenance
+                            .source
+                          || citation.tool
+                        }}
+                      </span>
 
-                    @if (
-                      citation
-                        .provenance
-                        .bank_name
-                    ) {
-                      ·
-                      {{
+                      @if (
                         citation
                           .provenance
                           .bank_name
-                      }}
+                      ) {
+                        <span class="citation-bank">
+                          {{
+                            citation
+                              .provenance
+                              .bank_name
+                          }}
+                        </span>
+                      }
+                    </div>
+
+                    @if (
+                      citationVersionLabel(
+                        citation
+                      )
+                    ) {
+                      <div class="citation-meta">
+                        {{
+                          citationVersionLabel(
+                            citation
+                          )
+                        }}
+                      </div>
                     }
-                  </span>
+
+                    @if (
+                      citationSections(
+                        citation
+                      ).length > 0
+                    ) {
+                      <div class="citation-sections">
+                        @for (
+                          section of
+                            citationSections(
+                              citation
+                            );
+                          track section
+                        ) {
+                          <span class="section-chip">
+                            {{
+                              section
+                            }}
+                          </span>
+                        }
+                      </div>
+                    }
+                  </div>
                 }
               </div>
             }
@@ -378,10 +419,7 @@
           onKeydown($event)
         "
         (input)="autoGrow($event)"
-        placeholder="
-          Ask a question about
-          your reporting data…
-        "
+        placeholder="Ask a question about your reporting data…"
         rows="1"
       ></textarea>
 
