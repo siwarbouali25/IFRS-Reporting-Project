@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 import {
   AssistantService,
   ChatMessage,
+  Citation,
   ConversationSummary,
   StreamEvent,
 } from '../../core/services/assistant';
@@ -352,6 +353,81 @@ export class Assistant
         citation.data_gaps
         ?? []
     );
+  }
+
+  citationSections(
+    citation: Citation
+  ): string[] {
+    const sections =
+      citation.sections ??
+      citation.provenance
+        .retrieved_sections ??
+      [];
+
+    return Array.from(
+      new Set(
+        sections.filter(
+          (
+            section
+          ): section is string =>
+            typeof section ===
+              'string' &&
+            section.trim().length > 0
+        )
+      )
+    );
+  }
+
+  citationVersionLabel(
+    citation: Citation
+  ): string {
+    const provenance =
+      citation.provenance;
+    const parts: string[] = [];
+
+    if (
+      provenance.reporting_year !==
+        undefined &&
+      provenance.reporting_year !==
+        null
+    ) {
+      parts.push(
+        String(
+          provenance.reporting_year
+        )
+      );
+    }
+
+    if (
+      provenance.version_number !==
+        undefined &&
+      provenance.version_number !==
+        null
+    ) {
+      parts.push(
+        `Version ${
+          provenance.version_number
+        }`
+      );
+    }
+
+    if (
+      provenance.version_status
+    ) {
+      parts.push(
+        String(
+          provenance.version_status
+        )
+          .replaceAll('_', ' ')
+          .replace(
+            /\b\w/g,
+            (character) =>
+              character.toUpperCase()
+          )
+      );
+    }
+
+    return parts.join(' · ');
   }
 
   renderContent(

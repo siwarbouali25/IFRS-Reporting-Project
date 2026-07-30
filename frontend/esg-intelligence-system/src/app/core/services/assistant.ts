@@ -19,10 +19,20 @@ export interface DataGap {
 
 export interface Citation {
   tool: string;
+  sections?: string[];
   provenance: {
     bank_code?: string;
     bank_name?: string;
     source?: string;
+    reporting_year?: number;
+    version_number?: number | null;
+    version_status?: string;
+    artifact_id?: string;
+    object_key?: string;
+    checksum?: string;
+    retrieved_sections?: string[];
+    retrieved_chunk_ids?: string[];
+    retrieval_method?: string;
     [key: string]: unknown;
   };
   data_gaps: DataGap[];
