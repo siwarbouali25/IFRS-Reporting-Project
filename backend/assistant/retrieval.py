@@ -1189,89 +1189,73 @@ def rank_chunks(
     ]
 
 
-def rank_chunks_hybrid(
+def rank_chunks_multiquery(
     query: str,
     chunks: Iterable[MarkdownChunk],
     *,
     top_k: int = 5,
-    artifact_id: str = "artifact",
-    checksum: str = "",
-) -> tuple[list[dict], str]:
+) -> tuple[list[dict], str, dict]:
     """
-    Fuse the lexical hybrid with a local dense (sentence-transformers) ranking,
-    then diversify with MMR.
+    Improve lexical retrieval with generative query expansion.
 
-    Returns ``(hits, retrieval_method)``. If the embedding model is not
-    installed or fails to load, this falls back to the pure lexical
-    ``rank_chunks`` and reports the lexical method, so retrieval never blocks.
+    The chat deployment rewrites the question into several vocabulary-rich
+    variants (and one hypothetical report sentence, HyDE-style). Each variant is
+    ranked with the existing lexical hybrid, the rankings are fused with
+    Reciprocal Rank Fusion, and MMR removes near-duplicate passages.
+
+    This recovers most of the vocabulary-mismatch benefit of dense embeddings
+    without any embedding model, extra dependency, or model download: it uses
+    only the Azure chat deployment already configured for the assistant. If
+    expansion is disabled or the chat call fails, it degrades to the original
+    single-query lexical ranking.
+
+    Returns ``(hits, retrieval_method, expansion_meta)``.
     """
 
     chunks = list(chunks)
     top_k = max(1, min(int(top_k), 8))
 
-    lexical_all = _lexical_ranked_all(query, chunks)
+    from .expansion import expand_query
 
-    from . import embeddings
+    expansion = expand_query(query)
+    variants = expansion.queries or [query]
 
-    if not embeddings.is_available():
-        return (
-            _apply_lexical_threshold(lexical_all, top_k),
-            "heading_aware_hybrid_lexical",
-        )
+    rankings: list[list[dict]] = []
+    for variant in variants:
+        ranked = _lexical_ranked_all(variant, chunks)
+        if ranked:
+            rankings.append(ranked)
 
-    try:
-        chunk_vectors = _embed_chunks_cached(
-            artifact_id,
-            checksum,
-            chunks,
-        )
-        query_vector = embeddings.embed_query(query)
-    except embeddings.EmbeddingUnavailable as exc:
-        logger.warning(
-            "Dense retrieval unavailable, using lexical only: %s",
-            exc,
-        )
-        return (
-            _apply_lexical_threshold(lexical_all, top_k),
-            "heading_aware_hybrid_lexical",
-        )
-
-    vector_lookup = {
-        id(chunk): vector
-        for chunk, vector in zip(chunks, chunk_vectors)
+    meta = {
+        "used_llm": expansion.used_llm,
+        "query_variants": variants,
     }
 
-    dense_ranked = [
-        {
-            "chunk": chunk,
-            "dense_score": _cosine(query_vector, vector),
-        }
-        for chunk, vector in zip(chunks, chunk_vectors)
-    ]
-    dense_ranked.sort(
-        key=lambda item: item["dense_score"],
-        reverse=True,
-    )
-
-    # Reciprocal Rank Fusion: scale-free, so BM25 magnitudes never have to be
-    # calibrated against cosine magnitudes.
-    fused = _reciprocal_rank_fusion([lexical_all, dense_ranked])
-    if not fused:
-        return [], "hybrid_lexical_dense_rrf"
-
-    def cosine_similarity(chunk_a, chunk_b) -> float:
-        return _cosine(
-            vector_lookup.get(id(chunk_a), []),
-            vector_lookup.get(id(chunk_b), []),
+    # No expansion happened (disabled or failed): keep the exact original
+    # single-query lexical behaviour, thresholds included.
+    if not expansion.used_llm or len(rankings) <= 1:
+        primary = rankings[0] if rankings else []
+        return (
+            _apply_lexical_threshold(primary, top_k),
+            "heading_aware_hybrid_lexical",
+            meta,
         )
 
+    fused = _reciprocal_rank_fusion(rankings)
+    if not fused:
+        return [], "lexical_multiquery_rrf", meta
+
+    text_lookup = {
+        id(chunk): (chunk.section_path + "\n" + chunk.content)
+        for chunk in chunks
+    }
     selected = _mmr_select(
         fused,
-        cosine_similarity,
+        text_lookup,
         top_k=top_k,
         lambda_weight=0.65,
     )
-    return selected, "hybrid_lexical_dense_rrf"
+    return selected, "lexical_multiquery_rrf", meta
 
 
 def _apply_lexical_threshold(
@@ -1297,8 +1281,8 @@ def _reciprocal_rank_fusion(
     k: int = 60,
 ) -> list[dict]:
     """
-    Fuse several rankings of the same chunks by summed reciprocal rank, keyed
-    by chunk identity. Scale-free, so lexical and dense rankings combine cleanly
+    Fuse several rankings of the same chunks by summed reciprocal rank, keyed by
+    chunk identity. Scale-free, so different query variants combine cleanly
     without calibrating their raw scores.
     """
 
@@ -1315,7 +1299,6 @@ def _reciprocal_rank_fusion(
                     "best_rank": None,
                     "hit_count": 0,
                     "lexical_score": item.get("score", 0.0),
-                    "dense_score": item.get("dense_score", 0.0),
                 },
             )
             entry["rrf"] += 1.0 / (k + rank + 1)
@@ -1325,10 +1308,6 @@ def _reciprocal_rank_fusion(
             entry["lexical_score"] = max(
                 entry["lexical_score"],
                 item.get("score", 0.0),
-            )
-            entry["dense_score"] = max(
-                entry["dense_score"],
-                item.get("dense_score", 0.0),
             )
 
     fused = list(contributions.values())
@@ -1341,17 +1320,17 @@ def _reciprocal_rank_fusion(
 
 def _mmr_select(
     fused: list[dict],
-    similarity_fn,
+    text_lookup: dict[int, str],
     *,
     top_k: int,
     lambda_weight: float = 0.65,
     pool_size: int = 20,
 ) -> list[dict]:
     """
-    Maximal Marginal Relevance over the fused candidates. ``similarity_fn`` is a
-    callable ``(chunk_a, chunk_b) -> float`` used to measure redundancy; the
-    dense path passes cosine over embeddings. Balances relevance (fused RRF
-    score) against novelty so returned passages complement each other.
+    Maximal Marginal Relevance over the fused candidates. Redundancy between
+    passages is measured with character-trigram Dice similarity (no embeddings
+    required), so overlapping/near-duplicate chunks do not crowd out
+    complementary sections.
     """
 
     pool = fused[:pool_size]
@@ -1359,6 +1338,16 @@ def _mmr_select(
         return []
 
     max_rrf = max(entry["rrf"] for entry in pool) or 1.0
+    ngram_cache: dict[int, set] = {}
+
+    def ngrams_for(chunk) -> set:
+        key = id(chunk)
+        if key not in ngram_cache:
+            ngram_cache[key] = _character_ngrams(
+                text_lookup.get(key, "")
+            )
+        return ngram_cache[key]
+
     for entry in pool:
         entry["_relevance"] = entry["rrf"] / max_rrf
 
@@ -1370,11 +1359,15 @@ def _mmr_select(
         best_value = float("-inf")
 
         for entry in remaining:
+            candidate_ngrams = ngrams_for(entry["chunk"])
             redundancy = 0.0
             for chosen in selected:
                 redundancy = max(
                     redundancy,
-                    similarity_fn(entry["chunk"], chosen["chunk"]),
+                    _dice_similarity(
+                        candidate_ngrams,
+                        ngrams_for(chosen["chunk"]),
+                    ),
                 )
 
             value = (
@@ -1395,74 +1388,9 @@ def _mmr_select(
             "best_rank": entry["best_rank"],
             "hit_count": entry["hit_count"],
             "lexical_score": round(entry["lexical_score"], 6),
-            "dense_score": round(entry["dense_score"], 6),
         }
         for entry in selected
     ]
-
-
-def _cosine(
-    left: list[float],
-    right: list[float],
-) -> float:
-    if not left or not right or len(left) != len(right):
-        return 0.0
-    dot = 0.0
-    left_norm = 0.0
-    right_norm = 0.0
-    for a, b in zip(left, right):
-        dot += a * b
-        left_norm += a * a
-        right_norm += b * b
-    if left_norm <= 0.0 or right_norm <= 0.0:
-        return 0.0
-    return dot / math.sqrt(left_norm * right_norm)
-
-
-_EMBED_CACHE: dict[tuple[str, str], list[list[float]]] = {}
-_EMBED_CACHE_MAX = 16
-
-
-def _embed_chunks_cached(
-    artifact_id: str,
-    checksum: str,
-    chunks: list[MarkdownChunk],
-) -> list[list[float]]:
-    """
-    Embed a report's chunks once per (artifact, checksum). Vectors are cached
-    in-process and, best-effort, on disk, so repeated narrative questions about
-    the same report -- and restarts -- do not re-embed it.
-    """
-
-    from . import embeddings
-
-    key = (str(artifact_id), str(checksum))
-    if key in _EMBED_CACHE:
-        return _EMBED_CACHE[key]
-
-    disk_vectors = embeddings.load_cached_vectors(artifact_id, checksum)
-    if disk_vectors is not None and len(disk_vectors) == len(chunks):
-        _store_in_memory(key, disk_vectors)
-        return disk_vectors
-
-    texts = [
-        (chunk.section_path + "\n" + chunk.content)
-        for chunk in chunks
-    ]
-    vectors = embeddings.embed_passages(texts)
-
-    embeddings.save_cached_vectors(artifact_id, checksum, vectors)
-    _store_in_memory(key, vectors)
-    return vectors
-
-
-def _store_in_memory(
-    key: tuple[str, str],
-    vectors: list[list[float]],
-) -> None:
-    if len(_EMBED_CACHE) >= _EMBED_CACHE_MAX:
-        _EMBED_CACHE.pop(next(iter(_EMBED_CACHE)))
-    _EMBED_CACHE[key] = vectors
 
 
 
@@ -1501,12 +1429,12 @@ def search_final_report_markdown(
         checksum,
         markdown,
     )
-    ranked, retrieval_method = rank_chunks_hybrid(
-        query,
-        chunks,
-        top_k=top_k,
-        artifact_id=artifact_id,
-        checksum=checksum,
+    ranked, retrieval_method, expansion_meta = (
+        rank_chunks_multiquery(
+            query,
+            chunks,
+            top_k=top_k,
+        )
     )
 
     hits = []
@@ -1571,6 +1499,12 @@ def search_final_report_markdown(
         ],
         "retrieval_method": (
             retrieval_method
+        ),
+        "query_expansion_used": (
+            expansion_meta.get("used_llm", False)
+        ),
+        "query_variants": (
+            expansion_meta.get("query_variants", [])
         ),
     }
 
