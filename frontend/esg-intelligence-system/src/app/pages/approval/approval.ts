@@ -416,8 +416,6 @@ export class Approval implements OnInit, OnDestroy {
       return [];
     }
 
-    const summary =
-      this.currentVersion.validation_summary;
     const generationComplete = [
       'completed',
       'completed_with_warnings',
@@ -430,21 +428,6 @@ export class Approval implements OnInit, OnDestroy {
           ? 'The report generation job reached a final deliverable.'
           : 'The generation job is not in a completed state.',
         state: generationComplete ? 'pass' : 'fail',
-      },
-      {
-        label: 'Section validation',
-        detail:
-          summary.total_sections > 0
-            ? `${summary.ready_sections} of ${summary.total_sections} sections are ready.`
-            : 'No section validation records are available.',
-        state:
-          summary.failed_sections > 0
-            ? 'fail'
-            : summary.total_sections > 0 &&
-                summary.ready_sections ===
-                  summary.total_sections
-              ? 'pass'
-              : 'pending',
       },
       {
         label: 'Review files available',

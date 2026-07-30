@@ -279,7 +279,7 @@
 .dataset-options {
   display: grid;
   grid-template-columns:
-    repeat(3, minmax(0, 1fr));
+    repeat(auto-fit, minmax(240px, 1fr));
   gap: 9px;
 }
 
@@ -498,7 +498,9 @@
 }
 
 .panel {
+  min-width: 0;
   padding: 20px;
+  overflow: hidden;
 }
 
 .panel-header {
@@ -932,6 +934,7 @@
 .content-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  align-items: start;
   gap: 14px;
   margin-bottom: 14px;
 }
@@ -942,11 +945,49 @@
 
 .chart-wrap {
   position: relative;
-  height: 230px;
+  width: 100%;
+  height: 250px;
+  min-width: 0;
+  overflow: hidden;
 }
 
-.chart-wrap.tall {
+.chart-wrap--intensity {
   height: 270px;
+}
+
+.chart-wrap--doughnut {
+  height: 310px;
+}
+
+.chart-wrap--quality {
+  height: 300px;
+}
+
+.chart-wrap--risk-category {
+  height: 245px;
+}
+
+.chart-wrap--physical {
+  height: 285px;
+}
+
+.chart-wrap--scenario {
+  height: 330px;
+}
+
+:host ::ng-deep .chart-wrap p-chart,
+:host ::ng-deep .chart-wrap .p-chart {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+:host ::ng-deep .chart-wrap canvas {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
 }
 
 .country-list,
@@ -1180,5 +1221,20 @@ td.warn-cell {
 
   .matrix-layout {
     grid-template-columns: 24px 1fr;
+  }
+
+  .chart-wrap--intensity,
+  .chart-wrap--physical,
+  .chart-wrap--risk-category {
+    height: 260px;
+  }
+
+  .chart-wrap--doughnut,
+  .chart-wrap--quality {
+    height: 290px;
+  }
+
+  .chart-wrap--scenario {
+    height: 360px;
   }
 }

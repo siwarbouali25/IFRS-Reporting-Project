@@ -103,6 +103,10 @@ export class RiskAnalysis
     amber: '#c9a24e',
     green: '#a8c93e',
     grey: '#7e8a92',
+    teal: '#35b7a5',
+    coral: '#e07171',
+    violet: '#8b7cf6',
+    sky: '#5aa7ff',
     muted: '#8a929b',
     mutedSoft: '#5e666e',
     surfaceSoft: '#1c1e20',
@@ -346,7 +350,7 @@ export class RiskAnalysis
       .getPayloadManifests()
       .subscribe({
         next: (manifests) => {
-          this.manifests =
+          const sortedManifests =
             [...manifests].sort(
               (a, b) =>
                 new Date(
@@ -355,6 +359,11 @@ export class RiskAnalysis
                 new Date(
                   a.created_at
                 ).getTime()
+            );
+
+          this.manifests =
+            this.deduplicateManifests(
+              sortedManifests
             );
 
           if (
@@ -389,6 +398,35 @@ export class RiskAnalysis
             this.getErrorMessage(error);
         },
       });
+  }
+
+  private deduplicateManifests(
+    manifests: PayloadManifestSummary[]
+  ): PayloadManifestSummary[] {
+    const latestByBankAndYear =
+      new Map<
+        string,
+        PayloadManifestSummary
+      >();
+
+    for (const manifest of manifests) {
+      const key =
+        `${manifest.bank_code}::` +
+        `${manifest.reporting_year}`;
+
+      if (
+        !latestByBankAndYear.has(key)
+      ) {
+        latestByBankAndYear.set(
+          key,
+          manifest
+        );
+      }
+    }
+
+    return Array.from(
+      latestByBankAndYear.values()
+    );
   }
 
   selectManifest(
@@ -950,8 +988,13 @@ export class RiskAnalysis
           labels: {
             color:
               this.theme.muted,
+            usePointStyle: true,
+            pointStyle: 'rectRounded',
+            boxWidth: 10,
+            boxHeight: 10,
+            padding: 12,
             font: {
-              size: 10.5,
+              size: 10,
             },
           },
         },
@@ -1177,12 +1220,13 @@ export class RiskAnalysis
         )
       );
 
-    const palette = [
+    const fallbackPalette = [
       this.theme.green,
+      this.theme.teal,
+      this.theme.coral,
       this.theme.amber,
-      this.theme.red,
-      this.theme.blue,
-      this.theme.grey,
+      this.theme.violet,
+      this.theme.sky,
     ];
 
     this.scenariosData = {
@@ -1200,10 +1244,25 @@ export class RiskAnalysis
                 row[key] ?? null
             ),
             backgroundColor:
-              palette[
-                index %
-                  palette.length
-              ],
+              this.getScenarioColor(
+                key,
+                fallbackPalette[
+                  index %
+                    fallbackPalette.length
+                ]
+              ),
+            borderColor:
+              this.getScenarioColor(
+                key,
+                fallbackPalette[
+                  index %
+                    fallbackPalette.length
+                ]
+              ),
+            borderWidth: 0,
+            borderRadius: 5,
+            borderSkipped: false,
+            maxBarThickness: 42,
           })
         ),
     };
@@ -1213,11 +1272,18 @@ export class RiskAnalysis
       maintainAspectRatio: false,
       plugins: {
         legend: {
+          position: 'top',
+          align: 'start',
           labels: {
             color:
               this.theme.muted,
+            usePointStyle: true,
+            pointStyle: 'rectRounded',
+            boxWidth: 11,
+            boxHeight: 11,
+            padding: 14,
             font: {
-              size: 11,
+              size: 10.5,
             },
           },
         },
@@ -1232,9 +1298,27 @@ export class RiskAnalysis
           },
         },
       },
+      layout: {
+        padding: {
+          top: 4,
+          right: 6,
+          bottom: 0,
+          left: 0,
+        },
+      },
       scales: {
-        x: this.axisStyle,
-        y: this.axisStyle,
+        x: {
+          ...this.axisStyle,
+          stacked: false,
+          ticks: {
+            ...this.axisStyle.ticks,
+            maxRotation: 0,
+          },
+        },
+        y: {
+          ...this.axisStyle,
+          beginAtZero: true,
+        },
       },
     };
   }
@@ -1297,8 +1381,13 @@ export class RiskAnalysis
           labels: {
             color:
               this.theme.muted,
+            usePointStyle: true,
+            pointStyle: 'rectRounded',
+            boxWidth: 10,
+            boxHeight: 10,
+            padding: 12,
             font: {
-              size: 10.5,
+              size: 10,
             },
           },
         },
@@ -1314,6 +1403,46 @@ export class RiskAnalysis
         },
       },
     };
+  }
+
+  private getScenarioColor(
+    scenarioKey: string,
+    fallback: string
+  ): string {
+    const normalised =
+      scenarioKey
+        .toLowerCase()
+        .replace(
+          /[^a-z0-9]+/g,
+          '_'
+        )
+        .replace(
+          /^_+|_+$/g,
+          ''
+        );
+
+    const scenarioColors:
+      Record<string, string> = {
+        below_2_c:
+          this.theme.green,
+        below_2c:
+          this.theme.green,
+        net_zero_2050:
+          this.theme.teal,
+        current_policies:
+          this.theme.coral,
+        delayed_transition:
+          this.theme.amber,
+        divergent_net_zero:
+          this.theme.violet,
+        nationally_determined_contributions:
+          this.theme.sky,
+      };
+
+    return (
+      scenarioColors[normalised] ??
+      fallback
+    );
   }
 
   private getErrorMessage(
